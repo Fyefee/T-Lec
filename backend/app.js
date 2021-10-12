@@ -6,6 +6,8 @@ require('dotenv').config()
 const app = express()
 const port = 3000
 
+app.use(express.json())
+
 app.use(session({
     store: new MemoryStore(),
     secret: 'pdearinwza',
@@ -19,12 +21,12 @@ app.use(session({
 
 const mongoose = require('mongoose');
 mongoose.connect(process.env.mongoDBLink)
-.then(() => {
-    console.log("Connect DB success")
-})
-.catch((err) => {
-    console.log(err)
-});
+    .then(() => {
+        console.log("Connect DB success")
+    })
+    .catch((err) => {
+        console.log(err)
+    });
 
 const User = require('./src/models/user');
 
@@ -33,74 +35,58 @@ const passport = require('passport')
 app.use(passport.initialize())
 app.use(passport.session())
 
-var GoogleStrategy = require('passport-google-oauth2').Strategy;
-
-passport.use(new GoogleStrategy({
-    clientID: process.env.clientID,
-    clientSecret: process.env.clientSecret,
-    callbackURL: process.env.callbackURL,
-    passReqToCallback: true
-},
-    async function (request, accessToken, refreshToken, profile, done) {
-        console.log(profile)
-        let newJson = profile._json
-        let user_db = await User.findOne({email: newJson.email})
-        if (user_db){
-            return done(null, user_db)
-        }
-        if (checkEmail(newJson.domain)) {
-            const new_User = await User.create({
-                firstname: newJson.given_name,
-                lastname: newJson.family_name,
-                image: newJson.picture,
-                email: newJson.email
-            })
-            done(null, new_User)
-        }
-        else {
-            done(null, false)
-        }
-    }
-));
-
 const checkEmail = (domain) => {
     return domain == "it.kmitl.ac.th"
 }
 
-app.use(passport.initialize())
+app.get('/', (req, res) => {
+    res.send(req.user)
+    console.log(req.user)
+})
 
-app.get('/auth/google',
-    passport.authenticate('google', {
-        scope:
-            ['email', 'profile']
-    }
-    ));
-
-app.get('/auth/google/callback', (req, res) => {
-    passport.authenticate('google', (err, user) => {
-        console.log(user)
-        if (err) {
-            console.log(err)
-            res.status(400).send(user)
-        }
-        else if (user) {
-            req.login(user, (err) => {
+app.post('/', async (req, res) => {
+    if (checkEmail(req.body.email.substring(req.body.email.length - 14, req.body.email.length))) {
+        const userFromDB = await User.findOne({ email: req.body.email });
+        if (userFromDB) {
+            req.login(userFromDB, (err) => {
                 if (err) {
                     console.log(err)
                     res.sendStatus(400)
                 }
+                console.log("Login Complete")
                 res.sendStatus(200)
             })
         }
-        else if (!user) {
-            res.sendStatus(400)
+        else {
+            const user = new User({
+                firstname: req.body.givenName,
+                lastname: req.body.familyName,
+                image: req.body.photoUrl,
+                email: req.body.email
+            })
+            await user.save((err, doc) => {
+                req.login(doc, (err) => {
+                    if (err) {
+                        console.log(err)
+                        res.sendStatus(400)
+                    }
+                    console.log("Login Complete")
+                    res.sendStatus(200)
+                })
+            })
         }
-    }, { scope: ['email', 'profile'] })(req, res)
-});
+    }
+    else {
+        console.log("send wrong domain")
+        req.logout()
+        res.send('wrong domain')
+    }
 
-app.get('/', (req, res) => {
+})
+
+app.get('/getSession', (req, res) => {
     res.send(req.user)
-    console.log(req.user)
+    console.log("Send session to client.")
 })
 
 app.listen(port, () => {
@@ -108,11 +94,11 @@ app.listen(port, () => {
 })
 
 passport.serializeUser((user, cb) => {
-    console.log(`Serialize user : ${user}`)
+    //console.log(`Serialize user : ${user}`)
     cb(null, user)
 });
 
 passport.deserializeUser((user, cb) => {
-    console.log(`Deserialize user : ${user}`)
+    //console.log(`Deserialize user : ${user}`)
     cb(null, user)
 });
