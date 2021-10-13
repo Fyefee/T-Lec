@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, AppRegistry } from 'react-native';
 import Routes from './src/router/Routes';
 import LoginScreen from "./src/screens/Login.js";
 
@@ -8,6 +8,8 @@ export default function App() {
     <Routes />
   );
 }
+
+AppRegistry.registerComponent('App', () => App)
 
 const styles = StyleSheet.create({
 

@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from 'react'
-import { StyleSheet, Text, View, Dimensions, Easing, Image, Animated, PixelRatio, Platform, Linking, TouchableOpacity, Alert } from 'react-native'
-import * as Font from 'expo-font';
+import React, { useState, useEffect, useReducer } from 'react'
+import { StyleSheet, Text, View, Dimensions, Easing, Image, Animated, PixelRatio, Platform, TouchableOpacity, Alert } from 'react-native'
 import * as Google from 'expo-google-app-auth';
 import { Restart } from 'fiction-expo-restart';
 import { Actions } from 'react-native-router-flux';
@@ -8,27 +7,7 @@ import axios from 'axios';
 import { API_LINK, CLIENTID } from '@env';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import {
-    useFonts,
-    Prompt_100Thin,
-    Prompt_100Thin_Italic,
-    Prompt_200ExtraLight,
-    Prompt_200ExtraLight_Italic,
-    Prompt_300Light,
-    Prompt_300Light_Italic,
-    Prompt_400Regular,
-    Prompt_400Regular_Italic,
-    Prompt_500Medium,
-    Prompt_500Medium_Italic,
-    Prompt_600SemiBold,
-    Prompt_600SemiBold_Italic,
-    Prompt_700Bold,
-    Prompt_700Bold_Italic,
-    Prompt_800ExtraBold,
-    Prompt_800ExtraBold_Italic,
-    Prompt_900Black,
-    Prompt_900Black_Italic
-} from '@expo-google-fonts/prompt'
+import { useFonts } from '@expo-google-fonts/prompt'
 
 const {
     width: SCREEN_WIDTH,
@@ -46,6 +25,35 @@ const normalize = (size) => {
     }
 }
 
+const getScreenWidth = () => {
+    // for use screen width 
+    if (SCREEN_HEIGHT > SCREEN_WIDTH) {
+        return SCREEN_WIDTH
+    }
+    else {
+        return SCREEN_HEIGHT
+    }
+}
+
+const getScreenHeight = () => {
+    // for use screen height 
+    if (SCREEN_HEIGHT > SCREEN_WIDTH) {
+        return SCREEN_HEIGHT
+    }
+    else {
+        return SCREEN_WIDTH
+    }
+}
+
+const getFontSize = () => {
+    if (SCREEN_HEIGHT > SCREEN_WIDTH) {
+        return normalize(24)
+    }
+    else {
+        return normalize(16)
+    }
+}
+
 export default function App() {
     const spinValue = new Animated.Value(0);
     const spinValue2 = new Animated.Value(0);
@@ -57,7 +65,7 @@ export default function App() {
     const [user, setUser] = useState(null);
 
     let [fontsLoaded] = useFonts({
-        Prompt_700Bold,
+        'Prompt-SemiBold': require('../assets/fonts/Prompt-SemiBold.ttf'),
     });
 
     useEffect(() => {
@@ -136,11 +144,16 @@ export default function App() {
     }, [spinValue, spinValue2, starMoveValue])
 
     const getSession = async () => {
-        const userSession = await axios.get(`${API_LINK}/getSession`)
-        if (userSession.data) {
-            setUser(userSession.data)
-            console.log("Get session YAY!!")
-            Actions.home()
+        try {
+            const userSession = await axios.get(`${API_LINK}/getSession`)
+            if (userSession.data) {
+                setUser(userSession.data)
+                console.log("Get session YAY!!")
+                Actions.home()
+            }
+        }
+        catch (e) {
+            console.log("Session error : ", e)
         }
     }
 
@@ -200,10 +213,10 @@ export default function App() {
     })
 
     if (!fontsLoaded) {
-        return <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 1}} colors={['#c5d8ff', '#fedcc8']} style={styles.container}/>
+        return <LinearGradient start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} colors={['#c5d8ff', '#fedcc8']} style={styles.container} />
     } else {
         return (
-            <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 1}} colors={['#c5d8ff', '#fedcc8']} style={styles.container}>
+            <LinearGradient start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} colors={['#c5d8ff', '#fedcc8']} style={styles.container}>
                 <Image style={styles.circleDecoration} source={require("../assets/Login_pic_frame/circle.png")}></Image>
                 <Image style={styles.circleDecoration2} source={require("../assets/Login_pic_frame/circle.png")}></Image>
                 <TouchableOpacity style={styles.button} onPress={signIn}>
@@ -236,8 +249,8 @@ const styles = StyleSheet.create({
     },
     button: {
         flex: 1,
-        width: (Dimensions.get('window').width * 0.7),
-        height: Dimensions.get('window').width * 0.7,
+        width: getScreenWidth() * 0.7,
+        height: getScreenWidth() * 0.7,
         position: "absolute",
         alignSelf: 'center',
         justifyContent: 'center',
@@ -245,76 +258,76 @@ const styles = StyleSheet.create({
     },
     logoContainer: {
         borderRadius: Math.round(Dimensions.get('window').width + Dimensions.get('window').height) / 2,
-        width: Dimensions.get('window').width * 0.5,
-        height: Dimensions.get('window').width * 0.5,
+        width: getScreenWidth() * 0.5,
+        height: getScreenWidth() * 0.5,
         backgroundColor: '#fff',
         justifyContent: 'flex-end',
         alignItems: 'center',
-        paddingBottom: Dimensions.get('window').width * 0.04,
+        paddingBottom: getScreenWidth() * 0.04,
     },
     logo: {
-        width: (Dimensions.get('window').width * 0.35),
-        height: Dimensions.get('window').width * 0.35,
+        width: getScreenWidth() * 0.35,
+        height: getScreenWidth() * 0.35,
         position: "absolute",
-        top: (Dimensions.get('window').width * 0.025),
-        left: Dimensions.get('window').width * 0.1,
+        top: getScreenWidth() * 0.025,
+        left: getScreenWidth() * 0.1,
     },
     loginText: {
         position: "relative",
-        fontSize: normalize(24),
-        fontFamily: "Prompt_700Bold",
+        fontSize: getFontSize(),
+        fontFamily: "Prompt-SemiBold",
     },
     star_decration1: {
-        width: (Dimensions.get('window').height * 0.15),
-        height: Dimensions.get('window').height * 0.15,
+        width: getScreenHeight() * 0.15,
+        height: getScreenHeight() * 0.15,
         position: "absolute",
-        top: (Dimensions.get('window').height * 0.125),
-        left: Dimensions.get('window').width * 0.675,
+        top: getScreenHeight() * 0.125,
+        right: getScreenWidth() * 0.075,
     },
     star_decration2: {
-        width: (Dimensions.get('window').height * 0.08),
-        height: Dimensions.get('window').height * 0.08,
+        width: getScreenHeight() * 0.08,
+        height: getScreenHeight() * 0.08,
         position: "absolute",
-        top: (Dimensions.get('window').height * 0.78),
-        left: Dimensions.get('window').width * 0.8,
+        bottom: getScreenHeight() * 0.14,
+        right: getScreenWidth() * 0.1
     },
     star_decration3: {
-        width: (Dimensions.get('window').height * 0.2),
-        height: Dimensions.get('window').height * 0.2,
+        width: getScreenHeight() * 0.2,
+        height: getScreenHeight() * 0.2,
         position: "absolute",
-        top: (Dimensions.get('window').height * 0.65),
-        left: Dimensions.get('window').width * 0.05,
+        bottom: getScreenHeight() * 0.15,
+        left: getScreenWidth() * 0.05,
     },
     circleBorder: {
-        width: (Dimensions.get('window').width * 0.575),
-        height: Dimensions.get('window').width * 0.575,
+        width: getScreenWidth() * 0.575,
+        height: getScreenWidth() * 0.575,
         position: "absolute",
         alignSelf: 'center',
     },
     circleBorder2: {
-        width: (Dimensions.get('window').width * 0.665),
-        height: Dimensions.get('window').width * 0.665,
+        width: getScreenWidth() * 0.66,
+        height: getScreenWidth() * 0.665,
         position: "absolute",
         alignSelf: 'center',
     },
     circleBorder3: {
-        width: (Dimensions.get('window').width * 0.685),
-        height: Dimensions.get('window').width * 0.685,
+        width: getScreenWidth() * 0.685,
+        height: getScreenWidth() * 0.685,
         position: "absolute",
         alignSelf: 'center',
     },
     circleDecoration: {
-        width: Dimensions.get('window').width * 0.7,
-        height: Dimensions.get('window').width * 0.7,
+        width: getScreenWidth() * 0.7,
+        height: getScreenWidth() * 0.7,
         position: 'absolute',
-        top: (Dimensions.get('window').width * -0.25),
-        left: (Dimensions.get('window').width * -0.25)
+        top: getScreenWidth() * -0.25,
+        left: getScreenWidth() * -0.25
     },
     circleDecoration2: {
-        width: Dimensions.get('window').width * 0.7,
-        height: Dimensions.get('window').width * 0.7,
+        width: getScreenWidth() * 0.7,
+        height: getScreenWidth() * 0.7,
         position: 'absolute',
-        top: (Dimensions.get('window').width * 1.2),
-        left: (Dimensions.get('window').width * 0.55)
+        bottom: getScreenWidth() * -0.25,
+        right: getScreenWidth() * -0.25
     },
 });
