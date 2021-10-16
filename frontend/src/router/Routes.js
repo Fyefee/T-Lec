@@ -2,7 +2,10 @@ import React from 'react'
 import { Router, Scene, Navigator } from 'react-native-router-flux'
 import LoginScreen from '../screens/Login'
 import HomeScreen from '../screens/Home'
-import { CardStackStyleInterpolator } from 'react-navigation';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+const Stack = createNativeStackNavigator();
 
 const Routes = () => {
     return (

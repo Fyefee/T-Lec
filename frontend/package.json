@@ -9,6 +9,8 @@
   },
   "dependencies": {
     "@expo-google-fonts/prompt": "^0.2.0",
+    "@react-navigation/native": "^6.0.6",
+    "@react-navigation/native-stack": "^6.2.4",
     "axios": "^0.22.0",
     "expo": "~42.0.1",
     "expo-font": "~9.2.1",
