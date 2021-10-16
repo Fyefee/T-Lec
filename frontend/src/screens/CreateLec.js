@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { StyleSheet, Text, View, Dimensions, Easing, Image, Animated, PixelRatio, Platform, Linking, TouchableOpacity } from 'react-native'
 import axios from 'axios';
-import { API_LINK } from '@env';
+import { API_LINK, CLIENTID } from '@env';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const {
     width: SCREEN_WIDTH,
@@ -36,9 +37,9 @@ export default function App() {
 
 
     return (
-        <View style={styles.container}>
-            <Text>Home</Text>
-        </View>
+        <LinearGradient start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} colors={['#c5d8ff', '#fedcc8']} style={styles.container}>
+            <Text>Create Lec</Text>
+        </LinearGradient>
     );
 
 }
@@ -47,7 +48,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         height: '100%',
-        backgroundColor: '#FFB085',
         alignItems: 'center',
         padding: 20,
         justifyContent: 'center',
