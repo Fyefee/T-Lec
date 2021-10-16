@@ -2,7 +2,6 @@ import React, { useState, useEffect, useReducer } from 'react'
 import { StyleSheet, Text, View, Dimensions, Easing, Image, Animated, PixelRatio, Platform, TouchableOpacity, Alert } from 'react-native'
 import * as Google from 'expo-google-app-auth';
 import { Restart } from 'fiction-expo-restart';
-import { Actions } from 'react-native-router-flux';
 import axios from 'axios';
 import { API_LINK, CLIENTID } from '@env';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -54,7 +53,7 @@ const getFontSize = () => {
     }
 }
 
-export default function App() {
+export default function App({ navigation }) {
     const spinValue = new Animated.Value(0);
     const spinValue2 = new Animated.Value(0);
     const spinValue3 = new Animated.Value(0);
@@ -149,7 +148,7 @@ export default function App() {
             if (userSession.data) {
                 setUser(userSession.data)
                 console.log("Get session YAY!!")
-                Actions.home()
+                navigation.navigate('Home')
             }
         }
         catch (e) {
