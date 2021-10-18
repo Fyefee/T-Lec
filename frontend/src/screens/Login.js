@@ -6,8 +6,6 @@ import axios from 'axios';
 import { API_LINK, CLIENTID } from '@env';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import { useFonts } from '@expo-google-fonts/prompt'
-
 const {
     width: SCREEN_WIDTH,
     height: SCREEN_HEIGHT,
@@ -62,10 +60,6 @@ export default function App({ navigation }) {
     const starSpinValue = new Animated.Value(0);
 
     const [user, setUser] = useState(null);
-
-    let [fontsLoaded] = useFonts({
-        'Prompt-SemiBold': require('../assets/fonts/Prompt-SemiBold.ttf'),
-    });
 
     useEffect(() => {
         if (!user) {
@@ -148,7 +142,7 @@ export default function App({ navigation }) {
             if (userSession.data) {
                 setUser(userSession.data)
                 console.log("Get session YAY!!")
-                navigation.navigate('CreateLec')
+                navigation.navigate('CreateLec', { user: userSession.data })
             }
         }
         catch (e) {
@@ -211,29 +205,26 @@ export default function App({ navigation }) {
         outputRange: ['0deg', '-10deg', '0deg', '10deg', '0deg']
     })
 
-    if (!fontsLoaded) {
-        return <LinearGradient start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} colors={['#c5d8ff', '#fedcc8']} style={styles.container} />
-    } else {
-        return (
-            <LinearGradient start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} colors={['#c5d8ff', '#fedcc8']} style={styles.container}>
-                <Image style={styles.circleDecoration} source={require("../assets/Login_pic_frame/circle.png")}></Image>
-                <Image style={styles.circleDecoration2} source={require("../assets/Login_pic_frame/circle.png")}></Image>
-                <TouchableOpacity style={styles.button} onPress={signIn}>
-                    <Animated.Image style={[styles.circleBorder, { transform: [{ rotate: spin }] }]} source={require("../assets/Login_pic_frame/frame1.png")}></Animated.Image>
-                    <Animated.Image style={[styles.circleBorder2, { transform: [{ rotate: spin2 }] }]} source={require("../assets/Login_pic_frame/frame2.png")}></Animated.Image>
-                    <Animated.Image style={[styles.circleBorder3, { transform: [{ rotate: spin3 }] }]} source={require("../assets/Login_pic_frame/frame3.png")}></Animated.Image>
-                    <View style={styles.logoContainer}>
-                        <Image style={styles.logo} source={require("../assets/logo/logo_color_dino.png")}></Image>
-                        <Text style={styles.loginText}>LOGIN</Text>
-                    </View>
-                </TouchableOpacity>
-                <Animated.Image style={[styles.star_decration1, { transform: [{ translateY: move_star1 }] }]} source={require("../assets/decoration/star2.png")}></Animated.Image>
-                <Animated.Image style={[styles.star_decration2, { transform: [{ scale: scale_star }] }]} source={require("../assets/decoration/star.png")}></Animated.Image>
-                <Animated.Image style={[styles.star_decration3, { transform: [{ rotate: spin_star }] }]} source={require("../assets/decoration/star3.png")}></Animated.Image>
 
-            </LinearGradient>
-        );
-    }
+    return (
+        <LinearGradient start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} colors={['#c5d8ff', '#fedcc8']} style={styles.container}>
+            <Image style={styles.circleDecoration} source={require("../assets/Login_pic_frame/circle.png")}></Image>
+            <Image style={styles.circleDecoration2} source={require("../assets/Login_pic_frame/circle.png")}></Image>
+            <TouchableOpacity style={styles.button} onPress={signIn}>
+                <Animated.Image style={[styles.circleBorder, { transform: [{ rotate: spin }] }]} source={require("../assets/Login_pic_frame/frame1.png")}></Animated.Image>
+                <Animated.Image style={[styles.circleBorder2, { transform: [{ rotate: spin2 }] }]} source={require("../assets/Login_pic_frame/frame2.png")}></Animated.Image>
+                <Animated.Image style={[styles.circleBorder3, { transform: [{ rotate: spin3 }] }]} source={require("../assets/Login_pic_frame/frame3.png")}></Animated.Image>
+                <View style={styles.logoContainer}>
+                    <Image style={styles.logo} source={require("../assets/logo/logo_color_dino.png")}></Image>
+                    <Text style={styles.loginText}>LOGIN</Text>
+                </View>
+            </TouchableOpacity>
+            <Animated.Image style={[styles.star_decration1, { transform: [{ translateY: move_star1 }] }]} source={require("../assets/decoration/star2.png")}></Animated.Image>
+            <Animated.Image style={[styles.star_decration2, { transform: [{ scale: scale_star }] }]} source={require("../assets/decoration/star.png")}></Animated.Image>
+            <Animated.Image style={[styles.star_decration3, { transform: [{ rotate: spin_star }] }]} source={require("../assets/decoration/star3.png")}></Animated.Image>
+
+        </LinearGradient>
+    );
 
 }
 
