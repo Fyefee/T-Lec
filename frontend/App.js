@@ -6,17 +6,7 @@ import { useFonts } from '@expo-google-fonts/prompt'
 
 export default function App() {
 
-  // const fs = require('fs')
-  // const dir = './src/assets/fonts'
-  // const files = fs.readdirSync(dir)
-
-  //Edit here naja
   let [fontsLoaded] = useFonts({
-    
-    // for (const file of files) {
-    //   file: require('./src/assets/fonts/'+file+'.ttf'),
-    // },
-
     'Prompt-Light': require('./src/assets/fonts/Prompt-Light.ttf'),
     'Prompt-SemiBold': require('./src/assets/fonts/Prompt-SemiBold.ttf'),
     'Prompt-Black': require('./src/assets/fonts/Prompt-Black.ttf'),
