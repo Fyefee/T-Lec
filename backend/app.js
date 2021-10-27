@@ -89,6 +89,18 @@ app.get('/getSession', (req, res) => {
     console.log("Send session to client.")
 })
 
+app.get('/getAllUserId', async (req, res) => {
+    await User.find({}, function (err, users) {
+        var data = []
+        users.forEach(function (user) {
+            data.push(user.email);
+        });
+        res.send(data)
+    })
+
+    console.log("Send session to client.")
+})
+
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
 })

@@ -18,6 +18,17 @@ const getScreenWidth = () => {
     }
 }
 
+const scale = SCREEN_WIDTH / 320;
+
+const normalize = (size) => {
+    const newSize = size * scale
+    if (Platform.OS === 'ios') {
+        return Math.round(PixelRatio.roundToNearestPixel(newSize))
+    } else {
+        return Math.round(PixelRatio.roundToNearestPixel(newSize)) - 2
+    }
+}
+
 export default function AppBar(props) {
 
     return (
@@ -59,13 +70,13 @@ const styles = StyleSheet.create({
     },
     navigationBarText: {
         paddingTop: 0,
-        fontSize: 16,
+        fontSize: normalize(13),
     },
     centerButton:{
         flex: 1,
         width: getScreenWidth() * 0.27,
         height: getScreenWidth() * 0.27,
-        backgroundColor: '#8d7d75',
+        backgroundColor: '#ffb287',
         borderRadius: 100,
         position: 'absolute',
         alignSelf: 'center',
