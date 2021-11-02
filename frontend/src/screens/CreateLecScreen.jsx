@@ -60,6 +60,8 @@ export default function CreateLec({ route, navigation }) {
     let [allUserId, setAllUserId] = React.useState(null)
     let [searchUserById, setSearchUserById] = React.useState([])
 
+    let [selectedUser, setSelectedUser] = React.useState([])
+
     const { user } = route.params;
 
     const theme = extendTheme({
@@ -103,7 +105,7 @@ export default function CreateLec({ route, navigation }) {
     const searchIdHandler = async () => {
         const userList = [];
         allUserId.forEach(element => {
-            if (element.includes(searchId)){
+            if (element.includes(searchId)) {
                 userList.push(element)
             }
         })
@@ -112,12 +114,24 @@ export default function CreateLec({ route, navigation }) {
 
     const renderUserSearch = () => {
         const userList = [];
-        searchUserById.forEach(element => {
-            
-            userList.push(<Text fontFamily="body" fontWeight="700" mt="2" style={styles.inputText} key={element}>{element}</Text>)
+        searchUserById.map(element => {
+            userList.push(
+                <HStack key={element} style={styles.selectAddPermissionRow} mt="2.5">
+                    <Text fontFamily="body" fontWeight="700" mt="2" style={styles.inputText}>{element}</Text>
+                    <Button style={styles.selectAddPermissionButton} onPress={() =>addSelectedUser(element)}><Text style={{ color: "white" }}>Add</Text></Button>
+                </HStack>
+            )
         })
-        
+
         return userList
+    }
+
+    const addSelectedUser = (user_email) => {
+        newList = [...selectedUser]
+        newList.push(user_email)
+        setSelectedUser(newList)
+        setShowModal(false)
+        console.log(user_email)
     }
 
     return (
@@ -244,7 +258,12 @@ export default function CreateLec({ route, navigation }) {
                                 />
                                 <Button style={styles.idSearchButton} onPress={searchIdHandler}><Text style={{ color: "white" }}>Search</Text></Button>
                             </HStack>
-                            {renderUserSearch()}
+                            <ScrollView
+                                persistentScrollbar={true}
+                                style={styles.selectAddPermissionScrollStyle}
+                            >
+                                {renderUserSearch()}
+                            </ScrollView>
                         </Modal.Body>
                     </Modal.Content>
                 </Modal>
@@ -328,12 +347,28 @@ const styles = StyleSheet.create({
     modalHeader: {
         fontSize: normalize(15)
     },
-    idSearchButton:{
+    idSearchButton: {
         width: 80,
         height: 30,
         borderRadius: 10,
         backgroundColor: "#ffb287",
         justifyContent: "center",
         alignItems: "center",
+    },
+    selectAddPermissionRow: {
+        justifyContent: "space-around",
+    },
+    selectAddPermissionButton: {
+        width: 60,
+        height: 30,
+        borderRadius: 10,
+        backgroundColor: "#ffb287",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    selectAddPermissionScrollStyle: {
+        width: '100%',
+        marginBottom: getScreenHeight() * 0.035,
+        height: getScreenHeight() * 0.25,
     }
 });
