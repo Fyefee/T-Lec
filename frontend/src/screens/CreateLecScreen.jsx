@@ -424,7 +424,7 @@ export default function CreateLec({ route, navigation }) {
 
                         <HStack space="3" pt="1" pb="1" mt="2" mb="3" style={styles.saveBox}>
                             <Button style={styles.saveButton} pt="3" endIcon={
-                                <Icon as={Ionicons} name="save" size="sm" mb="2"/>}
+                                <Icon as={Ionicons} name="save" size="sm" mb="2"/>} 
                             >
                                 <Text style={styles.saveText}>Save</Text>
                             </Button>
