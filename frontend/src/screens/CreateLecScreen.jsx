@@ -53,9 +53,11 @@ const getScreenHeight = () => {
 export default function CreateLec({ route, navigation }) {
 
     const [showModal, setShowModal] = useState(false)
+    const [showTagModal, setShowTagModal] = useState(false)
 
     let [privacy, setPrivacy] = React.useState("")
     let [searchId, setSearchId] = React.useState("")
+    let [tag, setTag] = React.useState(["Lab", "Lecture"])
 
     let [allUserId, setAllUserId] = React.useState(null)
     let [searchUserById, setSearchUserById] = React.useState([])
@@ -105,7 +107,7 @@ export default function CreateLec({ route, navigation }) {
     const searchIdHandler = async () => {
         const userList = [];
         allUserId.forEach(element => {
-            if (element.includes(searchId)) {
+            if (element.includes(searchId) && element != user.email) {
                 userList.push(element)
             }
         })
@@ -115,23 +117,47 @@ export default function CreateLec({ route, navigation }) {
     const renderUserSearch = () => {
         const userList = [];
         searchUserById.map(element => {
-            userList.push(
-                <HStack key={element} style={styles.selectAddPermissionRow} mt="2.5">
-                    <Text fontFamily="body" fontWeight="700" mt="2" style={styles.inputText}>{element}</Text>
-                    <Button style={styles.selectAddPermissionButton} onPress={() =>addSelectedUser(element)}><Text style={{ color: "white" }}>Add</Text></Button>
-                </HStack>
-            )
+            if (!selectedUser.includes(element)){
+                userList.push(
+                    <HStack key={element} style={styles.selectAddPermissionRow} mt="2.5">
+                        <Text fontFamily="body" fontWeight="700" mt="2" style={styles.inputText}>{element}</Text>
+                        <Button style={styles.selectAddPermissionButton} onPress={() => addSelectedUser(element)}><Text style={{ color: "white" }}>Add</Text></Button>
+                    </HStack>
+                )
+            }
         })
 
         return userList
     }
 
+    const renderSelectedUserPermission = () => {
+        const userList = [];
+        selectedUser.map(element => {
+            userList.push(
+                <HStack key={element} style={styles.selectAddPermissionRow} mt="2.5">
+                    <Text fontFamily="body" fontWeight="700" mt="2" style={styles.inputText}>{element}</Text>
+                    <Button style={styles.selectDeletePermissionButton} colorScheme="danger" onPress={() => deleteSelectedUser(element)}><Text style={{ color: "white" }}>Delete</Text></Button>
+                </HStack>
+            )
+        })
+        return userList
+    }
+
     const addSelectedUser = (user_email) => {
-        newList = [...selectedUser]
+        const newList = [...selectedUser]
         newList.push(user_email)
+        setSearchUserById([])
         setSelectedUser(newList)
         setShowModal(false)
-        console.log(user_email)
+    }
+
+    const deleteSelectedUser= (user_email) => {
+        const newList = [...selectedUser]
+        const emailIndex = newList.indexOf(user_email)
+        if (emailIndex > -1) {
+            newList.splice(emailIndex, 1);
+        }
+        setSelectedUser(newList)
     }
 
     return (
@@ -202,7 +228,7 @@ export default function CreateLec({ route, navigation }) {
 
                         <HStack space="3" px="4" pt="2" pb="3" mt="3" style={styles.tagInputBox}>
                             <Text fontFamily="body" fontWeight="700" mt="2" style={styles.inputText}>Tag :</Text>
-                            <TouchableOpacity style={styles.addTagButton}><FontAwesome name="plus" size={22} color="white" /></TouchableOpacity>
+                            <TouchableOpacity style={styles.addTagButton} onPress={() => setShowTagModal(true)}><FontAwesome name="plus" size={22} color="white" /></TouchableOpacity>
                         </HStack>
 
                         <HStack space="3" px="4" pt="2" pb="3" mt="3" style={styles.tagInputBox}>
@@ -211,13 +237,28 @@ export default function CreateLec({ route, navigation }) {
                         </HStack>
 
                         {privacy == "private" ? (
-                            <HStack space="3" px="4" pt="2" pb="3" mt="3" style={styles.permissionBox}>
+                            <HStack space="3" px="4" pt="2" pb="1" mt="3" style={styles.permissionBox} direction='column'>
                                 <HStack style={styles.permissionInputBox}>
                                     <Text fontFamily="body" fontWeight="700" mt="2" style={styles.inputText}>Add Permission</Text>
                                     <TouchableOpacity style={styles.chooseFileButton} onPress={openModal}>
                                         <Text style={{ color: "white" }}>Choose User</Text>
                                     </TouchableOpacity>
                                 </HStack>
+
+                                {selectedUser.length > 0 ? (
+                                    <ScrollView
+                                        persistentScrollbar={true}
+                                        style={styles.selectAddPermissionScrollStyle}
+                                        nestedScrollEnabled = {true}
+                                    >
+                                        {renderSelectedUserPermission()}
+
+                                    </ScrollView>
+                                ) : (
+                                    <></>
+                                )}
+
+
                             </HStack>
                         ) : (
                             <></>
@@ -268,6 +309,20 @@ export default function CreateLec({ route, navigation }) {
                     </Modal.Content>
                 </Modal>
 
+                <Modal isOpen={showTagModal} onClose={() => setShowTagModal(false)} size={"md"}>
+                    <Modal.Content maxWidth="400px">
+                        <Modal.CloseButton />
+                        <Modal.Header>
+                            <Text fontFamily="body" fontWeight="700" style={styles.modalHeader}>
+                                Select Tag
+                            </Text>
+                        </Modal.Header>
+                        <Modal.Body>
+                            
+                        </Modal.Body>
+                    </Modal.Content>
+                </Modal>
+
                 <NavigationBar page={"CreateLec"} />
             </LinearGradient>
         </NativeBaseProvider>
@@ -308,7 +363,7 @@ const styles = StyleSheet.create({
         opacity: 0.9
     },
     inputText: {
-        fontSize: normalize(16)
+        fontSize: normalize(16),
     },
     tagInputBox: {
         backgroundColor: "#f7f1ed",
@@ -338,7 +393,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         width: '100%',
         opacity: 0.9,
-        flexDirection: "row"
+        flex: 1
     },
     permissionInputBox: {
         justifyContent: "space-between",
@@ -357,6 +412,7 @@ const styles = StyleSheet.create({
     },
     selectAddPermissionRow: {
         justifyContent: "space-around",
+        color: "black"
     },
     selectAddPermissionButton: {
         width: 60,
@@ -366,9 +422,17 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
     },
+    selectDeletePermissionButton: {
+        width: 75,
+        height: 30,
+        borderRadius: 10,
+        justifyContent: "center",
+        alignItems: "center",
+    },
     selectAddPermissionScrollStyle: {
         width: '100%',
-        marginBottom: getScreenHeight() * 0.035,
-        height: getScreenHeight() * 0.25,
-    }
+        marginTop: getScreenHeight() * 0.005,
+        marginBottom: getScreenHeight() * 0.015,
+        maxHeight: getScreenHeight() * 0.25,
+    },
 });
