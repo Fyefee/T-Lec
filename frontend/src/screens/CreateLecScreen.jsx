@@ -9,6 +9,7 @@ import {
     Image, Select, CheckIcon, Item, Modal, FormControl
 } from "native-base";
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
+import * as DocumentPicker from 'expo-document-picker';
 
 import NavigationBar from '../components/NavigationBar'
 import Appbar from '../components/CreateLec/AppBar'
@@ -57,12 +58,17 @@ export default function CreateLec({ route, navigation }) {
 
     let [privacy, setPrivacy] = React.useState("")
     let [searchId, setSearchId] = React.useState("")
-    let [tag, setTag] = React.useState(["Lab", "Lecture"])
+    let [fileUploaded, setFileUploaded] = React.useState([])
 
     let [allUserId, setAllUserId] = React.useState(null)
     let [searchUserById, setSearchUserById] = React.useState([])
 
     let [selectedUser, setSelectedUser] = React.useState([])
+
+    let [tag, setTag] = React.useState([])
+    let [searchTag, setSearchTag] = React.useState("")
+    let [haveTagInDB, setHaveTagInDB] = React.useState([])
+    let [selectedTag, setSelectedTag] = React.useState([])
 
     const { user } = route.params;
 
@@ -99,9 +105,34 @@ export default function CreateLec({ route, navigation }) {
         }
     }
 
+    const openTagModal = async () => {
+        try {
+            const tagFromDB = await axios.get(`${API_LINK}/getAllTag`)
+            setTag(tagFromDB.data)
+            console.log(tagFromDB.data)
+        }
+        catch (e) {
+            console.log("GetTag error : ", e)
+        }
+        finally {
+            setShowTagModal(true)
+        }
+    }
+
     const searchInputHandler = (inputText) => {
         //...เพิ่มโค้ด...อัพเดทค่าสเตท enteredValue ด้วยค่า inputText ที่รับมา
         setSearchId(inputText)
+    };
+
+    const searchTagInputHandler = (inputText) => {
+        let newArray = []
+        tag.map(element => {
+            if (element.tagName.toLowerCase().includes(inputText.toLowerCase()) && inputText != "") {
+                newArray.push(element)
+            }
+        })
+        setHaveTagInDB(newArray)
+        setSearchTag(inputText)
     };
 
     const searchIdHandler = async () => {
@@ -117,7 +148,7 @@ export default function CreateLec({ route, navigation }) {
     const renderUserSearch = () => {
         const userList = [];
         searchUserById.map(element => {
-            if (!selectedUser.includes(element)){
+            if (!selectedUser.includes(element)) {
                 userList.push(
                     <HStack key={element} style={styles.selectAddPermissionRow} mt="2.5">
                         <Text fontFamily="body" fontWeight="700" mt="2" style={styles.inputText}>{element}</Text>
@@ -134,13 +165,71 @@ export default function CreateLec({ route, navigation }) {
         const userList = [];
         selectedUser.map(element => {
             userList.push(
-                <HStack key={element} style={styles.selectAddPermissionRow} mt="2.5">
-                    <Text fontFamily="body" fontWeight="700" mt="2" style={styles.inputText}>{element}</Text>
-                    <Button style={styles.selectDeletePermissionButton} colorScheme="danger" onPress={() => deleteSelectedUser(element)}><Text style={{ color: "white" }}>Delete</Text></Button>
+                <HStack key={element} style={styles.selectAddPermissionRow} mt="1.5">
+                    <Text fontFamily="body" fontWeight="700" mt="2" style={styles.permissionText}>{element}</Text>
+                    <Button style={styles.selectDeletePermissionButton} colorScheme="danger" size="sm" onPress={() => deleteSelectedUser(element)}><Text style={{ color: "white" }}>Delete</Text></Button>
                 </HStack>
             )
         })
         return userList
+    }
+
+    const renderFileUpload = () => {
+        const fileList = [];
+        fileUploaded.map(element => {
+            fileList.push(
+                <HStack key={element} style={styles.selectAddPermissionRow} mt="2.5">
+                    <Text fontFamily="body" fontWeight="700" mt="2" style={styles.fileText}>{element.name}</Text>
+                    <Button style={styles.selectDeletePermissionButton} colorScheme="danger" onPress={() => setFileUploaded([])}><Text style={{ color: "white" }}>Delete</Text></Button>
+                </HStack>
+            )
+        })
+        return fileList
+    }
+
+    const renderTagSearch = () => {
+        const tagList = [];
+        haveTagInDB.map(element => {
+            tagList.push(
+                <TouchableOpacity key={element.tagName} style={styles.tagSelectButton} onPress={() => addSelectedTag(element.tagName)}>
+                    <HStack style={styles.selectAddPermissionRow} mt="2.5" justifyContent="space-around">
+                        <Text fontFamily="body" fontWeight="700" my="1" pl="3" style={styles.fileText}># {element.tagName}</Text>
+                        <Text fontFamily="body" fontWeight="700" my="1" pl="3" style={styles.fileTextPost}>{element.count} Post</Text>
+                    </HStack>
+                </TouchableOpacity>
+            )
+        })
+        return tagList
+    }
+
+    const renderNewTagSearch = () => {
+        let isDuplicate = false;
+        tag.map(element => {
+            if (element.tagName == searchTag) {
+                isDuplicate = true;
+            }
+        })
+        if (!isDuplicate) {
+            return <TouchableOpacity style={styles.tagSelectButton} onPress={() => addSelectedTag(searchTag)}>
+                <HStack style={styles.selectAddPermissionRow} mt="2.5" justifyContent="space-around">
+                    <Text fontFamily="body" fontWeight="700" my="1" pl="3" style={styles.fileText}># {searchTag}</Text>
+                    <Text fontFamily="body" fontWeight="700" my="1" pl="3" style={styles.fileTextPost}>New Post</Text>
+                </HStack>
+            </TouchableOpacity>
+        }
+    }
+
+    const renderSelectedTag = () => {
+        const tagList = [];
+        selectedTag.map(element => {
+            tagList.push(
+                <HStack key={element} style={styles.selectAddPermissionRow} mt="1.5">
+                    <Text fontFamily="body" fontWeight="700" mt="2" style={styles.tagText}># {element}</Text>
+                    <Button style={styles.selectDeleteTagButton} size="xs" colorScheme="danger" onPress={() => deleteSelectedTag(element)}><Text style={{ color: "white" }}>Delete</Text></Button>
+                </HStack>
+            )
+        })
+        return tagList
     }
 
     const addSelectedUser = (user_email) => {
@@ -151,13 +240,49 @@ export default function CreateLec({ route, navigation }) {
         setShowModal(false)
     }
 
-    const deleteSelectedUser= (user_email) => {
+    const deleteSelectedUser = (user_email) => {
         const newList = [...selectedUser]
         const emailIndex = newList.indexOf(user_email)
         if (emailIndex > -1) {
             newList.splice(emailIndex, 1);
         }
         setSelectedUser(newList)
+    }
+
+    const addSelectedTag = (tagName) => {
+        const newList = [...selectedTag];
+        newList.push(tagName);
+        setSearchTag("");
+        setHaveTagInDB([]);
+        setSelectedTag(newList);
+        setShowTagModal(false);
+    }
+
+    const deleteSelectedTag = (tagName) => {
+        const newList = [...selectedTag]
+        const tagIndex = newList.indexOf(tagName)
+        if (tagIndex > -1) {
+            newList.splice(tagIndex, 1);
+        }
+        setSelectedTag(newList)
+    }
+
+    const uploadFile = async () => {
+        try {
+            let result = await DocumentPicker.getDocumentAsync({});
+            if (result.type == "cancel") {
+                console.log("Upload Cancel")
+            } else if (result.type == "success") {
+                console.log(result);
+                if (fileUploaded.length == 0) {
+                    const newArray = [...fileUploaded];
+                    newArray.push(result)
+                    setFileUploaded(newArray)
+                }
+            }
+        } catch (e) {
+            console.log("Upload file error");
+        }
     }
 
     return (
@@ -226,14 +351,47 @@ export default function CreateLec({ route, navigation }) {
                                 }} />
                         </HStack>
 
-                        <HStack space="3" px="4" pt="2" pb="3" mt="3" style={styles.tagInputBox}>
-                            <Text fontFamily="body" fontWeight="700" mt="2" style={styles.inputText}>Tag :</Text>
-                            <TouchableOpacity style={styles.addTagButton} onPress={() => setShowTagModal(true)}><FontAwesome name="plus" size={22} color="white" /></TouchableOpacity>
+                        <HStack space="3" px="4" pt="2" mt="3" style={styles.tagInputBox} direction='column'>
+                            <HStack style={styles.uploadFileInputBox}>
+                                <Text fontFamily="body" fontWeight="700" mt="2" style={styles.inputText}>Tag</Text>
+                                <TouchableOpacity style={styles.addTagButton} onPress={() => openTagModal()}><FontAwesome name="plus" size={22} color="white" /></TouchableOpacity>
+                            </HStack>
+                            {selectedTag.length > 0 ? (
+                                <ScrollView
+                                    persistentScrollbar={true}
+                                    style={styles.selectFileScrollStyle}
+                                    nestedScrollEnabled={true}
+                                >
+                                    {renderSelectedTag()}
+
+                                </ScrollView>
+                            ) : (
+                                <></>
+                            )}
                         </HStack>
 
-                        <HStack space="3" px="4" pt="2" pb="3" mt="3" style={styles.tagInputBox}>
-                            <Text fontFamily="body" fontWeight="700" mt="2" style={styles.inputText}>Upload File</Text>
-                            <TouchableOpacity style={styles.chooseFileButton}><Text style={{ color: "white" }}>Choose File</Text></TouchableOpacity>
+                        <HStack space="3" px="4" pt="2" pb="1" mt="3" style={styles.tagInputBox} direction='column'>
+                            <HStack style={styles.uploadFileInputBox}>
+                                <Text fontFamily="body" fontWeight="700" mt="2" style={styles.inputText}>Upload File</Text>
+                                {fileUploaded.length == 0 ? (
+                                    <TouchableOpacity style={styles.chooseFileButton} onPress={() => uploadFile()}><Text style={{ color: "white" }}>Choose File</Text></TouchableOpacity>
+                                ) : (
+                                    <></>
+                                )}
+
+                            </HStack>
+                            {fileUploaded.length > 0 ? (
+                                <ScrollView
+                                    persistentScrollbar={true}
+                                    style={styles.selectFileScrollStyle}
+                                    nestedScrollEnabled={true}
+                                >
+                                    {renderFileUpload()}
+
+                                </ScrollView>
+                            ) : (
+                                <></>
+                            )}
                         </HStack>
 
                         {privacy == "private" ? (
@@ -248,8 +406,8 @@ export default function CreateLec({ route, navigation }) {
                                 {selectedUser.length > 0 ? (
                                     <ScrollView
                                         persistentScrollbar={true}
-                                        style={styles.selectAddPermissionScrollStyle}
-                                        nestedScrollEnabled = {true}
+                                        style={styles.permissionScrollStyle}
+                                        nestedScrollEnabled={true}
                                     >
                                         {renderSelectedUserPermission()}
 
@@ -264,6 +422,13 @@ export default function CreateLec({ route, navigation }) {
                             <></>
                         )}
 
+                        <HStack space="3" pt="1" pb="1" mt="2" mb="3" style={styles.saveBox}>
+                            <Button style={styles.saveButton} pt="3" endIcon={
+                                <Icon as={Ionicons} name="save" size="sm" mb="2"/>}
+                            >
+                                <Text style={styles.saveText}>Save</Text>
+                            </Button>
+                        </HStack>
 
                     </Box>
 
@@ -297,7 +462,7 @@ export default function CreateLec({ route, navigation }) {
                                         />
                                     }
                                 />
-                                <Button style={styles.idSearchButton} onPress={searchIdHandler}><Text style={{ color: "white" }}>Search</Text></Button>
+                                <Button style={styles.idSearchButton} size="xs" onPress={searchIdHandler}><Text style={{ color: "white" }}>Search</Text></Button>
                             </HStack>
                             <ScrollView
                                 persistentScrollbar={true}
@@ -318,7 +483,36 @@ export default function CreateLec({ route, navigation }) {
                             </Text>
                         </Modal.Header>
                         <Modal.Body>
-                            
+                            <Input
+                                variant="underlined"
+                                placeholder="Search"
+                                width="100%"
+                                borderRadius="10"
+                                py="1"
+                                px="2"
+                                borderWidth="0"
+                                onChangeText={searchTagInputHandler}
+                                InputLeftElement={
+                                    <Icon
+                                        ml="2"
+                                        size="5"
+                                        color="gray.500"
+                                        as={<Ionicons name="ios-search" />}
+                                    />
+                                }
+                            />
+                            {searchTag.length > 0 ? (
+                                <ScrollView
+                                    persistentScrollbar={true}
+                                    style={styles.selectTagScrollStyle}
+                                    mt="1"
+                                >
+                                    {renderNewTagSearch()}
+                                    {renderTagSearch()}
+                                </ScrollView>
+                            ) : (
+                                <></>
+                            )}
                         </Modal.Body>
                     </Modal.Content>
                 </Modal>
@@ -365,6 +559,25 @@ const styles = StyleSheet.create({
     inputText: {
         fontSize: normalize(16),
     },
+    permissionText: {
+        fontSize: normalize(14),
+    },
+    fileText: {
+        width: "65%",
+        fontSize: normalize(14),
+    },
+    fileTextPost: {
+        width: "30%",
+        fontSize: normalize(12),
+    },
+    tagText: {
+        fontSize: normalize(14),
+        width: "70%"
+    },
+    saveText: {
+        fontSize: normalize(16),
+        color: "white",
+    },
     tagInputBox: {
         backgroundColor: "#f7f1ed",
         borderRadius: 5,
@@ -399,12 +612,18 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         width: "100%"
     },
+    uploadFileInputBox: {
+        justifyContent: "space-between",
+        width: "100%"
+    },
+    saveBox: {
+        justifyContent: "center",
+        width: "100%"
+    },
     modalHeader: {
         fontSize: normalize(15)
     },
     idSearchButton: {
-        width: 80,
-        height: 30,
         borderRadius: 10,
         backgroundColor: "#ffb287",
         justifyContent: "center",
@@ -415,24 +634,52 @@ const styles = StyleSheet.create({
         color: "black"
     },
     selectAddPermissionButton: {
-        width: 60,
-        height: 30,
         borderRadius: 10,
         backgroundColor: "#ffb287",
         justifyContent: "center",
         alignItems: "center",
     },
     selectDeletePermissionButton: {
-        width: 75,
-        height: 30,
         borderRadius: 10,
         justifyContent: "center",
         alignItems: "center",
     },
+    selectDeleteTagButton: {
+        width: "25%",
+        borderRadius: 10,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    saveButton: {
+        width: "50%",
+        borderRadius: 10,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "#ffb287",
+    },
     selectAddPermissionScrollStyle: {
         width: '100%',
-        marginTop: getScreenHeight() * 0.005,
         marginBottom: getScreenHeight() * 0.015,
         maxHeight: getScreenHeight() * 0.25,
     },
+    permissionScrollStyle: {
+        width: '100%',
+        marginBottom: getScreenHeight() * 0.015,
+        maxHeight: getScreenHeight() * 0.25,
+    },
+    selectFileScrollStyle: {
+        width: '100%',
+        marginBottom: getScreenHeight() * 0.015,
+        maxHeight: getScreenHeight() * 0.25,
+    },
+    selectTagScrollStyle: {
+        width: '100%',
+        marginTop: getScreenHeight() * 0.01,
+        marginBottom: getScreenHeight() * 0.01,
+        maxHeight: getScreenHeight() * 0.25,
+    },
+    tagSelectButton: {
+        backgroundColor: "#E8E8E8",
+        margin: 2,
+    }
 });

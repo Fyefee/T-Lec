@@ -29,6 +29,7 @@ mongoose.connect(process.env.mongoDBLink)
     });
 
 const User = require('./src/models/user');
+const Tag = require('./src/models/tag');
 
 const passport = require('passport')
 
@@ -45,6 +46,7 @@ app.get('/', (req, res) => {
 })
 
 app.post('/', async (req, res) => {
+    console.log(req.body)
     if (checkEmail(req.body.email.substring(req.body.email.length - 14, req.body.email.length))) {
         const userFromDB = await User.findOne({ email: req.body.email });
         if (userFromDB) {
@@ -96,13 +98,47 @@ app.get('/getAllUserId', async (req, res) => {
             data.push(user.email);
         });
         res.send(data)
-    })
-
-    console.log("Send session to client.")
+    }).clone().catch(function (err) { console.log("getAllUserId Error : " + e); })
 })
 
 app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
+})
+
+app.post('/addTagDataDummy', async (req, res) => {
+    const tagFromDB = await Tag.findOne({ tagName: req.body.tagName });
+    if (tagFromDB) {
+        tagFromDB.count = tagFromDB.count + 1
+        tagFromDB.save(function (err) {
+            if (err) {
+                res.sendStatus(400)
+            }
+            res.send(tagFromDB)
+        })
+    }
+    else {
+        const tag = new Tag({
+            tagName: req.body.tagName,
+            count: req.body.count,
+        })
+        await tag.save((err, doc) => {
+            if (err) {
+                console.log(err)
+                res.sendStatus(400)
+            }
+            res.send(tag)
+        })
+    }
+})
+
+app.get('/getAllTag', async (req, res) => {
+    await Tag.find({}, function (err, tags) {
+        var data = []
+        tags.forEach(function (tag) {
+            data.push({ tagName: tag.tagName, count: tag.count });
+        });
+        res.send(data)
+    }).clone().catch(function (err) { console.log("getAllTag Error : " + e); })
 })
 
 passport.serializeUser((user, cb) => {
