@@ -2,6 +2,7 @@ import React from 'react'
 import LoginScreen from '../screens/Login'
 import HomeScreen from '../screens/Home'
 import CreateLecScreen from '../screens/CreateLecScreen'
+import LectureScreen from "../screens/LectureScreen"
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -22,6 +23,7 @@ const Routes = () => {
                 <Stack.Screen name="Login" component={LoginScreen} />
                 <Stack.Screen name="Home" component={HomeScreen} />
                 <Stack.Screen name="CreateLec" component={CreateLecScreen} />
+                <Stack.Screen name="Lecture" component={LectureScreen} />
             </Stack.Navigator>
         </NavigationContainer>
     )

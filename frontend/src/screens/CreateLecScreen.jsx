@@ -56,6 +56,14 @@ export default function CreateLec({ route, navigation }) {
     const [showModal, setShowModal] = useState(false)
     const [showTagModal, setShowTagModal] = useState(false)
 
+    let [title, setTitle] = React.useState("")
+    let [description, setDescription] = React.useState("")
+    let [contact, setContact] = React.useState("")
+
+    let [isValidateTitle, setIsValidateTitle] = React.useState(true)
+    let [isValidatePrivacy, setIsValidatePrivacy] = React.useState(true)
+    let [isValidateUploadFile, setIsValidateUploadFile] = React.useState(true)
+
     let [privacy, setPrivacy] = React.useState("")
     let [searchId, setSearchId] = React.useState("")
     let [fileUploaded, setFileUploaded] = React.useState([])
@@ -109,7 +117,6 @@ export default function CreateLec({ route, navigation }) {
         try {
             const tagFromDB = await axios.get(`${API_LINK}/getAllTag`)
             setTag(tagFromDB.data)
-            console.log(tagFromDB.data)
         }
         catch (e) {
             console.log("GetTag error : ", e)
@@ -133,6 +140,20 @@ export default function CreateLec({ route, navigation }) {
         })
         setHaveTagInDB(newArray)
         setSearchTag(inputText)
+    };
+
+    const privacyInputHandler = (inputText) => {
+        //...เพิ่มโค้ด...อัพเดทค่าสเตท enteredValue ด้วยค่า inputText ที่รับมา
+        setIsValidatePrivacy(true)
+        setPrivacy(inputText)
+    };
+
+    const titleInputHandler = (inputText) => {
+        //...เพิ่มโค้ด...อัพเดทค่าสเตท enteredValue ด้วยค่า inputText ที่รับมา
+        if (inputText.length >= 3) {
+            setIsValidateTitle(true)
+        }
+        setTitle(inputText)
     };
 
     const searchIdHandler = async () => {
@@ -273,16 +294,53 @@ export default function CreateLec({ route, navigation }) {
             if (result.type == "cancel") {
                 console.log("Upload Cancel")
             } else if (result.type == "success") {
-                console.log(result);
                 if (fileUploaded.length == 0) {
                     const newArray = [...fileUploaded];
                     newArray.push(result)
                     setFileUploaded(newArray)
+                    setIsValidateUploadFile(true);
                 }
             }
         } catch (e) {
             console.log("Upload file error");
         }
+    }
+
+    const saveLec = async () => {
+        if (validateForm()) {
+            const newLecture = {
+                title: title,
+                description: description,
+                contact: contact,
+                tag: selectedTag,
+                uploadedFile: fileUploaded,
+                permission: selectedUser,
+                privacy: privacy
+            };
+            console.log(newLecture)
+        }
+    }
+
+    const validateForm = () => {
+
+        let isValidate = true;
+
+        if (title.length < 3) {
+            setIsValidateTitle(false);
+            isValidate = false;
+        }
+
+        if (privacy == "") {
+            setIsValidatePrivacy(false);
+            isValidate = false;
+        }
+
+        if (fileUploaded.length == 0){
+            setIsValidateUploadFile(false);
+            isValidate = false;
+        }
+
+        return isValidate;
     }
 
     return (
@@ -309,9 +367,9 @@ export default function CreateLec({ route, navigation }) {
                                     variant="styled"
                                     selectedValue={privacy}
                                     placeholder="Select privacy"
-                                    onValueChange={(itemValue) => setPrivacy(itemValue)}
+                                    onValueChange={privacyInputHandler}
                                     _selectedItem={{
-                                        endIcon: <CheckIcon size={4} />,
+                                        endIcon: <CheckIcon size={4} />
                                     }}
                                     style={styles.privacySelector}
                                     fontFamily="body" fontWeight="700"
@@ -319,16 +377,27 @@ export default function CreateLec({ route, navigation }) {
                                     <Select.Item label="Public" value="public" />
                                     <Select.Item label="Private" value="private" />
                                 </Select>
+                                {!isValidatePrivacy ? (
+                                    <Text fontFamily="body" fontWeight="700" mt="1" style={styles.failValidateText}>Please select privacy</Text>
+                                ) : (
+                                    <></>
+                                )}
                             </HStack>
                         </HStack>
 
                         <HStack space="3" px="4" pt="2" pb="3" mt="4" style={styles.titleInputBox}>
                             <Text fontFamily="body" fontWeight="700" mt="2" style={styles.inputText}>Title :</Text>
                             <Input px="0" py="0" size="xl" variant="unstyled" fontFamily="body" fontWeight="400"
+                                onChangeText={titleInputHandler}
                                 w={{
                                     base: "80%",
                                 }} />
                         </HStack>
+                        {!isValidateTitle ? (
+                            <Text fontFamily="body" fontWeight="700" mt="1" pl="4" style={styles.failValidateText}>Title must be more than 3 characters</Text>
+                        ) : (
+                            <></>
+                        )}
 
                         <HStack space="3" px="2" py="2" mt="3" style={styles.titleInputBox}>
                             <TextArea
@@ -337,6 +406,7 @@ export default function CreateLec({ route, navigation }) {
                                 variant="unstyled"
                                 textAlignVertical="top"
                                 fontSize="15"
+                                onChangeText={(inputText) => setDescription(inputText)}
                                 w={{
                                     base: "100%",
                                 }}
@@ -346,6 +416,7 @@ export default function CreateLec({ route, navigation }) {
                         <HStack space="3" px="4" pt="2" pb="3" mt="3" style={styles.titleInputBox}>
                             <Text fontFamily="body" fontWeight="700" mt="2" style={styles.inputText}>Contact :</Text>
                             <Input px="0" py="0" size="xl" variant="unstyled" fontFamily="body" fontWeight="400"
+                                onChangeText={(inputText) => setContact(inputText)}
                                 w={{
                                     base: "70%",
                                 }} />
@@ -393,6 +464,11 @@ export default function CreateLec({ route, navigation }) {
                                 <></>
                             )}
                         </HStack>
+                        {!isValidateUploadFile ? (
+                            <Text fontFamily="body" fontWeight="700" mt="1" pl="4" style={styles.failValidateText}>Please select file</Text>
+                        ) : (
+                            <></>
+                        )}
 
                         {privacy == "private" ? (
                             <HStack space="3" px="4" pt="2" pb="1" mt="3" style={styles.permissionBox} direction='column'>
@@ -423,8 +499,8 @@ export default function CreateLec({ route, navigation }) {
                         )}
 
                         <HStack space="3" pt="1" pb="1" mt="2" mb="3" style={styles.saveBox}>
-                            <Button style={styles.saveButton} pt="3" endIcon={
-                                <Icon as={Ionicons} name="save" size="sm" mb="2"/>} 
+                            <Button style={styles.saveButton} onPress={() => saveLec()} pt="3" endIcon={
+                                <Icon as={Ionicons} name="save" size="sm" mb="2" />}
                             >
                                 <Text style={styles.saveText}>Save</Text>
                             </Button>
@@ -577,6 +653,9 @@ const styles = StyleSheet.create({
     saveText: {
         fontSize: normalize(16),
         color: "white",
+    },
+    failValidateText: {
+        color: "red",
     },
     tagInputBox: {
         backgroundColor: "#f7f1ed",

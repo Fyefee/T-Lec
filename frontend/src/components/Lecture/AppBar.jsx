@@ -1,18 +1,18 @@
 import React from 'react'
-import { StyleSheet} from 'react-native'
+import { StyleSheet } from 'react-native'
 import { HStack, IconButton, Icon, Text, StatusBar } from "native-base";
-import { FontAwesome } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 
-export default function AppBar() {
+export default function AppBar(props) {
 
     return (
         <>
             <StatusBar backgroundColor="#fedcc8" barStyle="light-content" />
             <HStack bg='#fedcc8' px="4" py="1" style={styles.appbar}>
                 <HStack space="2" alignItems='center'>
-                    <IconButton icon={<Icon as={<FontAwesome name="pencil" size={24} />}
-                        color="#8d7d75" size='lg' />} />
-                    <Text style={styles.appbarText} fontFamily="body" fontWeight="700">Create Post</Text>
+                    <IconButton icon={<Icon as={<Ionicons name="newspaper" size={24} />}
+                        color="#8d7d75" size='md' />} />
+                    <Text style={styles.appbarText} fontFamily="body" fontWeight="700">{props.name}</Text>
                 </HStack>
 
             </HStack>
