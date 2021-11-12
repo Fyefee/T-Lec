@@ -102,7 +102,7 @@ export default function CreateLec({ route, navigation }) {
     const renderTagText = () => {
         let text = "";
         lecture.tag.map((element, index) => {
-            if (index != lecture.tag.length-1){
+            if (index != lecture.tag.length - 1) {
                 text += element + ", "
             } else {
                 text += element
@@ -140,9 +140,16 @@ export default function CreateLec({ route, navigation }) {
                             <Text pt="1" fontFamily="body" fontWeight="400" style={styles.tagText}>Tag : {renderTagText()}</Text>
                         </HStack>
 
-                        <HStack space="1" px="4" mt="3">
-                        <TouchableOpacity style={styles.chooseFileButton} px="3"><Text style={{ color: "white" }}>Download</Text></TouchableOpacity>
-                            <Text pt="1" fontFamily="body" fontWeight="400" style={styles.tagText}>Tag : {renderTagText()}</Text>
+                        <HStack space="1" px="4" mt="3" justifyContent="space-around">
+                            <Button style={styles.downloadFileButton} size="lg"><Text style={styles.downloadFileButtonText}>Download</Text></Button>
+
+                            <HStack space="1" pt="2">
+                                <FontAwesome name="star" style={styles.starIcon} />
+                                <FontAwesome name="star" style={styles.starIcon} />
+                                <FontAwesome name="star" style={styles.starIcon} />
+                                <FontAwesome name="star" style={styles.starIcon} />
+                                <FontAwesome name="star" style={styles.starIcon} />
+                            </HStack>
                         </HStack>
                     </Box>
 
@@ -186,10 +193,18 @@ const styles = StyleSheet.create({
     tagText: {
         fontSize: normalize(15)
     },
-    chooseFileButton: {
+    downloadFileButton: {
         borderRadius: 10,
         backgroundColor: "#ffb287",
         justifyContent: "center",
         alignItems: "center",
     },
+    downloadFileButtonText: {
+        color: "white",
+        fontSize: normalize(15)
+    },
+    starIcon: {
+        fontSize: normalize(18),
+        color: "black"
+    }
 });
