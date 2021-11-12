@@ -125,7 +125,7 @@ export default function Ranking({ route, navigation }) {
 
     return (
         <NativeBaseProvider theme={theme}>
-            
+            <NavigationBar page={"Ranking"} />
         </NativeBaseProvider>
     );
 
