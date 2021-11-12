@@ -315,7 +315,8 @@ export default function CreateLec({ route, navigation }) {
                 tag: selectedTag,
                 uploadedFile: fileUploaded,
                 permission: selectedUser,
-                privacy: privacy
+                privacy: privacy,
+                owner: user.email
             };
             console.log(newLecture)
         }
