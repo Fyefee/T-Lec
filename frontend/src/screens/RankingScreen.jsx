@@ -52,30 +52,6 @@ export default function Ranking({ route, navigation }) {
 
     const { user } = route.params;
 
-    let [lecture, setLecture] = React.useState({
-        "contact": "Jeffyyyy",
-        "description": "Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah",
-        "permission": [
-            "62070000@it.kmitl.ac.th",
-            "62070999@it.kmitl.ac.th",
-        ],
-        "privacy": "private",
-        "tag": [
-            "Test",
-            "Kuy",
-        ],
-        "title": "Test",
-        "uploadedFile": [
-            {
-                "mimeType": "application/pdf",
-                "name": "1ใบเซ็นชื่อเตรียมสอนแก้ไข06016317-OOP-อ.ธราวิเชษฐ์-กย.64.pdf",
-                "size": 1433923,
-                "type": "success",
-                "uri": "file:///data/user/0/host.exp.exponent/cache/ExperienceData/%2540jeffy34931%252FTLec/DocumentPicker/00990b16-a405-4dfd-890b-d4ceca474f6b.pdf",
-            },
-        ],
-    })
-
     const theme = extendTheme({
         fontConfig: {
             Prompt: {
@@ -98,7 +74,7 @@ export default function Ranking({ route, navigation }) {
 
     return (
         <NativeBaseProvider theme={theme}>
-            
+            <NavigationBar page={"Ranking"} />
         </NativeBaseProvider>
     );
 
