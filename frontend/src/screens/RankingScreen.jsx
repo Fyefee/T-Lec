@@ -52,6 +52,57 @@ export default function Ranking({ route, navigation }) {
 
     const { user } = route.params;
 
+    let [lecture, setLecture] = React.useState([
+        {
+            "ranking": 1,
+            "owner": "Jeffy",
+            "LectureName": "Lec1",
+            "downloadCount": 159
+        },
+        {
+            "ranking": 2,
+            "owner": "Boos",
+            "LectureName": "Lec2",
+            "downloadCount": 159
+        },
+        {
+            "ranking": 3,
+            "owner": "Owner1",
+            "LectureName": "Lec3",
+            "downloadCount": 159
+        },
+        {
+            "ranking": 4,
+            "owner": "Owner2",
+            "LectureName": "Lec4",
+            "downloadCount": 159
+        },
+        {
+            "ranking": 5,
+            "owner": "Owner3",
+            "LectureName": "Lec5",
+            "downloadCount": 159
+        },
+        {
+            "ranking": 6,
+            "owner": "Owner4",
+            "LectureName": "Lec6",
+            "downloadCount": 159
+        },
+        {
+            "ranking": 7,
+            "owner": "Owner5",
+            "LectureName": "Lec7",
+            "downloadCount": 159
+        },
+        {
+            "ranking": 8,
+            "owner": "Owner6",
+            "LectureName": "Lec8",
+            "downloadCount": 159
+        },
+    ])
+
     const theme = extendTheme({
         fontConfig: {
             Prompt: {

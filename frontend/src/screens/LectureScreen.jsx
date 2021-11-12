@@ -121,12 +121,11 @@ export default function CreateLec({ route, navigation }) {
                 <ScrollView
                     _contentContainerStyle={{
                         py: 3,
-                        px: 6,
                     }}
                     style={styles.scrollStyle}
                 >
                     <Box>
-                        <HStack space="5" px="3">
+                        <HStack space="5" px="10">
                             <Image source={{ uri: user.image, }}
                                 alt="Alternate Text" style={styles.profileImage} />
                             <HStack space="0" pt="2" direction='column' style={styles.profileBox}>
@@ -135,13 +134,25 @@ export default function CreateLec({ route, navigation }) {
                             </HStack>
                         </HStack>
 
-                        <HStack space="1" px="4" mt="3" direction='column'>
+                        <HStack space="1" px="10" mt="3" direction='column'>
                             <Text pt="1" fontFamily="body" fontWeight="700" style={styles.descriptionText}>{lecture.description}</Text>
                             <Text pt="1" fontFamily="body" fontWeight="400" style={styles.tagText}>Tag : {renderTagText()}</Text>
                         </HStack>
 
-                        <HStack space="1" px="4" mt="3" justifyContent="space-around">
+                        <HStack space="1" px="8" mt="3" justifyContent="space-around">
                             <Button style={styles.downloadFileButton} size="lg"><Text style={styles.downloadFileButtonText}>Download</Text></Button>
+
+                            <HStack space="1" pt="2">
+                                <FontAwesome name="star" style={styles.starIcon} />
+                                <FontAwesome name="star" style={styles.starIcon} />
+                                <FontAwesome name="star" style={styles.starIcon} />
+                                <FontAwesome name="star" style={styles.starIcon} />
+                                <FontAwesome name="star" style={styles.starIcon} />
+                            </HStack>
+                        </HStack>
+
+                        <HStack space="1" px="4" mt="3" style={styles.ratingBox}>
+                            <Button style={styles.downloadFileButton} size="lg"><Text style={styles.downloadFileButtonText}>Want to rate this?</Text></Button>
 
                             <HStack space="1" pt="2">
                                 <FontAwesome name="star" style={styles.starIcon} />
@@ -206,5 +217,10 @@ const styles = StyleSheet.create({
     starIcon: {
         fontSize: normalize(18),
         color: "black"
+    },
+    ratingBox:{
+        width: "100%",
+        justifyContent: "center",
+        backgroundColor: '#ffb287',
     }
 });
