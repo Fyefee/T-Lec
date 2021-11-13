@@ -56,50 +56,58 @@ export default function Ranking({ route, navigation }) {
         {
             "ranking": 1,
             "owner": "Jeffy",
+            "ownerImage": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
             "LectureName": "Lec1",
-            "downloadCount": 159
+            "downloadCount": 159,
         },
         {
             "ranking": 2,
             "owner": "Boos",
+            "ownerImage": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
             "LectureName": "Lec2",
-            "downloadCount": 159
+            "downloadCount": 109
         },
         {
             "ranking": 3,
             "owner": "Owner1",
+            "ownerImage": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
             "LectureName": "Lec3",
-            "downloadCount": 159
+            "downloadCount": 100
         },
         {
             "ranking": 4,
             "owner": "Owner2",
+            "ownerImage": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
             "LectureName": "Lec4",
-            "downloadCount": 159
+            "downloadCount": 92
         },
         {
             "ranking": 5,
             "owner": "Owner3",
+            "ownerImage": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
             "LectureName": "Lec5",
-            "downloadCount": 159
+            "downloadCount": 68
         },
         {
             "ranking": 6,
             "owner": "Owner4",
+            "ownerImage": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
             "LectureName": "Lec6",
-            "downloadCount": 159
+            "downloadCount": 54
         },
         {
             "ranking": 7,
             "owner": "Owner5",
+            "ownerImage": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
             "LectureName": "Lec7",
-            "downloadCount": 159
+            "downloadCount": 15
         },
         {
             "ranking": 8,
             "owner": "Owner6",
+            "ownerImage": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
             "LectureName": "Lec8",
-            "downloadCount": 159
+            "downloadCount": 3
         },
     ])
 

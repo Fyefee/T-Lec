@@ -142,6 +142,7 @@ export default function App({ navigation }) {
             if (userSession.data) {
                 setUser(userSession.data)
                 console.log("Get session YAY!!")
+                console.log(userSession.data)
                 //navigation.navigate('CreateLec', { user: userSession.data })
                 navigation.navigate('Ranking', { user: userSession.data })
             }
