@@ -52,7 +52,7 @@ export default function Ranking({ route, navigation }) {
 
     const { user } = route.params;
 
-    let [lecture, setLecture] = React.useState([
+    let [ranking, setRanking] = React.useState([
         {
             "ranking": 1,
             "owner": "Jeffy",
