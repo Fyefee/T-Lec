@@ -37,12 +37,12 @@ export default function AppBar(props) {
             <HStack bg='#fedcc8' pl="10" pr="4" py="1" style={styles.navigationBar}>
                 <HStack space="0" alignItems='center' direction='column'>
                     <IconButton icon={<Icon as={<FontAwesome name="search" size={24}/>}
-                        size='md' style={styles.text}/>} />
+                        size='md' style={[props.page == "Search" ? styles.textSelected : styles.text]}/>} />
                     <Text style={[styles.navigationBarText, props.page == "Search" ? styles.textSelected : styles.text]} fontFamily="body" fontWeight="700">Search</Text>
                 </HStack>
                 <HStack space="0" alignItems='center' direction='column'>
                     <IconButton icon={<Icon as={<FontAwesome name="book" size={24} />}
-                        size='md' style={styles.text}/>} />
+                        size='md' style={[props.page == "Library" ? styles.textSelected : styles.text]}/>} />
                     <Text style={[styles.navigationBarText, props.page == "Library" ? styles.textSelected : styles.text]} fontFamily="body" fontWeight="700">Your Library</Text>
                 </HStack>
 
@@ -50,7 +50,7 @@ export default function AppBar(props) {
             <Box style={styles.centerButton}>
                 <HStack space="0" alignItems='center' direction='column' style={styles.centerButtonStack}>
                     <IconButton icon={<Icon as={<FontAwesome name="home" size={20} />}
-                     size='lg' style={styles.text}/>}/>
+                     size='lg' style={[props.page == "Home" ? styles.textSelected : styles.text]}/>}/>
                     <Text style={[styles.centerButtonText, props.page == "Home" ? styles.textSelected : styles.text]} fontFamily="body" fontWeight="700">Home</Text>
                 </HStack>
             </Box>

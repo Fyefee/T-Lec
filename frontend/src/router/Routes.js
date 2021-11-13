@@ -5,6 +5,7 @@ import HomeScreen from '../screens/Home'
 import CreateLecScreen from '../screens/CreateLecScreen'
 import LectureScreen from "../screens/LectureScreen"
 import RankingScreen from "../screens/RankingScreen.jsx"
+import LibraryScreen from "../screens/LibraryScreen.jsx"
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
@@ -27,6 +28,7 @@ const Routes = () => {
                 <Stack.Screen name="Home" component={HomeScreen} />
                 <Stack.Screen name="CreateLec" component={CreateLecScreen} />
                 <Stack.Screen name="Lecture" component={LectureScreen} />
+                <Stack.Screen name="Library" component={LibraryScreen} />
                 <Stack.Screen name="Ranking" component={RankingScreen} />
             </Stack.Navigator>
         </NavigationContainer>

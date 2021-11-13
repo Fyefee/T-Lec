@@ -14,7 +14,6 @@ import * as DocumentPicker from 'expo-document-picker';
 import NavigationBar from '../components/NavigationBar'
 import Appbar from '../components/Lecture/AppBar'
 
-
 const {
     width: SCREEN_WIDTH,
     height: SCREEN_HEIGHT,
@@ -314,7 +313,6 @@ export default function CreateLec({ route, navigation }) {
                             <Button.Group space={2}>
                                 <Button
                                     variant="unstyled"
-                                    colorScheme="coolGray"
                                     onPress={onClose}
                                 >
                                     Cancel
