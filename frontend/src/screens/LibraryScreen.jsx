@@ -6,7 +6,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import {
     Input, TextArea, VStack, HStack, Button, IconButton, Icon, Text,
     NativeBaseProvider, Center, Box, StatusBar, extendTheme, ScrollView,
-    Image, Select, CheckIcon, Item, Modal, FormControl
+    Image, Select, CheckIcon, Item, Modal, FormControl, Wrap, AlertDialog, Popover
 } from "native-base";
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 
@@ -62,6 +62,50 @@ export default function Library({ route, navigation }) {
         }
     )
 
+    let [collection, setCollection] = React.useState([
+        {
+            "name": "Test11111111111111111111111111111111111111111111111111111111",
+            "privacy": "public",
+        },
+        {
+            "name": "Test2",
+            "privacy": "private",
+        },
+        {
+            "name": "Test11111111111111111111111111111111111111111111111111111111",
+            "privacy": "public",
+        },
+        {
+            "name": "Test11111111111111111111111111111111111111111111111111111111",
+            "privacy": "public",
+        },
+        {
+            "name": "Test2",
+            "privacy": "private",
+        },
+        {
+            "name": "Test11111111111111111111111111111111111111111111111111111111",
+            "privacy": "public",
+        },
+        {
+            "name": "Test2",
+            "privacy": "private",
+        },
+        {
+            "name": "Test2",
+            "privacy": "private",
+        },
+    ])
+
+    const [isOpen, setIsOpen] = React.useState(false)
+    const [isPopoverOpen, setIsPopoverOpen] = React.useState(false)
+    const [deleteObject, setDeleteObject] = React.useState(null)
+
+    const onClose = () => setIsOpen(false)
+
+    const onPopOverOpen = () => setIsPopoverOpen(true)
+    const onPopOverClose = () => setIsPopoverOpen(false)
+
     const theme = extendTheme({
         fontConfig: {
             Prompt: {
@@ -98,6 +142,56 @@ export default function Library({ route, navigation }) {
         return star;
     }
 
+    const renderCollection = () => {
+        let collectionArray = [];
+        collection.map((element, index) => {
+            collectionArray.push(
+                <Box key={index} style={styles.collectionBox} my="2">
+                    <Text numberOfLines={2} pt="2" px="2">{element.name}</Text>
+                    <HStack space="1" p="1" style={styles.collectionBoxStack}>
+                        {element.privacy == "public" ? (
+                            <Ionicons name="earth-sharp" style={styles.collectionPrivacyIcon} />
+                        ) : (
+                            <FontAwesome name="lock" style={styles.collectionPrivacyIcon} />
+                        )}
+
+                        <Popover
+                            trigger={(triggerProps) => {
+                                return (
+                                    <IconButton
+                                        icon={<FontAwesome name="ellipsis-v" style={styles.collectionMoreIcon} />}
+                                        size="sm"
+                                        borderRadius="full" {...triggerProps} />
+                                )
+                            }}
+                        >
+                            <Popover.Content w="32">
+                                <Popover.Body>
+                                    <Button colorScheme="danger" variant="unstyled" onPress={() => openDeleteAlert(element)}>
+                                        <Text fontFamily="body" fontWeight="700">Delete</Text>
+                                    </Button>
+                                </Popover.Body>
+                            </Popover.Content>
+                        </Popover>
+
+                    </HStack>
+                </Box>
+            )
+        })
+        return collectionArray;
+    }
+
+    const openDeleteAlert = (element) => {
+        setDeleteObject(element)
+        setIsOpen(!isOpen);
+    }
+
+    const deleteCollection = () => {
+        let index = collection.indexOf(deleteObject);
+        collection.splice(index, 1);
+        onClose();
+    }
+
     return (
         <NativeBaseProvider theme={theme}>
             <Appbar user={user} />
@@ -109,44 +203,88 @@ export default function Library({ route, navigation }) {
                 }}
                 style={styles.scrollStyle}
             >
-                <LinearGradient start={{ x: 0, y: 1 }}
-                    end={{ x: 1, y: 0 }}
-                    colors={['#c5d8ff', '#fedcc8']}
-                    style={styles.userCard}
-                >
-                    <HStack space="0" justifyContent="space-around">
-                        <HStack space="2" py="5" px="5" direction='column'>
-                            <Image mt="2" source={{ uri: user.image }}
-                                alt="UserIcon" style={styles.userImage} />
-                            <Text pt="1" fontFamily="body" fontWeight="700" style={styles.cardUserName}>{user.firstname}{"\n"}{user.lastname}</Text>
-                        </HStack>
-
-                        <HStack space="4" py="9" pr="4" direction='column'>
-                            <Text pt="1" fontFamily="body" fontWeight="700" style={styles.cardRatingText}>Rating {userInfo.rating}</Text>
-                            <HStack space="1" justifyContent="center">
-                                {renderStar()}
+                <HStack space="4" direction='column'>
+                    <LinearGradient start={{ x: 0, y: 1 }}
+                        end={{ x: 1, y: 0 }}
+                        colors={['#ffe4ca', '#90aacb']}
+                        style={styles.userCard}
+                    >
+                        <HStack space="0" justifyContent="space-around">
+                            <HStack space="2" py="5" px="5" direction='column'>
+                                <Image mt="2" source={{ uri: user.image }}
+                                    alt="UserIcon" style={styles.userImage} />
+                                <Text pt="1" fontFamily="body" fontWeight="700" style={styles.cardUserName}>{user.firstname}{"\n"}{user.lastname}</Text>
                             </HStack>
-                            <HStack space="3" justifyContent="space-between">
-                                <HStack space="1" direction='column'>
-                                    <Text fontFamily="body" fontWeight="700" style={styles.cardDetailText}>Post</Text>
-                                    <Text fontFamily="body" fontWeight="700" style={styles.cardDetailText}>{userInfo.postCount}</Text>
+
+                            <HStack space="4" py="9" pr="4" direction='column'>
+                                <Text pt="1" fontFamily="body" fontWeight="700" style={styles.cardRatingText}>Rating {userInfo.rating}</Text>
+                                <HStack space="1" justifyContent="center">
+                                    {renderStar()}
                                 </HStack>
-                                <HStack space="1" direction='column'>
-                                    <Text fontFamily="body" fontWeight="700" style={styles.cardDetailText}>Follower</Text>
-                                    <Text fontFamily="body" fontWeight="700" style={styles.cardDetailText}>{userInfo.userFollower}</Text>
-                                </HStack>
-                                <HStack space="1" direction='column'>
-                                    <Text fontFamily="body" fontWeight="700" style={styles.cardDetailText}>Following</Text>
-                                    <Text fontFamily="body" fontWeight="700" style={styles.cardDetailText}>{userInfo.userFollowing}</Text>
+                                <HStack space="3" justifyContent="space-between">
+                                    <HStack space="1" direction='column'>
+                                        <Text fontFamily="body" fontWeight="700" style={styles.cardDetailText}>Post</Text>
+                                        <Text fontFamily="body" fontWeight="700" style={styles.cardDetailText}>{userInfo.postCount}</Text>
+                                    </HStack>
+                                    <HStack space="1" direction='column'>
+                                        <Text fontFamily="body" fontWeight="700" style={styles.cardDetailText}>Follower</Text>
+                                        <Text fontFamily="body" fontWeight="700" style={styles.cardDetailText}>{userInfo.userFollower}</Text>
+                                    </HStack>
+                                    <HStack space="1" direction='column'>
+                                        <Text fontFamily="body" fontWeight="700" style={styles.cardDetailText}>Following</Text>
+                                        <Text fontFamily="body" fontWeight="700" style={styles.cardDetailText}>{userInfo.userFollowing}</Text>
+                                    </HStack>
                                 </HStack>
                             </HStack>
+
                         </HStack>
+                    </LinearGradient>
 
-                    </HStack>
-
-
-                </LinearGradient>
+                    <LinearGradient start={{ x: 0, y: 1 }}
+                        end={{ x: 1, y: 0 }}
+                        colors={['#c5d8ff', '#fedcc8']}
+                        style={styles.collectionCard}
+                    >
+                        <Text pt="6" pl="5" fontFamily="body" fontWeight="700" style={styles.collectionHeader}>Collection</Text>
+                        {collection.length > 3 ? (
+                            <Wrap direction="row" style={styles.collectionWrap} pt="2" pb="6">
+                                {renderCollection()}
+                            </Wrap>
+                        ) : (
+                            <HStack space="5" pt="2" pb="6">
+                                {renderCollection()}
+                            </HStack>
+                        )}
+                    </LinearGradient>
+                </HStack>
             </ScrollView>
+
+            <AlertDialog
+                isOpen={isOpen}
+                onClose={onClose}
+            >
+                <AlertDialog.Content>
+                    <AlertDialog.CloseButton />
+                    <AlertDialog.Header>Delete Lecture</AlertDialog.Header>
+                    <AlertDialog.Body>
+                        Do you really want to delete this lecture?
+                        </AlertDialog.Body>
+                    <AlertDialog.Footer>
+                        <Button.Group space={2}>
+                            <Button
+                                variant="unstyled"
+                                onPress={onClose}
+                            >
+                                Cancel
+                                </Button>
+                            <Button colorScheme="danger" onPress={deleteCollection}>
+                                Delete
+                                </Button>
+                        </Button.Group>
+                    </AlertDialog.Footer>
+                </AlertDialog.Content>
+            </AlertDialog>
+
             <NavigationBar page={"Library"} />
         </NativeBaseProvider>
     );
@@ -156,6 +294,7 @@ export default function Library({ route, navigation }) {
 const styles = StyleSheet.create({
     scrollStyle: {
         width: '100%',
+        height: "100%",
         marginTop: getScreenHeight() * 0.1,
         marginBottom: getScreenHeight() * 0.11,
         backgroundColor: "#fef1e6"
@@ -187,4 +326,44 @@ const styles = StyleSheet.create({
         fontSize: normalize(14),
         textAlign: "center"
     },
+    collectionCard: {
+        flex: 1,
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+        overflow: "hidden",
+        borderRadius: getScreenWidth() * 0.035,
+    },
+    collectionHeader: {
+        fontSize: normalize(20),
+        alignSelf: "flex-start"
+    },
+    collectionWrap: {
+        justifyContent: "space-evenly"
+    },
+    collectionBox: {
+        width: '30%',
+        height: getScreenHeight() * 0.15,
+        borderRadius: getScreenWidth() * 0.025,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: "rgba(255, 255, 255, 0.5)",
+    },
+    collectionBoxStack: {
+        position: "absolute",
+        right: 0,
+        top: 0
+    },
+    collectionPrivacyIcon: {
+        fontSize: normalize(19),
+        color: "#818181",
+        paddingTop: 2
+    },
+    collectionMoreIcon: {
+        fontSize: normalize(19),
+        color: "#818181",
+    },
+    popOverDeleteButton: {
+        width: getScreenHeight() * 0.15,
+    }
 });
