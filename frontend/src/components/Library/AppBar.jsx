@@ -43,8 +43,8 @@ export default function AppBar(props) {
 
     return (
         <>
-            <StatusBar backgroundColor="#fef1e6" barStyle="light-content" />
-            <HStack bg='#fef1e6' px="4" py="1" style={styles.appbar}>
+            <StatusBar backgroundColor={props.bgColor} barStyle="light-content" />
+            <HStack bg={props.bgColor} px="4" py="1" style={styles.appbar}>
                 <HStack space="2" alignItems='center'>
                     <Image alt="logo" style={styles.logoImage} source={require("../../assets/logo/logo_color_dino.png")}></Image>
                     <Text style={styles.appbarText} mt="3" fontFamily="body" fontWeight="700">T-Lec</Text>

@@ -277,6 +277,7 @@ export default function CreateLec({ route, navigation }) {
         setHaveTagInDB([]);
         setSelectedTag(newList);
         setShowTagModal(false);
+        console.log(newList)
     }
 
     const deleteSelectedTag = (tagName) => {

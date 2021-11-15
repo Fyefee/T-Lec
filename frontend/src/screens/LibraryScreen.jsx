@@ -194,7 +194,7 @@ export default function Library({ route, navigation }) {
 
     return (
         <NativeBaseProvider theme={theme}>
-            <Appbar user={user} />
+            <Appbar user={user} bgColor={"#fef1e6"}/>
             <ScrollView
                 _contentContainerStyle={{
                     pt: 6,

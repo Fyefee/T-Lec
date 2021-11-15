@@ -1,7 +1,7 @@
 import React from 'react'
 
 import LoginScreen from '../screens/Login'
-import HomeScreen from '../screens/Home'
+import HomeScreen from '../screens/HomeScreen'
 import CreateLecScreen from '../screens/CreateLecScreen'
 import LectureScreen from "../screens/LectureScreen"
 import RankingScreen from "../screens/RankingScreen.jsx"
