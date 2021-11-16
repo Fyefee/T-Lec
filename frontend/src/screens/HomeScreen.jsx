@@ -57,6 +57,9 @@ export default function Home({ route, navigation }) {
     const theme = extendTheme({
         fontConfig: {
             Prompt: {
+                300: {
+                    normal: 'Prompt-Regular',
+                },
                 400: {
                     normal: 'Prompt-Medium',
                 },
@@ -76,34 +79,97 @@ export default function Home({ route, navigation }) {
 
     let [recentView, setRecentView] = React.useState([
         {
-            "name": "Test11111111111111111111111111111111111111111111111111111111",
+            "lecName": "Mobile Device",
+            "photoUrl": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
+            "lecTag": [
+                "MobileDevice",
+                "ปี3_เทอม1_final"
+            ],
+            "lecDescription": "Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!",
+            "lecRating": 4
         },
         {
-            "name": "Test2",
+            "lecName": "SOP",
+            "photoUrl": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
+            "lecTag": [
+                "MobileDevice",
+                "ปี3_เทอม1_final"
+            ],
+            "lecDescription": "Hello",
+            "lecRating": 5
         },
         {
-            "name": "Test11111111111111111111111111111111111111111111111111111111",
+            "lecName": "Mobile Device",
+            "photoUrl": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
+            "lecTag": [
+                "MobileDevice",
+                "ปี3_เทอม1_final"
+            ],
+            "lecDescription": "Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!",
+            "lecRating": 4
         },
         {
-            "name": "Test11111111111111111111111111111111111111111111111111111111",
+            "lecName": "SOP",
+            "photoUrl": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
+            "lecTag": [
+                "MobileDevice",
+                "ปี3_เทอม1_final"
+            ],
+            "lecDescription": "Hello",
+            "lecRating": 5
         },
         {
-            "name": "Test2",
+            "lecName": "Mobile Device",
+            "photoUrl": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
+            "lecTag": [
+                "MobileDevice",
+                "ปี3_เทอม1_final"
+            ],
+            "lecDescription": "Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!",
+            "lecRating": 4
         },
     ])
 
     let [newLec, setNewLec] = React.useState([
         {
-            "name": "Test11111111111111111111111111111111111111111111111111111111",
+            "lecName": "Mobile Device",
+            "photoUrl": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
+            "lecTag": [
+                "MobileDevice",
+                "ปี3_เทอม1_final"
+            ],
+            "lecDescription": "Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!",
+            "lecRating": 4
         },
         {
-            "name": "Test2",
+            "lecName": "SOP",
+            "photoUrl": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
+            "lecTag": [
+                "MobileDevice",
+                "ปี3_เทอม1_final"
+            ],
+            "lecDescription": "Hello",
+            "lecRating": 5
         },
         {
-            "name": "Test11111111111111111111111111111111111111111111111111111111",
+            "lecName": "Mobile Device",
+            "photoUrl": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
+            "lecTag": [
+                "MobileDevice",
+                "ปี3_เทอม1_final"
+            ],
+            "lecDescription": "Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!",
+            "lecRating": 4
         },
         {
-            "name": "Test11111111111111111111111111111111111111111111111111111111",
+            "lecName": "SOP",
+            "photoUrl": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
+            "lecTag": [
+                "MobileDevice",
+                "ปี3_เทอม1_final"
+            ],
+            "lecDescription": "Hello",
+            "lecRating": 5
         },
     ])
 
@@ -111,7 +177,19 @@ export default function Home({ route, navigation }) {
         let BoxArray = [];
         recentView.map((element, index) => {
             BoxArray.push(
-                <Box key={index} style={styles.recentViewBox}/>
+                <LinearGradient start={{ x: 0, y: 1 }}
+                    end={{ x: 1, y: 0 }}
+                    colors={['#ddeaf8', '#fff2e2']}
+                    key={index} style={styles.recentViewBox}>
+                    <HStack space="1" py="1" px="1" direction='column'>
+                        <Image source={{ uri: element.photoUrl, }} alt="User Image" style={styles.profileRecentImage} />
+                        <Text pt="1" pl="2" fontFamily="body" fontWeight="400" style={styles.textRecentHeader} numberOfLines={1}>{element.lecName}</Text>
+                        <Text pl="2" fontFamily="body" fontWeight="300" style={styles.textRecentTag} lineHeight="2xs" numberOfLines={2}>Tag : {renderNewLecTag(element)}</Text>
+                        <HStack pl="3">
+                            {renderStar(element, styles.starIconRecent)}
+                        </HStack>
+                    </HStack>
+                </LinearGradient>
             )
         })
         return BoxArray;
@@ -121,10 +199,50 @@ export default function Home({ route, navigation }) {
         let BoxArray = [];
         newLec.map((element, index) => {
             BoxArray.push(
-                <Box key={index} style={styles.newLecBox}/>
+                <Box key={index} style={styles.newLecBox}>
+                    <HStack space="1" py="1" px="4" alignItems="center">
+                        <Image source={{ uri: element.photoUrl, }} alt="User Image" style={styles.profileImage} />
+                        <HStack py="1" px="1" direction='column'>
+                            <Text pt="1" pl="2" fontFamily="body" fontWeight="400" style={styles.textNewLecHeader} numberOfLines={1}>{element.lecName}</Text>
+                            <Text pl="2" fontFamily="body" fontWeight="300" style={styles.textNewLecTag} lineHeight="2xs" numberOfLines={1}>Tag : {renderNewLecTag(element)}</Text>
+                            <Text pt="1" pl="2" fontFamily="body" fontWeight="300" style={styles.textNewLecDescription} lineHeight="2xs" numberOfLines={2}>{element.lecDescription}</Text>
+                            <HStack px="1">
+                                {renderStar(element, styles.starIconNewLec)}
+                            </HStack>
+                        </HStack>
+                    </HStack>
+                </Box>
             )
         })
         return BoxArray;
+    }
+
+    const renderNewLecTag = (element) => {
+        let text = "";
+        for (let i = 0; i < element.lecTag.length; i++) {
+            if (i != element.lecTag.length - 1) {
+                text += element.lecTag[i] + ", "
+            } else {
+                text += element.lecTag[i]
+            }
+        }
+        return text;
+    }
+
+    const renderStar = (element, starStyle) => {
+        let star = [];
+        for (let i = 1; i <= 5; i++) {
+            if (i <= element.lecRating) {
+                star.push(
+                    <FontAwesome key={i} name="star" style={starStyle} />
+                )
+            } else {
+                star.push(
+                    <FontAwesome key={i} name="star-o" style={starStyle} />
+                )
+            }
+        }
+        return star;
     }
 
     useEffect(() => {
@@ -150,16 +268,16 @@ export default function Home({ route, navigation }) {
                         <Text pt="3" pl="2" fontFamily="body" fontWeight="700" style={styles.TextHeader}>Recently Viewed</Text>
                         <ScrollView
                             _contentContainerStyle={{
-                                px: 5,
+                                px: 3,
                             }}
                             style={styles.recentViewScroll}
                             horizontal={true}
                         >
-                            <HStack space="5" pt="1" pb="1">
+                            <HStack space="5" py="1">
                                 {renderRecentViewBox()}
                             </HStack>
                         </ScrollView>
-                        
+
                         <Text pt="3" pl="2" fontFamily="body" fontWeight="700" style={styles.TextHeader}>NEW !!</Text>
                         {renderNewLecBox()}
                     </HStack>
@@ -193,22 +311,86 @@ const styles = StyleSheet.create({
     },
     recentViewScroll: {
         width: '100%',
-        height: getScreenHeight() * 0.29,
+        height: getScreenHeight() * 0.335,
     },
     recentViewBox: {
-        width: getScreenWidth() * 0.3,
-        height: getScreenHeight() * 0.25,
+        width: getScreenWidth() * 0.35,
+        height: getScreenHeight() * 0.3,
         borderRadius: getScreenWidth() * 0.025,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: "rgba(255, 255, 255, 0.5)",
+        backgroundColor: "rgb(255, 255, 255)",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.32,
+        shadowRadius: 5.46,
+
+        elevation: 9,
+    },
+    textRecentHeader: {
+        fontSize: normalize(14),
+        alignSelf: "center",
+        textAlign: "center",
+    },
+    textRecentTag: {
+        fontSize: normalize(10),
+        alignSelf: "center",
+        textAlign: "center",
+        color: "gray"
+    },
+    profileRecentImage: {
+        width: getScreenWidth() * 0.15,
+        height: getScreenWidth() * 0.15,
+        borderRadius: getScreenWidth() * 0.15,
+        alignSelf: "center",
+    },
+    starIconRecent: {
+        fontSize: normalize(16),
+        color: "#ffd259",
+        marginRight: getScreenWidth() * 0.005,
     },
     newLecBox: {
-        width: getScreenWidth() * 0.9 ,
-        height: getScreenHeight() * 0.15,
+        width: getScreenWidth() * 0.9,
+        height: getScreenHeight() * 0.175,
         borderRadius: getScreenWidth() * 0.025,
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'center',
-        backgroundColor: "rgba(255, 255, 255, 0.5)",
-    }
+        backgroundColor: "rgb(255, 255, 255)",
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.32,
+        shadowRadius: 5.46,
+
+        elevation: 9,
+    },
+    profileImage: {
+        width: getScreenWidth() * 0.14,
+        height: getScreenWidth() * 0.14,
+        borderRadius: getScreenWidth() * 0.14,
+    },
+    textNewLecHeader: {
+        fontSize: normalize(17),
+        alignSelf: "flex-start"
+    },
+    textNewLecTag: {
+        fontSize: normalize(11),
+        alignSelf: "flex-start",
+        color: "gray"
+    },
+    textNewLecDescription: {
+        fontSize: normalize(11),
+        alignSelf: "flex-start",
+        width: getScreenWidth() * 0.65,
+    },
+    starIconNewLec: {
+        fontSize: normalize(16),
+        color: "#ffd259",
+        marginRight: getScreenWidth() * 0.01,
+    },
 });
