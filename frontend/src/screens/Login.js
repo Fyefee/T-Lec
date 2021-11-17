@@ -143,7 +143,7 @@ export default function App({ navigation }) {
                 setUser(userSession.data)
                 console.log("Get session YAY!!")
                 //navigation.navigate('CreateLec', { user: userSession.data })
-                navigation.navigate('Home', { user: userSession.data })
+                navigation.navigate('CreateLec', { user: userSession.data })
             }
         }
         catch (e) {

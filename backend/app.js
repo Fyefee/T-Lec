@@ -3,6 +3,13 @@ const session = require('express-session')
 const { MemoryStore } = require('express-session')
 require('dotenv').config()
 
+const multer = require('multer');
+const crypto = require('crypto');
+const path = require('path');
+const bodyParser = require('body-parser');
+const { GridFsStorage } = require('multer-gridfs-storage');
+const formidable = require('formidable');
+
 const app = express()
 const port = 3000
 
@@ -30,6 +37,27 @@ mongoose.connect(process.env.mongoDBLink)
 
 const User = require('./src/models/user');
 const Tag = require('./src/models/tag');
+const Lecture = require('./src/models/lecture')
+
+const storage = new GridFsStorage({
+    url: process.env.mongoDBLink,
+    file: (req, file) => {
+        return new Promise((resolve, reject) => {
+            crypto.randomBytes(16, (err, buf) => {
+                if (err) {
+                    return reject(err);
+                }
+                const filename = buf.toString('hex') + path.extname(file.originalname);
+                const fileInfo = {
+                    filename: filename,
+                    bucketName: 'uploads'
+                };
+                resolve(fileInfo);
+            });
+        });
+    }
+});
+const upload = multer({ storage });
 
 const passport = require('passport')
 
@@ -139,6 +167,106 @@ app.get('/getAllTag', async (req, res) => {
         });
         res.send(data)
     }).clone().catch(function (err) { console.log("getAllTag Error : " + e); })
+})
+
+app.post('/checkLecDuplicate', async (req, res) => {
+    const lecFromDB = await Lecture.findOne({ title : req.body.title});
+    if (lecFromDB){
+        res.send(false)
+    } else {
+        res.send(true)
+    }
+})
+
+app.post('/uploadLec', async (req, res) => {
+    const form = formidable({ multiples: true });
+
+    form.parse(req, async (err, fields, files) => {
+        if (err) {
+            console.log(err)
+        }
+        console.log(fields);
+
+        const newTag = JSON.parse(fields.newTag)
+        const oldTag = JSON.parse(fields.oldTag)
+
+        if (newTag.length > 0) {
+            newTag.forEach(async (element) => {
+                try {
+                    const tagFromDB = await Tag.findOne({ tagName: element });
+                    if (tagFromDB) {
+                        let doc = await Tag.findOne({ tagName: tagFromDB.tagName });
+                        await Tag.findOneAndUpdate({ tagName: tagFromDB.tagName }, { count: doc.count + 1 })
+                    } else {
+                        const tag = new Tag({
+                            tagName: element,
+                            count: 1,
+                        })
+                        await tag.save((err, doc) => {
+                            if (err) {
+                                console.log(err)
+                                res.sendStatus(400)
+                            }
+                            res.send(tag)
+                        })
+                    }
+                } catch (err) {
+                    console.log(err)
+                }
+            })
+        }
+
+        if (oldTag.length > 0) {
+            oldTag.forEach(async (element) => {
+                try {
+                    // await Tag.findOne({ tagName : element }, async function (err, tag) {
+                    //     await Tag.findOneAndUpdate({ tagName : element }, { count : tag.count+1})
+                    //     if (err) {
+                    //         console.log(err)
+                    //         res.sendStatus(400)
+                    //     }
+                    // })
+                    let doc = await Tag.findOne({ tagName: element });
+                    await Tag.findOneAndUpdate({ tagName: element }, { count: doc.count + 1 })
+                } catch (err) {
+                    console.log(err)
+                }
+            })
+        }
+
+        const allTag = newTag.concat(oldTag);
+
+        const lec = new Lecture({
+
+            title: fields.title,
+            description: fields.description,
+            contact: fields.contact,
+            tag: allTag,
+            privacy: fields.privacy,
+            userPermission: JSON.parse(fields.permission),
+            owner: fields.owner,
+            likeFromUser: [],
+            rating: {},
+            fileName: fields.fileName,
+            fileUrl: fields.fileUrl,
+            createdDate: fields.createdDate,
+
+        })
+
+        console.log(lec)
+
+        await lec.save((err, doc) => {
+            if (err) {
+                console.log(err)
+                res.sendStatus(400)
+            }
+            res.send(lec)
+        })
+
+    });
+
+    res.status(200)
+
 })
 
 passport.serializeUser((user, cb) => {

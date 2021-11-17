@@ -64,6 +64,8 @@ export default function CreateLec({ route, navigation }) {
     let [isValidatePrivacy, setIsValidatePrivacy] = React.useState(true)
     let [isValidateUploadFile, setIsValidateUploadFile] = React.useState(true)
 
+    let [isValidateTitleDuplicate, setIsValidateTitleDuplicate] = React.useState(true)
+
     let [privacy, setPrivacy] = React.useState("")
     let [searchId, setSearchId] = React.useState("")
     let [fileUploaded, setFileUploaded] = React.useState([])
@@ -74,6 +76,8 @@ export default function CreateLec({ route, navigation }) {
     let [selectedUser, setSelectedUser] = React.useState([])
 
     let [tag, setTag] = React.useState([])
+    let [oldTag, setOldTag] = React.useState([])
+    let [newTag, setNewTag] = React.useState([])
     let [searchTag, setSearchTag] = React.useState("")
     let [haveTagInDB, setHaveTagInDB] = React.useState([])
     let [selectedTag, setSelectedTag] = React.useState([])
@@ -212,7 +216,7 @@ export default function CreateLec({ route, navigation }) {
         const tagList = [];
         haveTagInDB.map(element => {
             tagList.push(
-                <TouchableOpacity key={element.tagName} style={styles.tagSelectButton} onPress={() => addSelectedTag(element.tagName)}>
+                <TouchableOpacity key={element.tagName} style={styles.tagSelectButton} onPress={() => addSelectedOldTag(element.tagName)}>
                     <HStack style={styles.selectAddPermissionRow} mt="2.5" justifyContent="space-around">
                         <Text fontFamily="body" fontWeight="700" my="1" pl="3" style={styles.fileText}># {element.tagName}</Text>
                         <Text fontFamily="body" fontWeight="700" my="1" pl="3" style={styles.fileTextPost}>{element.count} Post</Text>
@@ -231,7 +235,7 @@ export default function CreateLec({ route, navigation }) {
             }
         })
         if (!isDuplicate) {
-            return <TouchableOpacity style={styles.tagSelectButton} onPress={() => addSelectedTag(searchTag)}>
+            return <TouchableOpacity style={styles.tagSelectButton} onPress={() => addSelectedNewTag(searchTag)}>
                 <HStack style={styles.selectAddPermissionRow} mt="2.5" justifyContent="space-around">
                     <Text fontFamily="body" fontWeight="700" my="1" pl="3" style={styles.fileText}># {searchTag}</Text>
                     <Text fontFamily="body" fontWeight="700" my="1" pl="3" style={styles.fileTextPost}>New Post</Text>
@@ -270,14 +274,28 @@ export default function CreateLec({ route, navigation }) {
         setSelectedUser(newList)
     }
 
-    const addSelectedTag = (tagName) => {
+    const addSelectedNewTag = (tagName) => {
         const newList = [...selectedTag];
         newList.push(tagName);
+        const newTagArray = [...newTag];
+        newTagArray.push(tagName)
         setSearchTag("");
         setHaveTagInDB([]);
         setSelectedTag(newList);
+        setNewTag(newTagArray)
         setShowTagModal(false);
-        console.log(newList)
+    }
+
+    const addSelectedOldTag = (tagName) => {
+        const newList = [...selectedTag];
+        newList.push(tagName);
+        const oldTagArray = [...oldTag];
+        oldTagArray.push(tagName)
+        setSearchTag("");
+        setHaveTagInDB([]);
+        setSelectedTag(newList);
+        setOldTag(oldTagArray)
+        setShowTagModal(false);
     }
 
     const deleteSelectedTag = (tagName) => {
@@ -297,6 +315,7 @@ export default function CreateLec({ route, navigation }) {
             } else if (result.type == "success") {
                 if (fileUploaded.length == 0) {
                     const newArray = [...fileUploaded];
+                    console.log(result)
                     newArray.push(result)
                     setFileUploaded(newArray)
                     setIsValidateUploadFile(true);
@@ -305,21 +324,90 @@ export default function CreateLec({ route, navigation }) {
         } catch (e) {
             console.log("Upload file error");
         }
+        // try {
+        //     const res = await DocumentPicker.pick({
+        //         type: [DocumentPicker.types.pdf],
+        //     })
+        //     console.log(JSON.stringify(res))
+        //     if (fileUploaded.length == 0) {
+        //         const newArray = [...fileUploaded];
+        //         newArray.push(res)
+        //         setFileUploaded(newArray)
+        //         setIsValidateUploadFile(true);
+        //     }
+        // } catch (err) {
+        //     if (DocumentPicker.isCancel(err)) {
+        //         console.log('Canceled');
+        //     } else {
+        //         console.log('Unknown Error: ' + JSON.stringify(err));
+        //     }
+        // }
     }
 
     const saveLec = async () => {
         if (validateForm()) {
-            const newLecture = {
-                title: title,
-                description: description,
-                contact: contact,
-                tag: selectedTag,
-                uploadedFile: fileUploaded,
-                permission: selectedUser,
-                privacy: privacy,
-                owner: user.email
-            };
-            console.log(newLecture)
+
+            try {
+                const res1 = await axios.post(`${API_LINK}/checkLecDuplicate`, { title: title.trim() })
+                if (res1.data) {
+                    setIsValidateTitleDuplicate(true)
+
+                    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+                    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                    var today = new Date();
+                    var date = days[today.getDay()] + " " + today.getDate() + " " + months[today.getMonth()] + " " + today.getFullYear();
+
+                    var bodyFormData = new FormData();
+                    bodyFormData.append('title', title);
+                    bodyFormData.append('description', description);
+                    bodyFormData.append('contact', contact);
+                    bodyFormData.append('newTag', JSON.stringify(newTag));
+                    bodyFormData.append('oldTag', JSON.stringify(oldTag));
+                    //bodyFormData.append('files', {uri: fileUploaded[0].uri, name: fileUploaded[0].name, type: "pdf", size: fileUploaded[0].size});
+                    bodyFormData.append('permission', JSON.stringify(selectedUser));
+                    bodyFormData.append('privacy', privacy);
+                    bodyFormData.append('owner', user.email);
+                    bodyFormData.append('fileName', fileUploaded[0].name);
+                    bodyFormData.append('fileUrl', fileUploaded[0].uri);
+                    bodyFormData.append('createdDate', date);
+
+                    const req = await axios.post(`${API_LINK}/uploadLec`, bodyFormData)
+
+                    navigation.navigate('Home', { user: user })
+                } else {
+                    setIsValidateTitleDuplicate(false)
+                }
+            } catch (err) {
+                console.log(err)
+            }
+            // const newLecture = {
+            //     title: title,
+            //     description: description,
+            //     contact: contact,
+            //     newTag: newTag,
+            //     oldTag: oldTag,
+            //     uploadedFile: fileUploaded,
+            //     permission: selectedUser,
+            //     privacy: privacy,
+            //     owner: user.email
+            // };
+            // console.log(newLecture)
+
+            //console.log({uri: fileUploaded[0].uri, name: fileUploaded[0].name, type: "pdf", size: fileUploaded[0].size})
+            try {
+                //const req = await axios.post(`${API_LINK}/uploadLec`, bodyFormData)
+            } catch (err) {
+                console.log(err)
+            }
+            // const req = await axios({
+            //     method: 'post',
+            //     url: `${API_LINK}/uploadLec`,
+            //     data: newLecture,
+            // }).then(function (response) {
+            //     console.log("YES!");
+            // }).catch(function (error) {
+            //     console.log(error);
+            // });
         }
     }
 
@@ -337,7 +425,7 @@ export default function CreateLec({ route, navigation }) {
             isValidate = false;
         }
 
-        if (fileUploaded.length == 0){
+        if (fileUploaded.length == 0) {
             setIsValidateUploadFile(false);
             isValidate = false;
         }
@@ -397,6 +485,12 @@ export default function CreateLec({ route, navigation }) {
                         </HStack>
                         {!isValidateTitle ? (
                             <Text fontFamily="body" fontWeight="700" mt="1" pl="4" style={styles.failValidateText}>Title must be more than 3 characters</Text>
+                        ) : (
+                            <></>
+                        )}
+
+                        {!isValidateTitleDuplicate ? (
+                            <Text fontFamily="body" fontWeight="700" mt="1" pl="4" style={styles.failValidateText}>Your title is duplicateed.</Text>
                         ) : (
                             <></>
                         )}

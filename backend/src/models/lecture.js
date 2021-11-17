@@ -14,11 +14,41 @@ const LectureSchema = new mongoose.Schema({
         type: String, 
         trim: true
     },
-    count: {
+    tag: {
         type: Array, 
     },
-    count: {
-        type: Number, 
+    privacy: {
+        type: String, 
+        required: true,
+        trim: true
+    },
+    userPermission: {
+        type: Array, 
+    },
+    owner: {
+        type: String, 
+        required: true,
+        trim: true
+    },
+    likeFromUser: {
+        type: Array, 
+    },
+    rating: {
+        type: Map,
+        of: String
+    },
+    fileName: {
+        type: String, 
+        trim: true
+    },
+    fileUrl: {
+        type: String, 
+        trim: true
+    },
+    createdDate: {
+        type: String, 
+        required: true,
+        trim: true
     },
 })
 
