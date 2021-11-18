@@ -37,7 +37,8 @@ mongoose.connect(process.env.mongoDBLink)
 
 const User = require('./src/models/user');
 const Tag = require('./src/models/tag');
-const Lecture = require('./src/models/lecture')
+const Lecture = require('./src/models/lecture');
+const fs = require('fs');
 
 const storage = new GridFsStorage({
     url: process.env.mongoDBLink,
@@ -180,13 +181,47 @@ app.post('/checkLecDuplicate', async (req, res) => {
 
 app.post('/uploadLec', async (req, res) => {
 
-    // const form = formidable({ multiples: true });
+    console.log(req.body)
 
-    // form.parse(req, async (err, fields, files) => {
-    //     if (err) {
-    //         console.log(err)
-    //     }
-    //     console.log(fields);
+    const form = formidable({ multiples: true });
+
+    form.parse(req, async (err, fields, files) => {
+        if (err) {
+            console.log(err)
+        }
+        console.log(fields.title);
+
+        const base64string = fields.fileBase64;
+
+        // path.resolve(__dirname + "/output/", "OUTPUT_Data.pdf")
+        // Generate File
+        fs.writeFile("out.pdf", base64string, {encoding: 'base64'}, function(err) {
+            console.log(err);
+            });
+
+        // Read RAW file
+        fs.readFile('out.pdf', 'utf8', function(err, data){
+            console.log(data);
+        }); 
+
+        // Request In Clinet
+        // await axios({
+        //     method: 'post',
+        //     url: '',
+        //     data: {
+        //     },
+        //     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        //     responseType: 'arraybuffer',
+        //   })
+        //     .then((response) => {
+        //       return Buffer.from(response.data).toString('base64');
+        //     })
+        //     .catch(function (error) {
+        //       return null;
+        //     });
+    }) 
+
+    return;
 
     //     const newTag = JSON.parse(fields.newTag)
     //     const oldTag = JSON.parse(fields.oldTag)
