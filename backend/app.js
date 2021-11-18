@@ -179,93 +179,94 @@ app.post('/checkLecDuplicate', async (req, res) => {
 })
 
 app.post('/uploadLec', async (req, res) => {
-    const form = formidable({ multiples: true });
 
-    form.parse(req, async (err, fields, files) => {
-        if (err) {
-            console.log(err)
-        }
-        console.log(fields);
+    // const form = formidable({ multiples: true });
 
-        const newTag = JSON.parse(fields.newTag)
-        const oldTag = JSON.parse(fields.oldTag)
+    // form.parse(req, async (err, fields, files) => {
+    //     if (err) {
+    //         console.log(err)
+    //     }
+    //     console.log(fields);
 
-        if (newTag.length > 0) {
-            newTag.forEach(async (element) => {
-                try {
-                    const tagFromDB = await Tag.findOne({ tagName: element });
-                    if (tagFromDB) {
-                        let doc = await Tag.findOne({ tagName: tagFromDB.tagName });
-                        await Tag.findOneAndUpdate({ tagName: tagFromDB.tagName }, { count: doc.count + 1 })
-                    } else {
-                        const tag = new Tag({
-                            tagName: element,
-                            count: 1,
-                        })
-                        await tag.save((err, doc) => {
-                            if (err) {
-                                console.log(err)
-                                res.sendStatus(400)
-                            }
-                            res.send(tag)
-                        })
-                    }
-                } catch (err) {
-                    console.log(err)
-                }
-            })
-        }
+    //     const newTag = JSON.parse(fields.newTag)
+    //     const oldTag = JSON.parse(fields.oldTag)
 
-        if (oldTag.length > 0) {
-            oldTag.forEach(async (element) => {
-                try {
-                    // await Tag.findOne({ tagName : element }, async function (err, tag) {
-                    //     await Tag.findOneAndUpdate({ tagName : element }, { count : tag.count+1})
-                    //     if (err) {
-                    //         console.log(err)
-                    //         res.sendStatus(400)
-                    //     }
-                    // })
-                    let doc = await Tag.findOne({ tagName: element });
-                    await Tag.findOneAndUpdate({ tagName: element }, { count: doc.count + 1 })
-                } catch (err) {
-                    console.log(err)
-                }
-            })
-        }
+    //     if (newTag.length > 0) {
+    //         newTag.forEach(async (element) => {
+    //             try {
+    //                 const tagFromDB = await Tag.findOne({ tagName: element });
+    //                 if (tagFromDB) {
+    //                     let doc = await Tag.findOne({ tagName: tagFromDB.tagName });
+    //                     await Tag.findOneAndUpdate({ tagName: tagFromDB.tagName }, { count: doc.count + 1 })
+    //                 } else {
+    //                     const tag = new Tag({
+    //                         tagName: element,
+    //                         count: 1,
+    //                     })
+    //                     await tag.save((err, doc) => {
+    //                         if (err) {
+    //                             console.log(err)
+    //                             res.sendStatus(400)
+    //                         }
+    //                         res.send(tag)
+    //                     })
+    //                 }
+    //             } catch (err) {
+    //                 console.log(err)
+    //             }
+    //         })
+    //     }
 
-        const allTag = newTag.concat(oldTag);
+    //     if (oldTag.length > 0) {
+    //         oldTag.forEach(async (element) => {
+    //             try {
+    //                 // await Tag.findOne({ tagName : element }, async function (err, tag) {
+    //                 //     await Tag.findOneAndUpdate({ tagName : element }, { count : tag.count+1})
+    //                 //     if (err) {
+    //                 //         console.log(err)
+    //                 //         res.sendStatus(400)
+    //                 //     }
+    //                 // })
+    //                 let doc = await Tag.findOne({ tagName: element });
+    //                 await Tag.findOneAndUpdate({ tagName: element }, { count: doc.count + 1 })
+    //             } catch (err) {
+    //                 console.log(err)
+    //             }
+    //         })
+    //     }
 
-        const lec = new Lecture({
+    //     const allTag = newTag.concat(oldTag);
 
-            title: fields.title,
-            description: fields.description,
-            contact: fields.contact,
-            tag: allTag,
-            privacy: fields.privacy,
-            userPermission: JSON.parse(fields.permission),
-            owner: fields.owner,
-            likeFromUser: [],
-            rating: {},
-            fileName: fields.fileName,
-            fileUrl: fields.fileUrl,
-            createdDate: fields.createdDate,
+    //     const lec = new Lecture({
 
-        })
+    //         title: fields.title,
+    //         description: fields.description,
+    //         contact: fields.contact,
+    //         tag: allTag,
+    //         privacy: fields.privacy,
+    //         userPermission: JSON.parse(fields.permission),
+    //         owner: fields.owner,
+    //         likeFromUser: [],
+    //         rating: {},
+    //         fileName: fields.fileName,
+    //         fileUrl: fields.fileUrl,
+    //         createdDate: fields.createdDate,
 
-        console.log(lec)
+    //     })
 
-        await lec.save((err, doc) => {
-            if (err) {
-                console.log(err)
-                res.sendStatus(400)
-            }
-            res.send(lec)
-        })
+    //     console.log(lec)
 
-    });
+    //     await lec.save((err, doc) => {
+    //         if (err) {
+    //             console.log(err)
+    //             res.sendStatus(400)
+    //         }
+    //         res.send(lec)
+    //     })
 
-    res.status(200)
+    // });
+
+    // res.status(200)
 
 })
 

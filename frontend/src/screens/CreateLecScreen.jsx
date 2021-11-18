@@ -347,67 +347,40 @@ export default function CreateLec({ route, navigation }) {
     const saveLec = async () => {
         if (validateForm()) {
 
-            try {
-                const res1 = await axios.post(`${API_LINK}/checkLecDuplicate`, { title: title.trim() })
-                if (res1.data) {
-                    setIsValidateTitleDuplicate(true)
+            // try {
+            //     const res1 = await axios.post(`${API_LINK}/checkLecDuplicate`, { title: title.trim() })
+            //     if (res1.data) {
+            //         setIsValidateTitleDuplicate(true)
 
-                    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-                    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-                    var today = new Date();
-                    var date = days[today.getDay()] + " " + today.getDate() + " " + months[today.getMonth()] + " " + today.getFullYear();
+            //         const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+            //         const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            //         var today = new Date();
+            //         var date = days[today.getDay()] + " " + today.getDate() + " " + months[today.getMonth()] + " " + today.getFullYear();
 
-                    var bodyFormData = new FormData();
-                    bodyFormData.append('title', title);
-                    bodyFormData.append('description', description);
-                    bodyFormData.append('contact', contact);
-                    bodyFormData.append('newTag', JSON.stringify(newTag));
-                    bodyFormData.append('oldTag', JSON.stringify(oldTag));
-                    //bodyFormData.append('files', {uri: fileUploaded[0].uri, name: fileUploaded[0].name, type: "pdf", size: fileUploaded[0].size});
-                    bodyFormData.append('permission', JSON.stringify(selectedUser));
-                    bodyFormData.append('privacy', privacy);
-                    bodyFormData.append('owner', user.email);
-                    bodyFormData.append('fileName', fileUploaded[0].name);
-                    bodyFormData.append('fileUrl', fileUploaded[0].uri);
-                    bodyFormData.append('createdDate', date);
+            //         var bodyFormData = new FormData();
+            //         bodyFormData.append('title', title);
+            //         bodyFormData.append('description', description);
+            //         bodyFormData.append('contact', contact);
+            //         bodyFormData.append('newTag', JSON.stringify(newTag));
+            //         bodyFormData.append('oldTag', JSON.stringify(oldTag));
+            //         //bodyFormData.append('files', {uri: fileUploaded[0].uri, name: fileUploaded[0].name, type: "pdf", size: fileUploaded[0].size});
+            //         bodyFormData.append('permission', JSON.stringify(selectedUser));
+            //         bodyFormData.append('privacy', privacy);
+            //         bodyFormData.append('owner', user.email);
+            //         bodyFormData.append('fileName', fileUploaded[0].name);
+            //         bodyFormData.append('fileUrl', fileUploaded[0].uri);
+            //         bodyFormData.append('createdDate', date);
 
-                    const req = await axios.post(`${API_LINK}/uploadLec`, bodyFormData)
+            //         const req = await axios.post(`${API_LINK}/uploadLec`, bodyFormData)
 
-                    navigation.navigate('Home', { user: user })
-                } else {
-                    setIsValidateTitleDuplicate(false)
-                }
-            } catch (err) {
-                console.log(err)
-            }
-            // const newLecture = {
-            //     title: title,
-            //     description: description,
-            //     contact: contact,
-            //     newTag: newTag,
-            //     oldTag: oldTag,
-            //     uploadedFile: fileUploaded,
-            //     permission: selectedUser,
-            //     privacy: privacy,
-            //     owner: user.email
-            // };
-            // console.log(newLecture)
+            //         navigation.navigate('Home', { user: user })
+            //     } else {
+            //         setIsValidateTitleDuplicate(false)
+            //     }
+            // } catch (err) {
+            //     console.log(err)
+            // }
 
-            //console.log({uri: fileUploaded[0].uri, name: fileUploaded[0].name, type: "pdf", size: fileUploaded[0].size})
-            try {
-                //const req = await axios.post(`${API_LINK}/uploadLec`, bodyFormData)
-            } catch (err) {
-                console.log(err)
-            }
-            // const req = await axios({
-            //     method: 'post',
-            //     url: `${API_LINK}/uploadLec`,
-            //     data: newLecture,
-            // }).then(function (response) {
-            //     console.log("YES!");
-            // }).catch(function (error) {
-            //     console.log(error);
-            // });
         }
     }
 
