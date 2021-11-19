@@ -46,9 +46,8 @@ const LectureSchema = new mongoose.Schema({
         trim: true
     },
     createdDate: {
-        type: String, 
-        required: true,
-        trim: true
+        type: Date,
+        default: Date.now
     },
 })
 

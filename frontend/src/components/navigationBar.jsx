@@ -1,5 +1,5 @@
 import React from 'react'
-import { StyleSheet, Dimensions, PixelRatio, Platform } from 'react-native'
+import { StyleSheet, Dimensions, PixelRatio, Platform, TouchableOpacity } from 'react-native'
 import { HStack, IconButton, Icon, Text, StatusBar, Box } from "native-base";
 import { FontAwesome } from '@expo/vector-icons';
 
@@ -31,28 +31,44 @@ const normalize = (size) => {
 
 export default function AppBar(props) {
 
+    const changePageToHome = () => {
+        props.navigation.navigate('Home', { user: props.user })
+    }
+
+    const changePageToLibrary = () => {
+        props.navigation.navigate('Library', { user: props.user })
+    }
+
     return (
         <>
             <StatusBar backgroundColor="#fedcc8" barStyle="light-content" />
             <HStack bg='#fedcc8' pl="10" pr="4" py="1" style={styles.navigationBar}>
-                <HStack space="0" alignItems='center' direction='column'>
-                    <IconButton icon={<Icon as={<FontAwesome name="search" size={24}/>}
-                        size='md' style={[props.page == "Search" ? styles.textSelected : styles.text]}/>} />
-                    <Text style={[styles.navigationBarText, props.page == "Search" ? styles.textSelected : styles.text]} fontFamily="body" fontWeight="700">Search</Text>
-                </HStack>
-                <HStack space="0" alignItems='center' direction='column'>
-                    <IconButton icon={<Icon as={<FontAwesome name="book" size={24} />}
-                        size='md' style={[props.page == "Library" ? styles.textSelected : styles.text]}/>} />
-                    <Text style={[styles.navigationBarText, props.page == "Library" ? styles.textSelected : styles.text]} fontFamily="body" fontWeight="700">Your Library</Text>
-                </HStack>
+
+                <TouchableOpacity>
+                    <HStack space="0" alignItems='center' direction='column'>
+                        <Icon as={<FontAwesome name="search" size={24} />}
+                            my="1" size='md' style={[props.page == "Search" ? styles.textSelected : styles.text]} />
+                        <Text style={[styles.navigationBarText, props.page == "Search" ? styles.textSelected : styles.text]} fontFamily="body" fontWeight="700">Search</Text>
+                    </HStack>
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => changePageToLibrary()}>
+                    <HStack space="0" alignItems='center' direction='column'>
+                        <Icon as={<FontAwesome name="book" size={24} />}
+                            my="1" size='md' style={[props.page == "Library" ? styles.textSelected : styles.text]} />
+                        <Text style={[styles.navigationBarText, props.page == "Library" ? styles.textSelected : styles.text]} fontFamily="body" fontWeight="700">Your Library</Text>
+                    </HStack>
+                </TouchableOpacity>
 
             </HStack>
             <Box style={styles.centerButton}>
-                <HStack space="0" alignItems='center' direction='column' style={styles.centerButtonStack}>
-                    <IconButton icon={<Icon as={<FontAwesome name="home" size={20} />}
-                     size='lg' style={[props.page == "Home" ? styles.textSelected : styles.text]}/>}/>
-                    <Text style={[styles.centerButtonText, props.page == "Home" ? styles.textSelected : styles.text]} fontFamily="body" fontWeight="700">Home</Text>
-                </HStack>
+                <TouchableOpacity onPress={() => changePageToHome()}>
+                    <HStack space="0" alignItems='center' direction='column' style={styles.centerButtonStack}>
+                        <Icon as={<FontAwesome name="home" size={20} />}
+                            my="2" size='lg' style={[props.page == "Home" ? styles.textSelected : styles.text]} />
+                        <Text style={[styles.centerButtonText, props.page == "Home" ? styles.textSelected : styles.text]} fontFamily="body" fontWeight="700">Home</Text>
+                    </HStack>
+                </TouchableOpacity>
             </Box>
         </>
     );
@@ -72,7 +88,7 @@ const styles = StyleSheet.create({
         paddingTop: 0,
         fontSize: normalize(13),
     },
-    centerButton:{
+    centerButton: {
         flex: 1,
         width: getScreenWidth() * 0.27,
         height: getScreenWidth() * 0.27,
@@ -83,11 +99,11 @@ const styles = StyleSheet.create({
         bottom: getScreenWidth() * -0.06
 
     },
-    centerButtonText:{
+    centerButtonText: {
         marginTop: -8,
         fontSize: 17,
     },
-    centerButtonStack:{
+    centerButtonStack: {
         position: 'relative',
         top: 12
     },

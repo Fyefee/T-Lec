@@ -10,7 +10,7 @@ import {
 } from "native-base";
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 
-import Appbar from "../components/Library/AppBar"
+import Appbar from "../components/Main/AppBar"
 import NavigationBar from '../components/NavigationBar'
 
 const {
@@ -55,47 +55,14 @@ export default function Library({ route, navigation }) {
 
     let [userInfo, setUserInfo] = React.useState(
         {
-            "rating": 4.3,
-            "postCount": 15,
-            "userFollower": 100,
-            "userFollowing": 50
+            "rating": 0,
+            "postCount": 0,
+            "userFollower": 0,
+            "userFollowing": 0
         }
     )
 
-    let [collection, setCollection] = React.useState([
-        {
-            "name": "Test11111111111111111111111111111111111111111111111111111111",
-            "privacy": "public",
-        },
-        {
-            "name": "Test2",
-            "privacy": "private",
-        },
-        {
-            "name": "Test11111111111111111111111111111111111111111111111111111111",
-            "privacy": "public",
-        },
-        {
-            "name": "Test11111111111111111111111111111111111111111111111111111111",
-            "privacy": "public",
-        },
-        {
-            "name": "Test2",
-            "privacy": "private",
-        },
-        {
-            "name": "Test11111111111111111111111111111111111111111111111111111111",
-            "privacy": "public",
-        },
-        {
-            "name": "Test2",
-            "privacy": "private",
-        },
-        {
-            "name": "Test2",
-            "privacy": "private",
-        },
-    ])
+    let [collection, setCollection] = React.useState([])
 
     const [isOpen, setIsOpen] = React.useState(false)
     const [isPopoverOpen, setIsPopoverOpen] = React.useState(false)
@@ -125,6 +92,25 @@ export default function Library({ route, navigation }) {
             mono: 'Prompt',
         },
     });
+
+    useEffect(async () => {
+
+        try {
+            const dataFromDB = await axios.post(`${API_LINK}/getDataForLibrary`, { email: user.email })
+            const userLibData = {
+                "rating": dataFromDB.data.rating,
+                "postCount": dataFromDB.data.postCount,
+                "userFollower": dataFromDB.data.userFollower,
+                "userFollowing": dataFromDB.data.userFollowing
+            }
+            setUserInfo(userLibData);
+            setCollection(dataFromDB.data.userLecture);
+        }
+        catch (e) {
+            console.log("GetData error : ", e)
+        }
+
+    }, [])
 
     const renderStar = () => {
         let star = [];
@@ -194,7 +180,7 @@ export default function Library({ route, navigation }) {
 
     return (
         <NativeBaseProvider theme={theme}>
-            <Appbar user={user} bgColor={"#fef1e6"}/>
+            <Appbar user={user} bgColor={"#fef1e6"} />
             <ScrollView
                 _contentContainerStyle={{
                     pt: 6,
@@ -217,7 +203,12 @@ export default function Library({ route, navigation }) {
                             </HStack>
 
                             <HStack space="4" py="9" pr="4" direction='column'>
-                                <Text pt="1" fontFamily="body" fontWeight="700" style={styles.cardRatingText}>Rating {userInfo.rating}</Text>
+                                {userInfo.rating == null ? (
+                                    <Text pt="1" fontFamily="body" fontWeight="700" style={styles.cardRatingText}>Never get ratings</Text>
+                                ) : (
+                                    <Text pt="1" fontFamily="body" fontWeight="700" style={styles.cardRatingText}>Rating {userInfo.rating}</Text>
+                                )}
+                                
                                 <HStack space="1" justifyContent="center">
                                     {renderStar()}
                                 </HStack>
@@ -285,7 +276,7 @@ export default function Library({ route, navigation }) {
                 </AlertDialog.Content>
             </AlertDialog>
 
-            <NavigationBar page={"Library"} />
+            <NavigationBar navigation={navigation} page={"Library"} user={user} />
         </NativeBaseProvider>
     );
 

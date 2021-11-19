@@ -1,6 +1,6 @@
 import React from 'react'
 import { StyleSheet, Dimensions, PixelRatio } from 'react-native'
-import { HStack, IconButton, Icon, Text, StatusBar, Image } from "native-base";
+import { HStack, IconButton, Icon, Text, StatusBar, Image, KeyboardAvoidingView } from "native-base";
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 
 const {
@@ -44,6 +44,7 @@ export default function AppBar(props) {
     return (
         <>
             <StatusBar backgroundColor={props.bgColor} barStyle="light-content" />
+
             <HStack bg={props.bgColor} px="4" py="1" style={styles.appbar}>
                 <HStack space="2" alignItems='center'>
                     <Image alt="logo" style={styles.logoImage} source={require("../../assets/logo/logo_color_dino.png")}></Image>

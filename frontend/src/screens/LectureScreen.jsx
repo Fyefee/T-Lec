@@ -325,7 +325,7 @@ export default function CreateLec({ route, navigation }) {
                     </AlertDialog.Content>
                 </AlertDialog>
 
-                <NavigationBar page={"Lecture"} />
+                <NavigationBar navigation={navigation} page={"Lecture"} user={user}/>
             </LinearGradient>
         </NativeBaseProvider>
     );

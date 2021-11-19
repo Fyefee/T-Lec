@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, Dimensions, PixelRatio, Platform, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Dimensions, PixelRatio, Platform, TouchableOpacity, View, KeyboardAvoidingView } from 'react-native'
 import axios from 'axios';
 import { API_LINK, CLIENTID } from '@env';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -16,22 +16,10 @@ import Appbar from '../components/CreateLec/AppBar'
 
 import * as FileSystem from 'expo-file-system';
 
-
 const {
     width: SCREEN_WIDTH,
     height: SCREEN_HEIGHT,
 } = Dimensions.get('window');
-
-const scale = SCREEN_WIDTH / 320;
-
-const normalize = (size) => {
-    const newSize = size * scale
-    if (Platform.OS === 'ios') {
-        return Math.round(PixelRatio.roundToNearestPixel(newSize))
-    } else {
-        return Math.round(PixelRatio.roundToNearestPixel(newSize)) - 2
-    }
-}
 
 const getScreenWidth = () => {
     // for use screen width 
@@ -50,6 +38,17 @@ const getScreenHeight = () => {
     }
     else {
         return SCREEN_WIDTH
+    }
+}
+
+const scale = getScreenWidth() / 320;
+
+const normalize = (size) => {
+    const newSize = size * scale
+    if (Platform.OS === 'ios') {
+        return Math.round(PixelRatio.roundToNearestPixel(newSize))
+    } else {
+        return Math.round(PixelRatio.roundToNearestPixel(newSize)) - 2
     }
 }
 
@@ -317,7 +316,6 @@ export default function CreateLec({ route, navigation }) {
             } else if (result.type == "success") {
                 if (fileUploaded.length == 0) {
                     const newArray = [...fileUploaded];
-                    console.log(result)
                     newArray.push(result)
                     setFileUploaded(newArray)
                     setIsValidateUploadFile(true);
@@ -326,27 +324,9 @@ export default function CreateLec({ route, navigation }) {
         } catch (e) {
             console.log("Upload file error");
         }
-        try {
-            const res = await DocumentPicker.pick({
-                type: [DocumentPicker.types.pdf],
-            })
-            console.log(JSON.stringify(res))
-            if (fileUploaded.length == 0) {
-                const newArray = [...fileUploaded];
-                newArray.push(res)
-                setFileUploaded(newArray)
-                setIsValidateUploadFile(true);
-            }
-        } catch (err) {
-            if (DocumentPicker.isCancel(err)) {
-                console.log('Canceled');
-            } else {
-                console.log('Unknown Error: ' + JSON.stringify(err));
-            }
-        }
     }
 
-    
+
 
     const saveLec = async () => {
         if (validateForm()) {
@@ -356,11 +336,7 @@ export default function CreateLec({ route, navigation }) {
                 if (res1.data) {
                     setIsValidateTitleDuplicate(true)
 
-                    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-                    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-                    var today = new Date();
-                    var date = days[today.getDay()] + " " + today.getDate() + " " + months[today.getMonth()] + " " + today.getFullYear();
-                    const fileBase64 = await FileSystem.readAsStringAsync(fileUploaded[0].uri, { encoding: 'base64'  });
+                    const fileBase64 = await FileSystem.readAsStringAsync(fileUploaded[0].uri, { encoding: 'base64' });
 
                     var bodyFormData = new FormData();
                     bodyFormData.append('title', title);
@@ -368,18 +344,16 @@ export default function CreateLec({ route, navigation }) {
                     bodyFormData.append('contact', contact);
                     bodyFormData.append('newTag', JSON.stringify(newTag));
                     bodyFormData.append('oldTag', JSON.stringify(oldTag));
-                    //bodyFormData.append('files', {uri: fileUploaded[0].uri, name: fileUploaded[0].name, type: "pdf", size: fileUploaded[0].size});
                     bodyFormData.append('permission', JSON.stringify(selectedUser));
                     bodyFormData.append('privacy', privacy);
                     bodyFormData.append('owner', user.email);
                     bodyFormData.append('fileName', fileUploaded[0].name);
-                    bodyFormData.append('fileUrl', fileUploaded[0].uri);
                     bodyFormData.append('fileBase64', fileBase64)
-                    bodyFormData.append('createdDate', date);
 
                     const req = await axios.post(`${API_LINK}/uploadLec`, bodyFormData);
 
                     navigation.navigate('Home', { user: user })
+
                 } else {
                     setIsValidateTitleDuplicate(false)
                 }
@@ -668,7 +642,7 @@ export default function CreateLec({ route, navigation }) {
                     </Modal.Content>
                 </Modal>
 
-                <NavigationBar page={"CreateLec"} />
+                <NavigationBar navigation={navigation} page={"CreateLec"} user={user} />
             </LinearGradient>
         </NativeBaseProvider>
     );

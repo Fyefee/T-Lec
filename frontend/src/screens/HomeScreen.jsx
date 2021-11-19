@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, Dimensions, PixelRatio, Platform, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Dimensions, PixelRatio, Platform, TouchableOpacity, View, BackHandler } from 'react-native'
 import axios from 'axios';
 import { API_LINK, CLIENTID } from '@env';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -11,7 +11,8 @@ import {
 import { FontAwesome, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 
-import Appbar from "../components/Library/AppBar"
+import CreateLecButton from '../components/Main/CreateLecButton'
+import Appbar from "../components/Main/AppBar"
 import NavigationBar from '../components/NavigationBar'
 
 const {
@@ -282,7 +283,9 @@ export default function Home({ route, navigation }) {
                         {renderNewLecBox()}
                     </HStack>
                 </ScrollView>
-                <NavigationBar page={"Home"} />
+
+                <CreateLecButton navigation={navigation} user={user}/>
+                <NavigationBar navigation={navigation} page={"Home"} user={user}/>
 
             </LinearGradient>
         </NativeBaseProvider>
@@ -353,7 +356,7 @@ const styles = StyleSheet.create({
         marginRight: getScreenWidth() * 0.005,
     },
     newLecBox: {
-        width: getScreenWidth() * 0.9,
+        width: "100%",
         height: getScreenHeight() * 0.175,
         borderRadius: getScreenWidth() * 0.025,
         alignItems: 'flex-start',
