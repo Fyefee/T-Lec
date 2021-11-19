@@ -37,7 +37,8 @@ mongoose.connect(process.env.mongoDBLink)
 
 const User = require('./src/models/user');
 const Tag = require('./src/models/tag');
-const Lecture = require('./src/models/lecture')
+const Lecture = require('./src/models/lecture');
+const fs = require('fs');
 
 const storage = new GridFsStorage({
     url: process.env.mongoDBLink,
@@ -179,93 +180,128 @@ app.post('/checkLecDuplicate', async (req, res) => {
 })
 
 app.post('/uploadLec', async (req, res) => {
+
+    console.log(req.body)
+
     const form = formidable({ multiples: true });
 
     form.parse(req, async (err, fields, files) => {
         if (err) {
             console.log(err)
         }
-        console.log(fields);
+        console.log(fields.title);
 
-        const newTag = JSON.parse(fields.newTag)
-        const oldTag = JSON.parse(fields.oldTag)
+        const base64string = fields.fileBase64;
 
-        if (newTag.length > 0) {
-            newTag.forEach(async (element) => {
-                try {
-                    const tagFromDB = await Tag.findOne({ tagName: element });
-                    if (tagFromDB) {
-                        let doc = await Tag.findOne({ tagName: tagFromDB.tagName });
-                        await Tag.findOneAndUpdate({ tagName: tagFromDB.tagName }, { count: doc.count + 1 })
-                    } else {
-                        const tag = new Tag({
-                            tagName: element,
-                            count: 1,
-                        })
-                        await tag.save((err, doc) => {
-                            if (err) {
-                                console.log(err)
-                                res.sendStatus(400)
-                            }
-                            res.send(tag)
-                        })
-                    }
-                } catch (err) {
-                    console.log(err)
-                }
-            })
-        }
+        // path.resolve(__dirname + "/output/", "OUTPUT_Data.pdf")
+        // Generate File
+        fs.writeFile("out.pdf", base64string, {encoding: 'base64'}, function(err) {
+            console.log(err);
+            });
 
-        if (oldTag.length > 0) {
-            oldTag.forEach(async (element) => {
-                try {
-                    // await Tag.findOne({ tagName : element }, async function (err, tag) {
-                    //     await Tag.findOneAndUpdate({ tagName : element }, { count : tag.count+1})
-                    //     if (err) {
-                    //         console.log(err)
-                    //         res.sendStatus(400)
-                    //     }
-                    // })
-                    let doc = await Tag.findOne({ tagName: element });
-                    await Tag.findOneAndUpdate({ tagName: element }, { count: doc.count + 1 })
-                } catch (err) {
-                    console.log(err)
-                }
-            })
-        }
+        // Read RAW file
+        fs.readFile('out.pdf', 'utf8', function(err, data){
+            console.log(data);
+        }); 
 
-        const allTag = newTag.concat(oldTag);
+        // Request In Clinet
+        // await axios({
+        //     method: 'post',
+        //     url: '',
+        //     data: {
+        //     },
+        //     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        //     responseType: 'arraybuffer',
+        //   })
+        //     .then((response) => {
+        //       return Buffer.from(response.data).toString('base64');
+        //     })
+        //     .catch(function (error) {
+        //       return null;
+        //     });
+    }) 
 
-        const lec = new Lecture({
+    return;
 
-            title: fields.title,
-            description: fields.description,
-            contact: fields.contact,
-            tag: allTag,
-            privacy: fields.privacy,
-            userPermission: JSON.parse(fields.permission),
-            owner: fields.owner,
-            likeFromUser: [],
-            rating: {},
-            fileName: fields.fileName,
-            fileUrl: fields.fileUrl,
-            createdDate: fields.createdDate,
+    //     const newTag = JSON.parse(fields.newTag)
+    //     const oldTag = JSON.parse(fields.oldTag)
 
-        })
+    //     if (newTag.length > 0) {
+    //         newTag.forEach(async (element) => {
+    //             try {
+    //                 const tagFromDB = await Tag.findOne({ tagName: element });
+    //                 if (tagFromDB) {
+    //                     let doc = await Tag.findOne({ tagName: tagFromDB.tagName });
+    //                     await Tag.findOneAndUpdate({ tagName: tagFromDB.tagName }, { count: doc.count + 1 })
+    //                 } else {
+    //                     const tag = new Tag({
+    //                         tagName: element,
+    //                         count: 1,
+    //                     })
+    //                     await tag.save((err, doc) => {
+    //                         if (err) {
+    //                             console.log(err)
+    //                             res.sendStatus(400)
+    //                         }
+    //                         res.send(tag)
+    //                     })
+    //                 }
+    //             } catch (err) {
+    //                 console.log(err)
+    //             }
+    //         })
+    //     }
 
-        console.log(lec)
+    //     if (oldTag.length > 0) {
+    //         oldTag.forEach(async (element) => {
+    //             try {
+    //                 // await Tag.findOne({ tagName : element }, async function (err, tag) {
+    //                 //     await Tag.findOneAndUpdate({ tagName : element }, { count : tag.count+1})
+    //                 //     if (err) {
+    //                 //         console.log(err)
+    //                 //         res.sendStatus(400)
+    //                 //     }
+    //                 // })
+    //                 let doc = await Tag.findOne({ tagName: element });
+    //                 await Tag.findOneAndUpdate({ tagName: element }, { count: doc.count + 1 })
+    //             } catch (err) {
+    //                 console.log(err)
+    //             }
+    //         })
+    //     }
 
-        await lec.save((err, doc) => {
-            if (err) {
-                console.log(err)
-                res.sendStatus(400)
-            }
-            res.send(lec)
-        })
+    //     const allTag = newTag.concat(oldTag);
 
-    });
+    //     const lec = new Lecture({
 
-    res.status(200)
+    //         title: fields.title,
+    //         description: fields.description,
+    //         contact: fields.contact,
+    //         tag: allTag,
+    //         privacy: fields.privacy,
+    //         userPermission: JSON.parse(fields.permission),
+    //         owner: fields.owner,
+    //         likeFromUser: [],
+    //         rating: {},
+    //         fileName: fields.fileName,
+    //         fileUrl: fields.fileUrl,
+    //         createdDate: fields.createdDate,
+
+    //     })
+
+    //     console.log(lec)
+
+    //     await lec.save((err, doc) => {
+    //         if (err) {
+    //             console.log(err)
+    //             res.sendStatus(400)
+    //         }
+    //         res.send(lec)
+    //     })
+
+    // });
+
+    // res.status(200)
 
 })
 

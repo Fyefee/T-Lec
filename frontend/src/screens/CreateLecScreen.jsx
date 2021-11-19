@@ -14,6 +14,8 @@ import * as DocumentPicker from 'expo-document-picker';
 import NavigationBar from '../components/NavigationBar'
 import Appbar from '../components/CreateLec/AppBar'
 
+import * as FileSystem from 'expo-file-system';
+
 
 const {
     width: SCREEN_WIDTH,
@@ -324,25 +326,27 @@ export default function CreateLec({ route, navigation }) {
         } catch (e) {
             console.log("Upload file error");
         }
-        // try {
-        //     const res = await DocumentPicker.pick({
-        //         type: [DocumentPicker.types.pdf],
-        //     })
-        //     console.log(JSON.stringify(res))
-        //     if (fileUploaded.length == 0) {
-        //         const newArray = [...fileUploaded];
-        //         newArray.push(res)
-        //         setFileUploaded(newArray)
-        //         setIsValidateUploadFile(true);
-        //     }
-        // } catch (err) {
-        //     if (DocumentPicker.isCancel(err)) {
-        //         console.log('Canceled');
-        //     } else {
-        //         console.log('Unknown Error: ' + JSON.stringify(err));
-        //     }
-        // }
+        try {
+            const res = await DocumentPicker.pick({
+                type: [DocumentPicker.types.pdf],
+            })
+            console.log(JSON.stringify(res))
+            if (fileUploaded.length == 0) {
+                const newArray = [...fileUploaded];
+                newArray.push(res)
+                setFileUploaded(newArray)
+                setIsValidateUploadFile(true);
+            }
+        } catch (err) {
+            if (DocumentPicker.isCancel(err)) {
+                console.log('Canceled');
+            } else {
+                console.log('Unknown Error: ' + JSON.stringify(err));
+            }
+        }
     }
+
+    
 
     const saveLec = async () => {
         if (validateForm()) {
@@ -356,6 +360,7 @@ export default function CreateLec({ route, navigation }) {
                     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
                     var today = new Date();
                     var date = days[today.getDay()] + " " + today.getDate() + " " + months[today.getMonth()] + " " + today.getFullYear();
+                    const fileBase64 = await FileSystem.readAsStringAsync(fileUploaded[0].uri, { encoding: 'base64'  });
 
                     var bodyFormData = new FormData();
                     bodyFormData.append('title', title);
@@ -369,9 +374,10 @@ export default function CreateLec({ route, navigation }) {
                     bodyFormData.append('owner', user.email);
                     bodyFormData.append('fileName', fileUploaded[0].name);
                     bodyFormData.append('fileUrl', fileUploaded[0].uri);
+                    bodyFormData.append('fileBase64', fileBase64)
                     bodyFormData.append('createdDate', date);
 
-                    const req = await axios.post(`${API_LINK}/uploadLec`, bodyFormData)
+                    const req = await axios.post(`${API_LINK}/uploadLec`, bodyFormData);
 
                     navigation.navigate('Home', { user: user })
                 } else {
@@ -380,34 +386,7 @@ export default function CreateLec({ route, navigation }) {
             } catch (err) {
                 console.log(err)
             }
-            // const newLecture = {
-            //     title: title,
-            //     description: description,
-            //     contact: contact,
-            //     newTag: newTag,
-            //     oldTag: oldTag,
-            //     uploadedFile: fileUploaded,
-            //     permission: selectedUser,
-            //     privacy: privacy,
-            //     owner: user.email
-            // };
-            // console.log(newLecture)
 
-            //console.log({uri: fileUploaded[0].uri, name: fileUploaded[0].name, type: "pdf", size: fileUploaded[0].size})
-            try {
-                //const req = await axios.post(`${API_LINK}/uploadLec`, bodyFormData)
-            } catch (err) {
-                console.log(err)
-            }
-            // const req = await axios({
-            //     method: 'post',
-            //     url: `${API_LINK}/uploadLec`,
-            //     data: newLecture,
-            // }).then(function (response) {
-            //     console.log("YES!");
-            // }).catch(function (error) {
-            //     console.log(error);
-            // });
         }
     }
 
