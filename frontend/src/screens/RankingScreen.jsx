@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, Dimensions, PixelRatio, Platform, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Dimensions, PixelRatio, Platform, TouchableOpacity, View} from 'react-native'
 import axios from 'axios';
 import { API_LINK, CLIENTID } from '@env';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -9,9 +9,9 @@ import {
     Image, Select, CheckIcon, Item, Modal, FormControl
 } from "native-base";
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
-
 import NavigationBar from '../components/NavigationBar'
 import { withTheme } from 'styled-components';
+import { flex } from 'styled-system';
 
 const {
     width: SCREEN_WIDTH,
@@ -133,8 +133,10 @@ export default function Ranking({ route, navigation }) {
     });
 
     return (
+        
         <LinearGradient start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} colors={['#c5d8ff', '#fedcc8']} style={styles.container}>
         <NativeBaseProvider theme={theme}>
+            <ScrollView style={styles.scrollView}> 
             <Text pt="20" fontFamily="body" fontWeight="700" style={styles.ranking_header}>RANKING</Text>
             <Image source={require("../assets/decoration/top_frame1.png")} style={styles.topFrame1} ></Image>
             <Image source={require("../assets/decoration/top_frame2.png")} style={styles.topFrame2} ></Image>
@@ -147,15 +149,19 @@ export default function Ranking({ route, navigation }) {
             <Text pt="1"  fontWeight="0" style={[styles.top3_name2,{fontSize: normalize(18)}]}>{ranking[1].owner}</Text>
             <Text pt="3" fontWeight="700" style={[styles.top3_name2,{fontSize: normalize(20)}]}>{ranking[1].LectureName}</Text>
             <Text pt="1"  fontWeight="0" style={[styles.top3_name3,{fontSize: normalize(18)}]}>{ranking[2].owner}</Text>
-            <Text pt="3" fontWeight="700" style={[styles.top3_name3,{fontSize: normalize(20)}]}>{ranking[2].LectureName}</Text>
-
-            <View style={styles.top10_container}>
-            
-            </View>
-            <NavigationBar page={"Ranking"} />
+            <Text pt="3" fontWeight="700" style={[styles.top3_name3,{fontSize: normalize(20)}]}>{ranking[2].LectureName}</Text>  
+                <View style={styles.top10_container}>
+                    <Text style={{color:'white', fontSize:19}}>{ranking[3].LectureName}</Text>
+                    <Text style={{color:'white', fontSize:19}}>{ranking[3].owner}</Text>
+                    <Text style={{color:'white', fontSize:19}}>4</Text>
+                </View>
+                <View style={styles.top10_container}></View>
+                <View style={styles.top10_container}></View>
+                <View style={styles.top10_container}></View>
+          </ScrollView>
         </NativeBaseProvider>
-        
         </LinearGradient>
+        
     );
 
 }
@@ -167,19 +173,27 @@ const styles = StyleSheet.create({
         height: '100%',
         alignItems: 'center',
         justifyContent: 'center',
-        overflow: "hidden"
+        overflow: 'scroll',
     },
+    scrollView: {
+        width:getScreenWidth()
+      },
     top10_container:{
-        backgroundColor: "white",
-        width:100,
-        height:100,
+        backgroundColor: "rgba(255, 255, 255, 0.25)",
+        width:getScreenWidth()/1.2,
+        height:60,
+        justifyContent: 'space-around',
+        alignItems: 'center', 
+        bottom: getScreenWidth() * 1.35,
+        borderRadius: 20,
+        left: getScreenWidth()*0.08,
+        marginBottom:20,
+        flexDirection: "row",
+    },
+    ranking_header: {
         justifyContent: 'center',
         alignItems: 'center', 
         textAlign: 'center',
-        bottom: 15,
-    },
-    ranking_header: {
-        left: getScreenWidth() * 0.18,
         fontSize: normalize(30),
         color: "white"
     },
@@ -189,7 +203,7 @@ const styles = StyleSheet.create({
         height: getScreenWidth() * 0.38,
         borderRadius: getScreenWidth() * 0.36,
         bottom: getScreenWidth() * 0.59,
-        left: getScreenWidth() * 0.18
+        left: getScreenWidth() * 0.3
     },
     ownerImage2:{
         zIndex: 1 ,
@@ -197,15 +211,15 @@ const styles = StyleSheet.create({
         height: getScreenWidth() * 0.38,
         borderRadius: getScreenWidth() * 0.36,
         bottom: getScreenWidth() * 0.87,
-        right: getScreenWidth() * 0.047
+        left: getScreenWidth() * 0.08
     },
     ownerImage3:{
         zIndex: 1 ,
         width: getScreenWidth() * 0.38,
         height: getScreenWidth() * 0.38,
         borderRadius: getScreenWidth() * 0.36,
-        bottom: getScreenWidth() * 1.22,
-        left: getScreenWidth() * 0.42
+        bottom: getScreenWidth() * 1.24,
+        left: getScreenWidth() * 0.53
     },
     top3_name1:{
         textAlign: "center",
@@ -231,22 +245,22 @@ const styles = StyleSheet.create({
         top: getScreenWidth() * 0.21,
         width: getScreenWidth() * 0.75,
         height: getScreenWidth() * 0.75,
-        right: 0
+        right: getScreenWidth() * 0.14
     },
     topFrame2:{
         zIndex: 3 ,
         top: getScreenWidth() * 0.07,
         width: getScreenWidth() * 0.75,
         height: getScreenWidth() * 0.75,
-        right: getScreenWidth() * 0.23
+        right: getScreenWidth() * 0.1
     },
     topFrame3:{
         position: 'absolute',
         zIndex: 3 ,
-        top: getScreenWidth() * 0.34,
+        top: getScreenWidth() * 0.32,
         width: getScreenWidth() * 0.75,
         height: getScreenWidth() * 0.75,
-        left: getScreenWidth() * 0.23
+        left: getScreenWidth() * 0.34
     },
     
 });
