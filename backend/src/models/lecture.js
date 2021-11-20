@@ -34,8 +34,10 @@ const LectureSchema = new mongoose.Schema({
         type: Array, 
     },
     rating: {
-        type: Map,
-        of: String
+        type: Array, 
+    },
+    ratingAvg: {
+        type: Number, 
     },
     fileName: {
         type: String, 
@@ -49,6 +51,9 @@ const LectureSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     },
+    comment: {
+        type: Array, 
+    }
 })
 
 module.exports = mongoose.model("Lecture", LectureSchema);

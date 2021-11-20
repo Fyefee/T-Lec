@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useIsFocused } from "@react-navigation/native";
 import { StyleSheet, Dimensions, PixelRatio, Platform, TouchableOpacity, View } from 'react-native'
 import axios from 'axios';
 import { API_LINK, CLIENTID } from '@env';
@@ -6,11 +7,12 @@ import { LinearGradient } from 'expo-linear-gradient';
 import {
     Input, TextArea, VStack, HStack, Button, IconButton, Icon, Text,
     NativeBaseProvider, Center, Box, StatusBar, extendTheme, ScrollView,
-    Image, Select, CheckIcon, Item, Modal, FormControl, AlertDialog
+    Image, Select, CheckIcon, Item, Modal, FormControl, AlertDialog, Spinner
 } from "native-base";
 import { FontAwesome, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 
+import ErrorAlert from '../components/ErrorAlert'
 import NavigationBar from '../components/NavigationBar'
 import Appbar from '../components/Lecture/AppBar'
 
@@ -56,45 +58,23 @@ export default function CreateLec({ route, navigation }) {
     const { user } = route.params;
 
     let [lecture, setLecture] = React.useState({
-        "contact": "Jeffyyyy",
-        "description": "Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah Blah",
-        "permission": [
-            "62070000@it.kmitl.ac.th",
-            "62070999@it.kmitl.ac.th",
-        ],
-        "privacy": "private",
-        "tag": [
-            "Test",
-            "Kuy",
-        ],
-        "title": "Test",
-        "uploadedFile": [
-            {
-                "mimeType": "application/pdf",
-                "name": "1ใบเซ็นชื่อเตรียมสอนแก้ไข06016317-OOP-อ.ธราวิเชษฐ์-กย.64.pdf",
-                "size": 1433923,
-                "type": "success",
-                "uri": "file:///data/user/0/host.exp.exponent/cache/ExperienceData/%2540jeffy34931%252FTLec/DocumentPicker/00990b16-a405-4dfd-890b-d4ceca474f6b.pdf",
-            },
-        ],
-        "rating": 4.5,
-        "comment": [
-            {
-                "userImage": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
-                "userName": "Jeffy Za",
-                "userEmail": "62070045@it.kmitl.ac.th",
-                "comment": "Good"
-            },
-            {
-                "userImage": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
-                "userName": "Boos EiEi",
-                "userEmail": "62070166@it.kmitl.ac.th",
-                "comment": "GoodMak"
-            },
-        ]
+        "contact": "",
+        "description": "",
+        "permission": [],
+        "privacy": "",
+        "tag": [],
+        "title": "",
+        "rating": 0,
+        "comment": []
     })
 
-    const [isOpen, setIsOpen] = React.useState(false)
+    //let [lecture, setLecture] = React.useState({})
+
+    const [isLoad, setIsLoad] = React.useState(false)
+    const isFocused = useIsFocused();
+
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false)
+    const [isRatingModalOpen, setIsRatingModalOpen] = React.useState(false)
     const [deleteObject, setDeleteObject] = React.useState(null)
     const [commentInputRef, setCommentInputRef] = React.useState(null)
 
@@ -102,6 +82,8 @@ export default function CreateLec({ route, navigation }) {
 
     const [newComment, setNewComment] = React.useState("")
     const [rating, setRating] = React.useState(0)
+
+    const [isAlertOpen, setIsAlertOpen] = React.useState(false)
 
     const theme = extendTheme({
         fontConfig: {
@@ -123,9 +105,35 @@ export default function CreateLec({ route, navigation }) {
         },
     });
 
+    useEffect(async () => {
+
+        try {
+            setIsLoad(true)
+
+            const dataFromDB = await axios.get(`${API_LINK}/getLectureData`, { params: { title: route.params.lecture.name, userEmail: user.email } })
+            // const userLibData = {
+            //     "rating": dataFromDB.data.rating,
+            //     "postCount": dataFromDB.data.postCount,
+            //     "userFollower": dataFromDB.data.userFollower,
+            //     "userFollowing": dataFromDB.data.userFollowing
+            // }
+            // setUserInfo(userLibData);
+            // setCollection(dataFromDB.data.userLecture);
+            setLecture(dataFromDB.data)
+            setRating(dataFromDB.data.userRating)
+
+            setIsLoad(true)
+
+        }
+        catch (e) {
+            console.log("GetData error : ", e)
+        }
+
+    }, [isFocused])
+
     const renderTagText = () => {
         let text = "";
-        lecture.tag.map((element, index) => {
+        lecture.tag.forEach((element, index) => {
             if (index != lecture.tag.length - 1) {
                 text += element + ", "
             } else {
@@ -161,7 +169,7 @@ export default function CreateLec({ route, navigation }) {
                         icon={<FontAwesome name="star" style={styles.starIconSelected} />}
                         size="sm"
                         borderRadius="full"
-                        onPress={() => setRating(i)} />
+                        onPress={() => openRateLecture(i)} />
                 )
             } else {
                 star.push(
@@ -170,11 +178,10 @@ export default function CreateLec({ route, navigation }) {
                         icon={<FontAwesome name="star-o" style={styles.starIcon} />}
                         size="sm"
                         borderRadius="full"
-                        onPress={() => setRating(i)} />
+                        onPress={() => openRateLecture(i)} />
                 )
             }
         }
-        console.log(user.image)
         return star;
     }
 
@@ -182,7 +189,7 @@ export default function CreateLec({ route, navigation }) {
         let comment = [];
         lecture.comment.map((element, index) => {
             comment.push(
-                <HStack space="5" px="8" py="2" key={index} style={styles.commentBox}>
+                <HStack space="5" px="8" py="2" mt="2" key={index} style={styles.commentBox}>
                     <Image mt="2" source={{ uri: element.userImage }}
                         alt="Alternate Text" style={styles.commentImage} />
                     <HStack space="0" pt="1" direction='column' style={styles.commentTextBox}>
@@ -209,126 +216,223 @@ export default function CreateLec({ route, navigation }) {
 
     const openDeleteAlert = (element) => {
         setDeleteObject(element)
-        setIsOpen(!isOpen);
+        setIsDeleteModalOpen(!isDeleteModalOpen);
     }
 
-    const deleteComment = () => {
-        let index = lecture.comment.indexOf(deleteObject);
-        lecture.comment.splice(index, 1);
-        onClose();
-    }
+    const deleteComment = async () => {
 
-    const addComment = () => {
-        const comment = {
-            "userImage": user.image,
-            "userName": user.firstname + " " +  user.lastname,
-            "userEmail": user.email,
-            "comment": newComment
+        try {
+
+            await axios.delete(`${API_LINK}/deleteComment`, { params: { title: lecture.title, comment: deleteObject } })
+
+            let index = lecture.comment.indexOf(deleteObject);
+            lecture.comment.splice(index, 1);
+
+        } catch (err) {
+            setIsAlertOpen(true)
+        } finally {
+            setIsDeleteModalOpen(!isDeleteModalOpen)
         }
-        lecture.comment.push(comment);
-        setNewComment("");
+
     }
 
-    return (
-        <NativeBaseProvider theme={theme}>
-            <LinearGradient start={{ x: 0, y: 1 }}
-                end={{ x: 1, y: 0 }}
-                colors={['#c5d8ff', '#fedcc8']}
-                style={styles.container}>
-                <Appbar name={lecture.title} />
-                <ScrollView
-                    _contentContainerStyle={{
-                        py: 3,
-                    }}
-                    style={styles.scrollStyle}
-                >
-                    <Box>
-                        <HStack space="5" px="10">
-                            <Image source={{ uri: user.image, }}
-                                alt="Alternate Text" style={styles.profileImage} />
-                            <HStack space="0" pt="2" direction='column' style={styles.profileBox}>
-                                <Text pt="1" fontFamily="body" fontWeight="700" style={styles.profileText}>{user.firstname} {user.lastname}</Text>
-                                <Text pt="1" fontFamily="body" fontWeight="700" style={styles.profileText}>Contact : {lecture.contact}</Text>
+    const addComment = async () => {
+        try {
+            const comment = {
+                "userImage": user.image,
+                "userName": user.firstname + " " + user.lastname,
+                "userEmail": user.email,
+                "comment": newComment,
+                "createdDate": Date.now()
+            }
+
+            await axios.post(`${API_LINK}/addComment`, { lecTitle: lecture.title, comment: comment })
+
+            lecture.comment.push(comment);
+            setNewComment("");
+        } catch (err) {
+            setIsAlertOpen(true)
+        }
+    }
+
+    const openRateLecture = (rate) => {
+        setRating(rate)
+        setIsRatingModalOpen(!isRatingModalOpen);
+    }
+
+    const rateLecture = async () => {
+        try {
+            await axios.post(`${API_LINK}/rateLecture`, { lecTitle: lecture.title, rating: rating, userEmail: user.email })
+        }
+        catch (err) {
+            setIsAlertOpen(true)
+        } finally {
+            setIsRatingModalOpen(!isRatingModalOpen)
+        }
+    }
+
+    if (isLoad) {
+        return (
+            <NativeBaseProvider theme={theme}>
+                <LinearGradient start={{ x: 0, y: 1 }}
+                    end={{ x: 1, y: 0 }}
+                    colors={['#c5d8ff', '#fedcc8']}
+                    style={styles.container}>
+                    <Appbar name={lecture.title} />
+                    <ScrollView
+                        _contentContainerStyle={{
+                            py: 3,
+                        }}
+                        style={styles.scrollStyle}
+                    >
+                        <Box>
+                            <HStack space="5" px="10">
+                                <Image source={{ uri: lecture.ownerImage, }}
+                                    key={lecture.ownerImage}
+                                    alt="Alternate Text" style={styles.profileImage} />
+                                <HStack space="0" pt="2" direction='column' style={styles.profileBox}>
+                                    <Text pt="1" fontFamily="body" fontWeight="700" style={styles.profileText}> {lecture.ownerName} </Text>
+                                    <Text pt="1" fontFamily="body" fontWeight="700" style={styles.profileText}>Contact : {lecture.contact}</Text>
+                                </HStack>
                             </HStack>
-                        </HStack>
 
-                        <HStack space="1" px="10" mt="3" direction='column'>
-                            <Text pt="1" fontFamily="body" fontWeight="700" style={styles.descriptionText}>{lecture.description}</Text>
-                            <Text pt="1" fontFamily="body" fontWeight="400" style={styles.tagText}>Tag : {renderTagText()}</Text>
-                        </HStack>
-
-                        <HStack space="1" px="8" mt="3" justifyContent="space-around">
-                            <Button style={styles.downloadFileButton} size="lg"><Text style={styles.downloadFileButtonText}>Download</Text></Button>
-
-                            <HStack space="1" pt="2">
-                                {renderStar()}
+                            <HStack space="1" px="10" mt="3" direction='column'>
+                                <Text pt="1" fontFamily="body" fontWeight="700" style={styles.descriptionText}>Description : {lecture.description}</Text>
+                                <Text pt="1" fontFamily="body" fontWeight="400" style={styles.tagText}>Tag : {renderTagText()}</Text>
                             </HStack>
-                        </HStack>
 
-                        <HStack space="1" px="4" mt="3" style={styles.ratingBox}>
-                            <Button style={styles.downloadFileButton} size="lg"><Text style={styles.downloadFileButtonText}>Want to rate this?</Text></Button>
+                            <HStack space="1" px="8" mt="3" justifyContent="space-around">
+                                <Button style={styles.downloadFileButton} size="lg"><Text style={styles.downloadFileButtonText}>Download</Text></Button>
 
-                            <HStack space="1" py="1">
-                                {renderRatingIcon()}
+                                <HStack space="1" pt="2">
+                                    {renderStar()}
+                                </HStack>
                             </HStack>
-                        </HStack>
 
-                        <Box style={styles.separator} />
+                            <HStack space="1" px="4" mt="3" style={styles.ratingBox}>
+                                <Button style={styles.downloadFileButton} size="lg"><Text style={styles.downloadFileButtonText}>Want to rate this?</Text></Button>
 
-                        <HStack space="1" px="6" mt="4" direction='column'>
-                            <Text pt="1" fontFamily="body" fontWeight="700" style={styles.commentHeaderText}>Comment</Text>
-                            {renderComment()}
-                        </HStack>
+                                <HStack space="1" py="1">
+                                    {renderRatingIcon()}
+                                </HStack>
+                            </HStack>
 
-                        <HStack space="5" px="10" my="6">
-                            <Input variant="rounded" placeholder="Comment"
-                                size="md" px="8" style={styles.addCommentInput}
-                                onChangeText={(inputText) => setNewComment(inputText)} 
-                                getRef={(ref) => setCommentInputRef(ref)}/>
-                            <IconButton
-                                size="md"
-                                variant="solid"
-                                borderRadius="full"
-                                style={styles.addCommentIcon}
-                                onPress={addComment}
-                                icon={<MaterialIcons name="file-upload" size={24} />}
-                            />
-                        </HStack>
+                            <Box style={styles.separator} />
 
-                    </Box>
+                            <HStack space="1" px="6" mt="4" direction='column'>
+                                <Text pt="1" fontFamily="body" fontWeight="700" style={styles.commentHeaderText}>Comment</Text>
+                                {lecture.comment.length > 0 ? (
+                                    <>
+                                        {renderComment()}
+                                    </>
+                                ) : (
+                                    <>
+                                        <Text pt="1" pl="3" fontFamily="body" fontWeight="700" style={styles.descriptionText}>This lecture has no comment.</Text>
+                                    </>
+                                )}
 
-                </ScrollView>
+                            </HStack>
 
-                <AlertDialog
-                    isOpen={isOpen}
-                    onClose={onClose}
-                >
-                    <AlertDialog.Content>
-                        <AlertDialog.CloseButton />
-                        <AlertDialog.Header>Delete Comment</AlertDialog.Header>
-                        <AlertDialog.Body>
-                            Do you really want to delete this comment?
+                            <HStack space="5" px="10" my="6">
+                                <Input variant="rounded" placeholder="Comment"
+                                    size="md" px="6" style={styles.addCommentInput}
+                                    onChangeText={(inputText) => setNewComment(inputText)}
+                                    getRef={(ref) => setCommentInputRef(ref)} />
+                                <IconButton
+                                    size="md"
+                                    variant="solid"
+                                    borderRadius="full"
+                                    style={styles.addCommentIcon}
+                                    onPress={addComment}
+                                    icon={<MaterialIcons name="file-upload" size={24} />}
+                                />
+                            </HStack>
+
+                        </Box>
+
+                    </ScrollView>
+
+                    <AlertDialog
+                        isOpen={isDeleteModalOpen}
+                        onClose={() => setIsDeleteModalOpen(!isDeleteModalOpen)}
+                    >
+                        <AlertDialog.Content>
+                            <AlertDialog.CloseButton />
+                            <AlertDialog.Header>Delete Comment</AlertDialog.Header>
+                            <AlertDialog.Body>
+                                Do you really want to delete this comment?
                         </AlertDialog.Body>
-                        <AlertDialog.Footer>
-                            <Button.Group space={2}>
-                                <Button
-                                    variant="unstyled"
-                                    onPress={onClose}
-                                >
-                                    Cancel
+                            <AlertDialog.Footer>
+                                <Button.Group space={2}>
+                                    <Button
+                                        variant="unstyled"
+                                        onPress={() => setIsDeleteModalOpen(!isDeleteModalOpen)}
+                                    >
+                                        Cancel
                                 </Button>
-                                <Button colorScheme="danger" onPress={deleteComment}>
-                                    Delete
+                                    <Button colorScheme="danger" onPress={deleteComment}>
+                                        Delete
                                 </Button>
-                            </Button.Group>
-                        </AlertDialog.Footer>
-                    </AlertDialog.Content>
-                </AlertDialog>
+                                </Button.Group>
+                            </AlertDialog.Footer>
+                        </AlertDialog.Content>
+                    </AlertDialog>
 
-                <NavigationBar navigation={navigation} page={"Lecture"} user={user}/>
-            </LinearGradient>
-        </NativeBaseProvider>
-    );
+                    <AlertDialog
+                        isOpen={isRatingModalOpen}
+                        onClose={() => setIsRatingModalOpen(!isRatingModalOpen)}
+                    >
+                        <AlertDialog.Content>
+                            <AlertDialog.CloseButton />
+                            <AlertDialog.Header>Rate this lecture</AlertDialog.Header>
+                            <AlertDialog.Body>
+                                <Text>Do you really want to rate {rating} for this comment?</Text>
+                            </AlertDialog.Body>
+                            <AlertDialog.Footer>
+                                <Button.Group space={2}>
+                                    <Button
+                                        variant="unstyled"
+                                        onPress={() => setIsRatingModalOpen(!isRatingModalOpen)}
+                                    >
+                                        Cancel
+                                </Button>
+                                    <Button colorScheme="warning" onPress={() => rateLecture()}>
+                                        Rate
+                                </Button>
+                                </Button.Group>
+                            </AlertDialog.Footer>
+                        </AlertDialog.Content>
+                    </AlertDialog>
+
+                    <ErrorAlert isAlertOpen={isAlertOpen} setIsAlertOpen={setIsAlertOpen} />
+                    <NavigationBar navigation={navigation} page={"Lecture"} user={user} />
+                </LinearGradient>
+            </NativeBaseProvider>
+        );
+    } else {
+        return (
+            <NativeBaseProvider theme={theme}>
+                <LinearGradient start={{ x: 0, y: 1 }}
+                    end={{ x: 1, y: 0 }}
+                    colors={['#c5d8ff', '#fedcc8']}
+                    style={styles.container}>
+                    <ScrollView
+                        _contentContainerStyle={{
+                            py: 3,
+                        }}
+                        style={styles.scrollStyle}
+                    >
+                        <Box style={styles.blankStyle}>
+                            <Spinner size="lg" color="warning" />
+                        </Box>
+
+                    </ScrollView>
+
+                    <NavigationBar navigation={navigation} page={"Lecture"} user={user} />
+                </LinearGradient>
+            </NativeBaseProvider>
+        )
+    }
 
 }
 
@@ -425,5 +529,9 @@ const styles = StyleSheet.create({
     addCommentIcon: {
         backgroundColor: "#ffb287",
         color: "white"
+    },
+    blankStyle: {
+        minHeight: getScreenHeight() * 0.3,
+        justifyContent: "center"
     }
 });

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useIsFocused } from "@react-navigation/native";
 import { StyleSheet, Dimensions, PixelRatio, Platform, TouchableOpacity, View } from 'react-native'
 import axios from 'axios';
 import { API_LINK, CLIENTID } from '@env';
@@ -6,10 +7,13 @@ import { LinearGradient } from 'expo-linear-gradient';
 import {
     Input, TextArea, VStack, HStack, Button, IconButton, Icon, Text,
     NativeBaseProvider, Center, Box, StatusBar, extendTheme, ScrollView,
-    Image, Select, CheckIcon, Item, Modal, FormControl, Wrap, AlertDialog, Popover
+    Image, Select, CheckIcon, Item, Modal, FormControl, Wrap, AlertDialog,
+    Popover, Alert, CloseIcon, Collapse, Spinner
 } from "native-base";
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 
+import ErrorAlert from '../components/ErrorAlert'
+import CreateLecButton from '../components/Main/CreateLecButton'
 import Appbar from "../components/Main/AppBar"
 import NavigationBar from '../components/NavigationBar'
 
@@ -62,16 +66,16 @@ export default function Library({ route, navigation }) {
         }
     )
 
-    let [collection, setCollection] = React.useState([])
+    const [isLoad, setIsLoad] = React.useState(false)
+    const isFocused = useIsFocused();
 
-    const [isOpen, setIsOpen] = React.useState(false)
-    const [isPopoverOpen, setIsPopoverOpen] = React.useState(false)
+    let [collection, setCollection] = React.useState([])
     const [deleteObject, setDeleteObject] = React.useState(null)
 
+    const [isOpen, setIsOpen] = React.useState(false)
     const onClose = () => setIsOpen(false)
 
-    const onPopOverOpen = () => setIsPopoverOpen(true)
-    const onPopOverClose = () => setIsPopoverOpen(false)
+    const [isAlertOpen, setIsAlertOpen] = React.useState(false)
 
     const theme = extendTheme({
         fontConfig: {
@@ -96,7 +100,9 @@ export default function Library({ route, navigation }) {
     useEffect(async () => {
 
         try {
-            const dataFromDB = await axios.post(`${API_LINK}/getDataForLibrary`, { email: user.email })
+            setIsLoad(false)
+
+            const dataFromDB = await axios.get(`${API_LINK}/getDataForLibrary`, { params: { email: user.email } })
             const userLibData = {
                 "rating": dataFromDB.data.rating,
                 "postCount": dataFromDB.data.postCount,
@@ -105,12 +111,14 @@ export default function Library({ route, navigation }) {
             }
             setUserInfo(userLibData);
             setCollection(dataFromDB.data.userLecture);
+            
+            setIsLoad(true)
         }
         catch (e) {
             console.log("GetData error : ", e)
         }
 
-    }, [])
+    }, [isFocused])
 
     const renderStar = () => {
         let star = [];
@@ -132,7 +140,8 @@ export default function Library({ route, navigation }) {
         let collectionArray = [];
         collection.map((element, index) => {
             collectionArray.push(
-                <Box key={index} style={styles.collectionBox} my="2">
+                <TouchableOpacity key={index} style={styles.collectionBox} my="2"
+                    onPress={() => navigateToLectureScreen(element)}>
                     <Text numberOfLines={2} pt="2" px="2">{element.name}</Text>
                     <HStack space="1" p="1" style={styles.collectionBoxStack}>
                         {element.privacy == "public" ? (
@@ -161,7 +170,7 @@ export default function Library({ route, navigation }) {
                         </Popover>
 
                     </HStack>
-                </Box>
+                </TouchableOpacity>
             )
         })
         return collectionArray;
@@ -172,113 +181,162 @@ export default function Library({ route, navigation }) {
         setIsOpen(!isOpen);
     }
 
-    const deleteCollection = () => {
-        let index = collection.indexOf(deleteObject);
-        collection.splice(index, 1);
-        onClose();
+    const deleteCollection = async () => {
+        try {
+            // let index = collection.indexOf(deleteObject);
+            // collection.splice(index, 1);
+            await axios.delete(`${API_LINK}/deleteLec`, { params: { title: deleteObject.name } })
+            onClose();
+        } catch (err) {
+            setIsAlertOpen(true)
+        }
     }
 
-    return (
-        <NativeBaseProvider theme={theme}>
-            <Appbar user={user} bgColor={"#fef1e6"} />
-            <ScrollView
-                _contentContainerStyle={{
-                    pt: 6,
-                    pb: 3,
-                    px: 5,
-                }}
-                style={styles.scrollStyle}
-            >
-                <HStack space="4" direction='column'>
-                    <LinearGradient start={{ x: 0, y: 1 }}
-                        end={{ x: 1, y: 0 }}
-                        colors={['#ffe4ca', '#90aacb']}
-                        style={styles.userCard}
-                    >
-                        <HStack space="0" justifyContent="space-around">
-                            <HStack space="2" py="5" px="5" direction='column'>
-                                <Image mt="2" source={{ uri: user.image }}
-                                    alt="UserIcon" style={styles.userImage} />
-                                <Text pt="1" fontFamily="body" fontWeight="700" style={styles.cardUserName}>{user.firstname}{"\n"}{user.lastname}</Text>
-                            </HStack>
+    const navigateToLectureScreen = (lecture) => {
+        navigation.navigate('Lecture', { user: user, lecture: lecture })
+    }
 
-                            <HStack space="4" py="9" pr="4" direction='column'>
-                                {userInfo.rating == null ? (
-                                    <Text pt="1" fontFamily="body" fontWeight="700" style={styles.cardRatingText}>Never get ratings</Text>
-                                ) : (
-                                    <Text pt="1" fontFamily="body" fontWeight="700" style={styles.cardRatingText}>Rating {userInfo.rating}</Text>
-                                )}
-                                
-                                <HStack space="1" justifyContent="center">
-                                    {renderStar()}
+    if (isLoad) {
+        return (
+            <NativeBaseProvider theme={theme}>
+                <Appbar user={user} bgColor={"#fef1e6"} />
+                <ScrollView
+                    _contentContainerStyle={{
+                        pt: 6,
+                        pb: 3,
+                        px: 5,
+                    }}
+                    style={styles.scrollStyle}
+                >
+                    <HStack space="4" direction='column'>
+                        <LinearGradient start={{ x: 0, y: 1 }}
+                            end={{ x: 1, y: 0 }}
+                            colors={['#ffe4ca', '#90aacb']}
+                            style={styles.userCard}
+                        >
+                            <HStack space="0" justifyContent="space-around">
+                                <HStack space="2" py="5" px="5" direction='column'>
+                                    <Image mt="2" source={{ uri: user.image }}
+                                        alt="UserIcon" style={styles.userImage} />
+                                    <Text pt="1" fontFamily="body" fontWeight="700" style={styles.cardUserName}>{user.firstname}{"\n"}{user.lastname}</Text>
                                 </HStack>
-                                <HStack space="3" justifyContent="space-between">
-                                    <HStack space="1" direction='column'>
-                                        <Text fontFamily="body" fontWeight="700" style={styles.cardDetailText}>Post</Text>
-                                        <Text fontFamily="body" fontWeight="700" style={styles.cardDetailText}>{userInfo.postCount}</Text>
+
+                                <HStack space="4" py="9" pr="4" direction='column'>
+                                    {userInfo.rating == null ? (
+                                        <Text pt="1" fontFamily="body" fontWeight="700" style={styles.cardRatingText}>Never get ratings</Text>
+                                    ) : (
+                                        <Text pt="1" fontFamily="body" fontWeight="700" style={styles.cardRatingText}>Rating {userInfo.rating}</Text>
+                                    )}
+
+                                    <HStack space="1" justifyContent="center">
+                                        {renderStar()}
                                     </HStack>
-                                    <HStack space="1" direction='column'>
-                                        <Text fontFamily="body" fontWeight="700" style={styles.cardDetailText}>Follower</Text>
-                                        <Text fontFamily="body" fontWeight="700" style={styles.cardDetailText}>{userInfo.userFollower}</Text>
-                                    </HStack>
-                                    <HStack space="1" direction='column'>
-                                        <Text fontFamily="body" fontWeight="700" style={styles.cardDetailText}>Following</Text>
-                                        <Text fontFamily="body" fontWeight="700" style={styles.cardDetailText}>{userInfo.userFollowing}</Text>
+                                    <HStack space="3" justifyContent="space-between">
+                                        <HStack space="1" direction='column'>
+                                            <Text fontFamily="body" fontWeight="700" style={styles.cardDetailText}>Post</Text>
+                                            <Text fontFamily="body" fontWeight="700" style={styles.cardDetailText}>{userInfo.postCount}</Text>
+                                        </HStack>
+                                        <HStack space="1" direction='column'>
+                                            <Text fontFamily="body" fontWeight="700" style={styles.cardDetailText}>Follower</Text>
+                                            <Text fontFamily="body" fontWeight="700" style={styles.cardDetailText}>{userInfo.userFollower}</Text>
+                                        </HStack>
+                                        <HStack space="1" direction='column'>
+                                            <Text fontFamily="body" fontWeight="700" style={styles.cardDetailText}>Following</Text>
+                                            <Text fontFamily="body" fontWeight="700" style={styles.cardDetailText}>{userInfo.userFollowing}</Text>
+                                        </HStack>
                                     </HStack>
                                 </HStack>
+
                             </HStack>
+                        </LinearGradient>
 
-                        </HStack>
-                    </LinearGradient>
+                        <LinearGradient start={{ x: 0, y: 1 }}
+                            end={{ x: 1, y: 0 }}
+                            colors={['#c5d8ff', '#fedcc8']}
+                            style={styles.collectionCard}
+                        >
+                            <Text pt="6" pl="5" fontFamily="body" fontWeight="700" style={styles.collectionHeader}>Collection</Text>
+                            {collection.length > 3 ? (
+                                <Wrap direction="row" style={styles.collectionWrap} pt="2" pb="6">
+                                    {renderCollection()}
+                                </Wrap>
+                            ) : (
+                                <HStack space="5" pt="2" pb="6">
+                                    {renderCollection()}
+                                </HStack>
+                            )}
+                        </LinearGradient>
+                    </HStack>
+                </ScrollView>
 
-                    <LinearGradient start={{ x: 0, y: 1 }}
-                        end={{ x: 1, y: 0 }}
-                        colors={['#c5d8ff', '#fedcc8']}
-                        style={styles.collectionCard}
-                    >
-                        <Text pt="6" pl="5" fontFamily="body" fontWeight="700" style={styles.collectionHeader}>Collection</Text>
-                        {collection.length > 3 ? (
-                            <Wrap direction="row" style={styles.collectionWrap} pt="2" pb="6">
-                                {renderCollection()}
-                            </Wrap>
-                        ) : (
-                            <HStack space="5" pt="2" pb="6">
-                                {renderCollection()}
-                            </HStack>
-                        )}
-                    </LinearGradient>
-                </HStack>
-            </ScrollView>
-
-            <AlertDialog
-                isOpen={isOpen}
-                onClose={onClose}
-            >
-                <AlertDialog.Content>
-                    <AlertDialog.CloseButton />
-                    <AlertDialog.Header>Delete Lecture</AlertDialog.Header>
-                    <AlertDialog.Body>
-                        Do you really want to delete this lecture?
+                <AlertDialog
+                    isOpen={isOpen}
+                    onClose={onClose}
+                >
+                    <AlertDialog.Content>
+                        <AlertDialog.CloseButton />
+                        <AlertDialog.Header>Delete Lecture</AlertDialog.Header>
+                        <AlertDialog.Body>
+                            Do you really want to delete this lecture?
                         </AlertDialog.Body>
-                    <AlertDialog.Footer>
-                        <Button.Group space={2}>
-                            <Button
-                                variant="unstyled"
-                                onPress={onClose}
-                            >
-                                Cancel
+                        <AlertDialog.Footer>
+                            <Button.Group space={2}>
+                                <Button
+                                    variant="unstyled"
+                                    onPress={onClose}
+                                >
+                                    Cancel
                                 </Button>
-                            <Button colorScheme="danger" onPress={deleteCollection}>
-                                Delete
+                                <Button colorScheme="danger" onPress={deleteCollection}>
+                                    Delete
                                 </Button>
-                        </Button.Group>
-                    </AlertDialog.Footer>
-                </AlertDialog.Content>
-            </AlertDialog>
+                            </Button.Group>
+                        </AlertDialog.Footer>
+                    </AlertDialog.Content>
+                </AlertDialog>
 
-            <NavigationBar navigation={navigation} page={"Library"} user={user} />
-        </NativeBaseProvider>
-    );
+                <ErrorAlert isAlertOpen={isAlertOpen} setIsAlertOpen={setIsAlertOpen} />
+                <CreateLecButton navigation={navigation} user={user} />
+                <NavigationBar navigation={navigation} page={"Library"} user={user} />
+            </NativeBaseProvider>
+        );
+    } else {
+        return (
+            <NativeBaseProvider theme={theme}>
+                <Appbar user={user} bgColor={"#fef1e6"} />
+                <ScrollView
+                    _contentContainerStyle={{
+                        pt: 6,
+                        pb: 3,
+                        px: 5,
+                    }}
+                    style={styles.scrollStyle}
+                >
+                    <HStack space="4" direction='column'>
+                        <LinearGradient start={{ x: 0, y: 1 }}
+                            end={{ x: 1, y: 0 }}
+                            colors={['#ffe4ca', '#90aacb']}
+                            style={styles.userCard}
+                        >
+                            <Spinner size="lg" color="emerald"/>
+                        </LinearGradient>
+
+                        <LinearGradient start={{ x: 0, y: 1 }}
+                            end={{ x: 1, y: 0 }}
+                            colors={['#c5d8ff', '#fedcc8']}
+                            style={styles.collectionCard}
+                        >
+                            <Spinner size="lg" color="emerald"/>
+                        </LinearGradient>
+                    </HStack>
+                </ScrollView>
+
+                <ErrorAlert isAlertOpen={isAlertOpen} setIsAlertOpen={setIsAlertOpen} />
+                <CreateLecButton navigation={navigation} user={user} />
+                <NavigationBar navigation={navigation} page={"Library"} user={user} />
+            </NativeBaseProvider>
+        )
+    }
 
 }
 
@@ -293,7 +351,8 @@ const styles = StyleSheet.create({
     userCard: {
         width: "100%",
         height: getScreenHeight() * 0.3,
-        borderRadius: getScreenWidth() * 0.03
+        borderRadius: getScreenWidth() * 0.03,
+        justifyContent: 'center',
     },
     userImage: {
         width: getScreenWidth() * 0.25,
@@ -324,6 +383,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         overflow: "hidden",
         borderRadius: getScreenWidth() * 0.035,
+        minHeight: getScreenHeight() * 0.1
     },
     collectionHeader: {
         fontSize: normalize(20),
@@ -356,5 +416,5 @@ const styles = StyleSheet.create({
     },
     popOverDeleteButton: {
         width: getScreenHeight() * 0.15,
-    }
+    },
 });

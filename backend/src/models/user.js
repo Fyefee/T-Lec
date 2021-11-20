@@ -27,6 +27,9 @@ const UserSchema = new mongoose.Schema({
     },
     post: {
         type: Array, 
+    },
+    recentView: {
+        type: Array, 
     }
 })
 

@@ -38,6 +38,7 @@ mongoose.connect(process.env.mongoDBLink)
 const User = require('./src/models/user');
 const Tag = require('./src/models/tag');
 const Lecture = require('./src/models/lecture');
+const Main = require('./src/models/main')
 const fs = require('fs');
 
 const passport = require('passport')
@@ -77,6 +78,7 @@ app.post('/', async (req, res) => {
                 following: [],
                 follower: 0,
                 post: [],
+                recentView: []
             })
             await user.save((err, doc) => {
                 req.login(doc, (err) => {
@@ -237,13 +239,6 @@ app.post('/uploadLec', async (req, res) => {
         if (oldTag.length > 0) {
             oldTag.forEach(async (element) => {
                 try {
-                    // await Tag.findOne({ tagName : element }, async function (err, tag) {
-                    //     await Tag.findOneAndUpdate({ tagName : element }, { count : tag.count+1})
-                    //     if (err) {
-                    //         console.log(err)
-                    //         res.sendStatus(400)
-                    //     }
-                    // })
                     let doc = await Tag.findOne({ tagName: element });
                     await Tag.findOneAndUpdate({ tagName: element }, { count: doc.count + 1 })
                 } catch (err) {
@@ -264,10 +259,11 @@ app.post('/uploadLec', async (req, res) => {
             userPermission: JSON.parse(fields.permission),
             owner: fields.owner,
             likeFromUser: [],
-            rating: {},
+            rating: [],
             fileName: fields.fileName,
             fileUrl: dirPath,
-
+            comment: [],
+            ratingAvg: 0
         })
 
         try {
@@ -303,59 +299,253 @@ app.post('/uploadLec', async (req, res) => {
 
 })
 
-app.post('/getDataForLibrary', async (req, res) => {
+app.get('/getDataForLibrary', async (req, res) => {
 
-        await User.findOne({ email : req.body.email }, async function (err, doc) {
-            
-            const lecFromEmail = await Lecture.find({ owner : doc.email })
-            const lecToSend = []
+    await User.findOne({ email: req.query.email }, async function (err, doc) {
 
-            let rating = 0;
-            let ratingCount = 0;
+        const lecFromEmail = await Lecture.find({ owner: doc.email })
+        const lecToSend = []
 
-            let postCount = 0;
-            let followerCount = doc.follower;
-            let followingCount = doc.following.length;
+        let rating = 0;
+        let ratingCount = 0;
 
-            if (lecFromEmail){
-                lecFromEmail.forEach((element) => {
+        let postCount = 0;
+        let followerCount = doc.follower;
+        let followingCount = doc.following.length;
 
-                    if (element.rating.length != 0){
-                        element.rating.forEach((value, key, map) => {
-                            rating += value
-                            ratingCount += 1;
-                        })
-                    }
+        if (lecFromEmail) {
+            lecFromEmail.forEach((element) => {
 
-                    postCount += 1;
+                rating += element.ratingAvg
+                ratingCount += 1;
 
-                    let lecture = {
-                        name: element.title,
-                        privacy: element.privacy
-                    }
+                postCount += 1;
 
-                    lecToSend.push(lecture);
+                let lecture = {
+                    name: element.title,
+                    privacy: element.privacy
+                }
 
-                })
-            } 
+                lecToSend.push(lecture);
 
-            if (ratingCount == 0) {
-                rating = null;
+            })
+        }
+
+        if (ratingCount == 0) {
+            rating = null;
+        } else {
+            rating /= ratingCount
+        }
+
+        data = {
+            "rating": rating,
+            "postCount": postCount,
+            "userFollower": followerCount,
+            "userFollowing": followingCount,
+            "userLecture": lecToSend
+        }
+
+        res.send(data)
+
+    }).clone().catch(function (err) {
+        console.log("getAllTag Error : " + e);
+    })
+})
+
+app.delete('/deleteLec', async (req, res) => {
+    try {
+        await Lecture.deleteOne({ title: req.query.title })
+        res.sendStatus(200)
+    } catch (err) {
+        console.log(err)
+        res.sendStatus(500)
+    }
+
+})
+
+app.get('/getLectureData', async (req, res) => {
+
+    await Lecture.findOne({ title: req.query.title }, async function (err, doc) {
+
+        const lecOwner = await User.findOne({ email: doc.owner })
+
+        let userRating = 0;
+        let isLike = false;
+
+        if (doc.likeFromUser.includes(req.query.userEmail)) {
+            isLike = true;
+        }
+
+        if (doc.rating.length != 0) {
+            doc.rating.forEach((value, key) => {
+                if (value.email == req.query.userEmail) {
+                    userRating = value.rating;
+                }
+            })
+        }
+
+        try {
+            const userData = await User.findOne({ email: req.query.userEmail });
+            let recentView = [...userData.recentView];
+            if (recentView.length >= 5) {
+                recentView.splice(0, 1);
             }
-
-            data = {
-                "rating": rating,
-                "postCount": postCount,
-                "userFollower": followerCount,
-                "userFollowing": followingCount,
-                "userLecture": lecToSend
+            if (!recentView.includes(doc.title)) {
+                recentView.push(doc.title);
+                await User.findOneAndUpdate({ email: req.query.userEmail }, { recentView: recentView })
             }
+        } catch (err) {
+            console.log(err);
+        }
 
-            res.send(data)
+        data = {
+            "title": doc.title,
+            "contact": doc.contact,
+            "description": doc.description,
+            "permission": doc.userPermission,
+            "privacy": doc.privacy,
+            "tag": doc.tag,
+            "rating": doc.ratingAvg,
+            "comment": doc.comment,
+            "ownerName": lecOwner.firstname + " " + lecOwner.lastname,
+            "ownerEmail": lecOwner.email,
+            "ownerImage": lecOwner.image,
+            "isLike": isLike,
+            "userRating": userRating
+        }
 
-        }).clone().catch(function (err) { 
-            console.log("getAllTag Error : " + e); 
+        // console.log(doc)
+        // console.log(lecOwner)
+        // console.log(data)
+        res.send(data)
+
+    }).clone().catch(function (err) {
+        console.log("getLectureDataError : " + err);
+    })
+})
+
+app.post('/addComment', async (req, res) => {
+
+    await Lecture.findOne({ title: req.body.lecTitle }, async function (err, doc) {
+
+        let comment = [...doc.comment];
+        comment.push(req.body.comment)
+
+        await Lecture.findOneAndUpdate({ title: doc.title }, { comment: comment })
+
+    }).clone().catch(function (err) {
+        console.log("getLectureDataError : " + err);
+    })
+
+    res.sendStatus(200)
+
+})
+
+app.delete('/deleteComment', async (req, res) => {
+
+    const comment = JSON.parse(req.query.comment);
+
+    await Lecture.findOne({ title: req.query.title }, async function (err, doc) {
+
+        let oldComment = [...doc.comment];
+
+        let commentIndex = -1
+
+        oldComment.forEach((element, index) => {
+            if (JSON.stringify(element) == JSON.stringify(comment)) {
+                commentIndex = index
+            }
         })
+
+        oldComment.splice(commentIndex, 1);
+
+        await Lecture.findOneAndUpdate({ title: doc.title }, { comment: oldComment })
+
+    }).clone().catch(function (err) {
+        console.log("getLectureDataError : " + err);
+    })
+
+    res.sendStatus(200)
+
+})
+
+app.post('/rateLecture', async (req, res) => {
+
+    await Lecture.findOne({ title: req.body.lecTitle }, async function (err, doc) {
+
+        const rate = [...doc.rating];
+        let isDuplicate = false;
+        let duplicateIndex = -1;
+
+        rate.forEach((element, index) => {
+            if (element.email == req.body.userEmail) {
+                isDuplicate = true;
+                duplicateIndex = index;
+            }
+        })
+
+        if (!isDuplicate) {
+            rate.push({ email: req.body.userEmail, rating: req.body.rating });
+        } else {
+            rate[duplicateIndex].rating = req.body.rating;
+        }
+
+        let rating = 0;
+
+        if (rate.length != 0) {
+            rate.forEach((value, key) => {
+                rating += value.rating;
+            })
+            rating /= rate.length;
+        }
+
+        await Lecture.findOneAndUpdate({ title: doc.title }, { rating: rate, ratingAvg: rating })
+
+    }).clone().catch(function (err) {
+        console.log("getLectureDataError : " + err);
+    })
+
+    res.sendStatus(200)
+
+})
+
+app.get('/getHomeData', async (req, res) => {
+
+    await User.findOne({ email: req.query.email }, async function (err, doc) {
+
+        const lecRecentArray = [];
+        let lecCount = doc.recentView.length;
+
+        doc.recentView.forEach(async (element, index) => {
+            const lecRecent = await Lecture.findOne({ title: element }).clone()
+            
+            if (lecRecent) {
+                const lecOwner = await User.findOne({ email: lecRecent.owner }).clone()
+                lecRecentArray.push({
+                    lecName: lecRecent.title,
+                    photoUrl: lecOwner.image,
+                    lecTag: lecRecent.tag,
+                    lecDescription: lecRecent.description,
+                    lecRating: lecRecent.ratingAvg
+                })
+            } else {
+                lecCount -= 1
+            }
+
+            if (lecRecentArray.length == lecCount){
+                console.log(lecRecentArray)
+                const data = {
+                    "recentView": lecRecentArray
+                }
+                res.send(data)
+            }
+
+        })
+
+    }).clone().catch(function (err) {
+        console.log(err)
+    })
+
 })
 
 passport.serializeUser((user, cb) => {

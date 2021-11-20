@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useIsFocused } from "@react-navigation/native";
 import { StyleSheet, Dimensions, PixelRatio, Platform, TouchableOpacity, View, BackHandler } from 'react-native'
 import axios from 'axios';
 import { API_LINK, CLIENTID } from '@env';
@@ -6,7 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import {
     Input, TextArea, VStack, HStack, Button, IconButton, Icon, Text,
     NativeBaseProvider, Center, Box, StatusBar, extendTheme, ScrollView,
-    Image, Select, CheckIcon, Item, Modal, FormControl, AlertDialog
+    Image, Select, CheckIcon, Item, Modal, FormControl, AlertDialog, Spinner
 } from "native-base";
 import { FontAwesome, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
@@ -78,58 +79,28 @@ export default function Home({ route, navigation }) {
         },
     });
 
-    let [recentView, setRecentView] = React.useState([
-        {
-            "lecName": "Mobile Device",
-            "photoUrl": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
-            "lecTag": [
-                "MobileDevice",
-                "ปี3_เทอม1_final"
-            ],
-            "lecDescription": "Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!",
-            "lecRating": 4
-        },
-        {
-            "lecName": "SOP",
-            "photoUrl": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
-            "lecTag": [
-                "MobileDevice",
-                "ปี3_เทอม1_final"
-            ],
-            "lecDescription": "Hello",
-            "lecRating": 5
-        },
-        {
-            "lecName": "Mobile Device",
-            "photoUrl": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
-            "lecTag": [
-                "MobileDevice",
-                "ปี3_เทอม1_final"
-            ],
-            "lecDescription": "Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!",
-            "lecRating": 4
-        },
-        {
-            "lecName": "SOP",
-            "photoUrl": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
-            "lecTag": [
-                "MobileDevice",
-                "ปี3_เทอม1_final"
-            ],
-            "lecDescription": "Hello",
-            "lecRating": 5
-        },
-        {
-            "lecName": "Mobile Device",
-            "photoUrl": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
-            "lecTag": [
-                "MobileDevice",
-                "ปี3_เทอม1_final"
-            ],
-            "lecDescription": "Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!",
-            "lecRating": 4
-        },
-    ])
+    const [isLoad, setIsLoad] = React.useState(false)
+    const isFocused = useIsFocused();
+
+    useEffect(async () => {
+
+        try {
+            setIsLoad(false)
+
+            const dataFromDB = await axios.get(`${API_LINK}/getHomeData`, { params: { email: user.email } })
+            setRecentView(dataFromDB.data.recentView)
+
+            setIsLoad(true)
+
+        }
+        catch (e) {
+            console.log("GetData error : ", e)
+        }
+
+    }, [isFocused])
+
+
+    let [recentView, setRecentView] = React.useState([])
 
     let [newLec, setNewLec] = React.useState([
         {
@@ -246,50 +217,68 @@ export default function Home({ route, navigation }) {
         return star;
     }
 
-    useEffect(() => {
-    })
+    if (isLoad) {
+        return (
+            <NativeBaseProvider theme={theme}>
+                <LinearGradient start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    colors={['#c5d8ff', '#fedcc8']}
+                    style={styles.container}>
 
-    return (
-        <NativeBaseProvider theme={theme}>
-            <LinearGradient start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                colors={['#c5d8ff', '#fedcc8']}
-                style={styles.container}>
+                    <Appbar user={user} bgColor={"#c5d8ff"} />
+                    <ScrollView
+                        _contentContainerStyle={{
+                            pt: 6,
+                            pb: 8,
+                            px: 5,
+                        }}
+                        style={styles.scrollStyle}
+                    >
+                        <HStack space="1" direction='column'>
+                            <Text pt="3" pl="2" fontFamily="body" fontWeight="700" style={styles.TextHeader}>Recently Viewed</Text>
 
-                <Appbar user={user} bgColor={"#c5d8ff"} />
-                <ScrollView
-                    _contentContainerStyle={{
-                        pt: 6,
-                        pb: 8,
-                        px: 5,
-                    }}
-                    style={styles.scrollStyle}
-                >
-                    <HStack space="4" direction='column'>
-                        <Text pt="3" pl="2" fontFamily="body" fontWeight="700" style={styles.TextHeader}>Recently Viewed</Text>
-                        <ScrollView
-                            _contentContainerStyle={{
-                                px: 3,
-                            }}
-                            style={styles.recentViewScroll}
-                            horizontal={true}
-                        >
-                            <HStack space="5" py="1">
-                                {renderRecentViewBox()}
-                            </HStack>
-                        </ScrollView>
+                            {recentView.length > 0 ? (
+                                <ScrollView
+                                _contentContainerStyle={{
+                                    px: 3,
+                                    py: 3
+                                }}
+                                style={styles.recentViewScroll}
+                                horizontal={true}
+                            >
+                                    <HStack space="3" py="1">
+                                        {renderRecentViewBox()}
+                                    </HStack>
+                                </ScrollView>
+                                ) : (
+                                    <Text pt="1" pl="5" fontFamily="body" fontWeight="700" style={styles.warningText}>You don't have any recently viewed lectures.</Text>
+                                )}
 
-                        <Text pt="3" pl="2" fontFamily="body" fontWeight="700" style={styles.TextHeader}>NEW !!</Text>
+                            <Text pt="5" pl="2" fontFamily="body" fontWeight="700" style={styles.TextHeader}>NEW !!</Text>
                         {renderNewLecBox()}
-                    </HStack>
-                </ScrollView>
+                        </HStack>
+                    </ScrollView>
 
-                <CreateLecButton navigation={navigation} user={user}/>
-                <NavigationBar navigation={navigation} page={"Home"} user={user}/>
+                <CreateLecButton navigation={navigation} user={user} />
+                <NavigationBar navigation={navigation} page={"Home"} user={user} />
 
-            </LinearGradient>
-        </NativeBaseProvider>
-    );
+                </LinearGradient>
+            </NativeBaseProvider >
+        );
+    } else {
+        return (
+            <NativeBaseProvider theme={theme}>
+                <LinearGradient start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    colors={['#c5d8ff', '#fedcc8']}
+                    style={styles.container}>
+                    <Box style={styles.blankStyle}>
+                        <Spinner size="lg" color="warning" />
+                    </Box>
+                </LinearGradient>
+            </NativeBaseProvider>
+        );
+    }
 
 }
 
@@ -314,7 +303,7 @@ const styles = StyleSheet.create({
     },
     recentViewScroll: {
         width: '100%',
-        height: getScreenHeight() * 0.335,
+        //height: getScreenHeight() * 0.335,
     },
     recentViewBox: {
         width: getScreenWidth() * 0.35,
@@ -396,4 +385,11 @@ const styles = StyleSheet.create({
         color: "#ffd259",
         marginRight: getScreenWidth() * 0.01,
     },
+    blankStyle: {
+        minHeight: getScreenHeight() * 0.3,
+        justifyContent: "center"
+    },
+    warningText: {
+        fontSize: normalize(12),
+    }
 });
