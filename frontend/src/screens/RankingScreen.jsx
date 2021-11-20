@@ -11,6 +11,7 @@ import {
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 
 import NavigationBar from '../components/NavigationBar'
+import { withTheme } from 'styled-components';
 
 const {
     width: SCREEN_WIDTH,
@@ -132,9 +133,29 @@ export default function Ranking({ route, navigation }) {
     });
 
     return (
+        <LinearGradient start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} colors={['#c5d8ff', '#fedcc8']} style={styles.container}>
         <NativeBaseProvider theme={theme}>
+            <Text pt="20" fontFamily="body" fontWeight="700" style={styles.ranking_header}>RANKING</Text>
+            <Image source={require("../assets/decoration/top_frame1.png")} style={styles.topFrame1} ></Image>
+            <Image source={require("../assets/decoration/top_frame2.png")} style={styles.topFrame2} ></Image>
+            <Image source={require("../assets/decoration/top_frame3.png")} style={styles.topFrame3} ></Image>
+            <Image source={{ uri: ranking[0].ownerImage, }} style={styles.ownerImage1} />
+            <Image source={{ uri: ranking[1].ownerImage, }} style={styles.ownerImage2} />
+            <Image source={{ uri: ranking[2].ownerImage, }} style={styles.ownerImage3} />
+            <Text pt="1" fontWeight="0" style={[styles.top3_name1,{fontSize: normalize(18)}]}>{ranking[0].owner}</Text>
+            <Text pt="4" fontWeight="700" style={[styles.top3_name1,{fontSize: normalize(20)}]}>{ranking[0].LectureName}</Text>
+            <Text pt="1"  fontWeight="0" style={[styles.top3_name2,{fontSize: normalize(18)}]}>{ranking[1].owner}</Text>
+            <Text pt="3" fontWeight="700" style={[styles.top3_name2,{fontSize: normalize(20)}]}>{ranking[1].LectureName}</Text>
+            <Text pt="1"  fontWeight="0" style={[styles.top3_name3,{fontSize: normalize(18)}]}>{ranking[2].owner}</Text>
+            <Text pt="3" fontWeight="700" style={[styles.top3_name3,{fontSize: normalize(20)}]}>{ranking[2].LectureName}</Text>
+
+            <View style={styles.top10_container}>
+            
+            </View>
             <NavigationBar page={"Ranking"} />
         </NativeBaseProvider>
+        
+        </LinearGradient>
     );
 
 }
@@ -147,6 +168,85 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         overflow: "hidden"
+    },
+    top10_container:{
+        backgroundColor: "white",
+        width:100,
+        height:100,
+        justifyContent: 'center',
+        alignItems: 'center', 
+        textAlign: 'center',
+        bottom: 15,
+    },
+    ranking_header: {
+        left: getScreenWidth() * 0.18,
+        fontSize: normalize(30),
+        color: "white"
+    },
+    ownerImage1:{
+        zIndex: 3 ,
+        width: getScreenWidth() * 0.38,
+        height: getScreenWidth() * 0.38,
+        borderRadius: getScreenWidth() * 0.36,
+        bottom: getScreenWidth() * 0.59,
+        left: getScreenWidth() * 0.18
+    },
+    ownerImage2:{
+        zIndex: 1 ,
+        width: getScreenWidth() * 0.38,
+        height: getScreenWidth() * 0.38,
+        borderRadius: getScreenWidth() * 0.36,
+        bottom: getScreenWidth() * 0.87,
+        right: getScreenWidth() * 0.047
+    },
+    ownerImage3:{
+        zIndex: 1 ,
+        width: getScreenWidth() * 0.38,
+        height: getScreenWidth() * 0.38,
+        borderRadius: getScreenWidth() * 0.36,
+        bottom: getScreenWidth() * 1.22,
+        left: getScreenWidth() * 0.42
+    },
+    top3_name1:{
+        textAlign: "center",
+        color: "white",
+        bottom: getScreenWidth() * 1.25,
+        left: 0
+    },
+    top3_name2:{
+        textAlign: "center",
+        color: "white",
+        bottom: getScreenWidth() * 1.3,
+        right: getScreenWidth() * 0.23
+    },
+    top3_name3:{
+        textAlign: "center",
+        color: "white",
+        bottom: getScreenWidth() * 1.44,
+        left: getScreenWidth() * 0.25
+    },
+    topFrame1:{
+        position: 'absolute',
+        zIndex: 4 ,
+        top: getScreenWidth() * 0.21,
+        width: getScreenWidth() * 0.75,
+        height: getScreenWidth() * 0.75,
+        right: 0
+    },
+    topFrame2:{
+        zIndex: 3 ,
+        top: getScreenWidth() * 0.07,
+        width: getScreenWidth() * 0.75,
+        height: getScreenWidth() * 0.75,
+        right: getScreenWidth() * 0.23
+    },
+    topFrame3:{
+        position: 'absolute',
+        zIndex: 3 ,
+        top: getScreenWidth() * 0.34,
+        width: getScreenWidth() * 0.75,
+        height: getScreenWidth() * 0.75,
+        left: getScreenWidth() * 0.23
     },
     
 });
