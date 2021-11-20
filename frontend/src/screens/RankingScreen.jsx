@@ -150,14 +150,14 @@ export default function Ranking({ route, navigation }) {
             <Text pt="3" fontWeight="700" style={[styles.top3_name2,{fontSize: normalize(20)}]}>{ranking[1].LectureName}</Text>
             <Text pt="1"  fontWeight="0" style={[styles.top3_name3,{fontSize: normalize(18)}]}>{ranking[2].owner}</Text>
             <Text pt="3" fontWeight="700" style={[styles.top3_name3,{fontSize: normalize(20)}]}>{ranking[2].LectureName}</Text>  
-                <View style={styles.top10_container}>
-                    <Text style={{color:'white', fontSize:19}}>{ranking[3].LectureName}</Text>
-                    <Text style={{color:'white', fontSize:19}}>{ranking[3].owner}</Text>
-                    <Text style={{color:'white', fontSize:19}}>4</Text>
-                </View>
-                <View style={styles.top10_container}></View>
-                <View style={styles.top10_container}></View>
-                <View style={styles.top10_container}></View>
+                
+            {ranking.map((top, index) => (  
+              <View style={styles.top10_container}>
+              <Text style={{color:'white', fontSize:19}}>{top.LectureName}</Text>
+              <Text style={{color:'white', fontSize:19}}>{top.owner}</Text>
+              <Text style={{color:'white', fontSize:19}}>{index+1}</Text>
+          </View>
+            ))}  
           </ScrollView>
         </NativeBaseProvider>
         </LinearGradient>
