@@ -600,3 +600,49 @@ passport.deserializeUser((user, cb) => {
     //console.log(`Deserialize user : ${user}`)
     cb(null, user)
 });
+
+app.get('/getRanking', async (req, res) => {
+    await Lecture.find({}, function (err, lectures) {
+        var data = []
+        var sorted_data = []
+        var check = true
+        lectures.forEach(function (lecture) {
+            if (data.length > 0){
+                data.map((item, i) =>  {
+                    if((item.ratingAvg <= lecture.ratingAvg && data.length < 10) && check){
+                        data.push(lecture)
+                        check = false
+                    }
+                    else if ((item.ratingAvg < lecture.ratingAvg && data.length >= 10) && check){
+                        data.splice(i, 1)
+                        data.push(lecture)
+                        check = false
+                    }
+                });
+                check = true
+            }
+            else{
+                data.push(lecture) 
+            }
+        });
+
+        var top_ratingAvg = []
+        data.forEach(function (lecture) {
+            top_ratingAvg.push(lecture.ratingAvg)
+        });
+
+        check = true
+        data.forEach(function (lecture) {
+            data.map((item, i) =>  {
+                if(item.ratingAvg == Math.max.apply(null, top_ratingAvg) && check){
+                    sorted_data.push(item)
+                    data.splice(i, 1)
+                    check = false
+                }
+            });
+            check = true
+        });
+        console.log(data.length)
+        res.send(sorted_data)
+    }).clone().catch(function (err) { console.log("getAllUserId Error : " + e); })
+})
