@@ -191,7 +191,7 @@ export default function Home({ route, navigation }) {
                     colors={['#c5d8ff', '#fedcc8']}
                     style={styles.container}>
 
-                    <Appbar user={user} bgColor={"#c5d8ff"} />
+                    <Appbar user={user} bgColor={"#c5d8ff"} navigation={navigation} />
                     <ScrollView
                         _contentContainerStyle={{
                             pt: 6,
@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
     },
     TextHeader: {
         fontSize: normalize(23),
-        alignSelf: "flex-start"
+        alignSelf: "flex-start",        
     },
     recentViewScroll: {
         width: '100%',
