@@ -277,7 +277,7 @@ export default function CreateLec({ route, navigation }) {
                     end={{ x: 1, y: 0 }}
                     colors={['#c5d8ff', '#fedcc8']}
                     style={styles.container}>
-                    <Appbar name={lecture.title} />
+                    <Appbar lecture={lecture} user={user} />
                     <ScrollView
                         _contentContainerStyle={{
                             py: 3,
@@ -290,7 +290,7 @@ export default function CreateLec({ route, navigation }) {
                                     key={lecture.ownerImage}
                                     alt="Alternate Text" style={styles.profileImage} />
                                 <HStack space="0" pt="2" direction='column' style={styles.profileBox}>
-                                    <Text pt="1" fontFamily="body" fontWeight="700" style={styles.profileText}> {lecture.ownerName} </Text>
+                                    <Text pt="1" fontFamily="body" fontWeight="700" style={styles.profileText}>{lecture.ownerName} </Text>
                                     <Text pt="1" fontFamily="body" fontWeight="700" style={styles.profileText}>Contact : {lecture.contact}</Text>
                                 </HStack>
                             </HStack>
@@ -308,13 +308,16 @@ export default function CreateLec({ route, navigation }) {
                                 </HStack>
                             </HStack>
 
-                            <HStack space="1" px="4" mt="3" style={styles.ratingBox}>
-                                <Button style={styles.downloadFileButton} size="lg"><Text style={styles.downloadFileButtonText}>Want to rate this?</Text></Button>
-
-                                <HStack space="1" py="1">
-                                    {renderRatingIcon()}
+                            {lecture.ownerEmail != user.email ? (
+                                <HStack space="1" px="4" mt="3" style={styles.ratingBox}>
+                                    <Button style={styles.downloadFileButton} size="lg"><Text style={styles.downloadFileButtonText}>Want to rate this?</Text></Button>
+                                    <HStack space="1" py="1">
+                                        {renderRatingIcon()}
+                                    </HStack>
                                 </HStack>
-                            </HStack>
+                            ) : (
+                                <Box style={styles.blankRating} />
+                            )}
 
                             <Box style={styles.separator} />
 
@@ -532,5 +535,9 @@ const styles = StyleSheet.create({
     blankStyle: {
         minHeight: getScreenHeight() * 0.3,
         justifyContent: "center"
-    }
+    },
+    blankRating: {
+        minHeight: getScreenHeight() * 0.025,
+        justifyContent: "center"
+    },
 });

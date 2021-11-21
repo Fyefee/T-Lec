@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react'
-import { StyleSheet, Dimensions, PixelRatio, Platform, TouchableOpacity, View, KeyboardAvoidingView } from 'react-native'
+import React, { useState } from 'react'
+import { StyleSheet, Dimensions, PixelRatio, Platform, TouchableOpacity } from 'react-native'
 import axios from 'axios';
 import { API_LINK, CLIENTID } from '@env';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
-    Input, TextArea, VStack, HStack, Button, IconButton, Icon, Text,
-    NativeBaseProvider, Center, Box, StatusBar, extendTheme, ScrollView,
-    Image, Select, CheckIcon, Item, Modal, FormControl
+    Input, TextArea, HStack, Button, Icon, Text,
+    NativeBaseProvider, Box, extendTheme, ScrollView,
+    Image, Select, CheckIcon, Modal
 } from "native-base";
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
