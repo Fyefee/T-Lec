@@ -522,7 +522,6 @@ function compareDate( a, b ) {
 app.get('/getHomeData', async (req, res) => {
 
     await User.findOne({ email: req.query.email }, async function (err, doc) {
-
         const lecRecentArray = [];
         const lecNewestArray = [];
         let lecCount = doc.recentView.length;
@@ -542,39 +541,49 @@ app.get('/getHomeData', async (req, res) => {
             lecNewestArray.push(newLec)
 
             if (lecNewestArray.length == newLecData.length) {
-
                 lecNewestArray.sort(compareDate)
+                
+                if (doc.recentView.length > 0) {
+                    doc.recentView.forEach(async (element, index) => {
+                        const lecRecent = await Lecture.findOne({ title: element }).clone()
 
-                doc.recentView.forEach(async (element, index) => {
-                    const lecRecent = await Lecture.findOne({ title: element }).clone()
-
-                    if (lecRecent) {
-                        const lecOwner = await User.findOne({ email: lecRecent.owner }).clone()
-                        lecRecentArray.push({
-                            title: lecRecent.title,
-                            photoUrl: lecOwner.image,
-                            lecTag: lecRecent.tag,
-                            lecDescription: lecRecent.description,
-                            lecRating: lecRecent.ratingAvg,
-                            owner: lecOwner.email
-                        })
-                    } else {
-                        lecCount -= 1
-                    }
-
-                    if (lecRecentArray.length == lecCount) {
-                        const data = {
-                            recentView: lecRecentArray,
-                            newLec: lecNewestArray
+                        if (lecRecent) {
+                            const lecOwner = await User.findOne({ email: lecRecent.owner }).clone()
+                            lecRecentArray.push({
+                                title: lecRecent.title,
+                                photoUrl: lecOwner.image,
+                                lecTag: lecRecent.tag,
+                                lecDescription: lecRecent.description,
+                                lecRating: lecRecent.ratingAvg,
+                                owner: lecOwner.email
+                            })
+                        } else {
+                            lecCount -= 1
                         }
-                        res.send(data)
-                    }
 
-                })
+                        if (lecRecentArray.length == lecCount) {
+                            console.log("Pass2")
+                            const data = {
+                                recentView: lecRecentArray,
+                                newLec: lecNewestArray
+                            }
+                            
+                            console.log(data)
+                            res.send(data)
+                        }
+
+                    })
+                } else {
+                    const data = {
+                        recentView: [],
+                        newLec: lecNewestArray
+                    }
+                    
+                    res.send(data)
+                }
 
             }
         })
-
 
     }).clone().catch(function (err) {
         console.log(err)
