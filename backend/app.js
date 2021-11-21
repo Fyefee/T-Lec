@@ -642,7 +642,6 @@ app.get('/getRanking', async (req, res) => {
             });
             check = true
         });
-        console.log(data.length)
         res.send(sorted_data)
     }).clone().catch(function (err) { console.log("getAllUserId Error : " + e); })
 })
