@@ -7,7 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import {
     Input, TextArea, VStack, HStack, Button, IconButton, Icon, Text,
     NativeBaseProvider, Center, Box, StatusBar, extendTheme, ScrollView,
-    Image, Select, CheckIcon, Item, Modal, FormControl, AlertDialog, Spinner
+    Image, Select, CheckIcon, Item, Modal, FormControl, AlertDialog, Spinner, Link
 } from "native-base";
 import { FontAwesome, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
@@ -270,6 +270,15 @@ export default function CreateLec({ route, navigation }) {
         }
     }
 
+    const navigateToLibraryScreen = () => {
+        if (lecture.ownerEmail == user.email){
+            navigation.navigate('Library', { user: user })
+        }
+        else {
+            navigation.navigate('OtherLibrary', { user: user, ownerEmail: lecture.ownerEmail })
+        }
+    }
+
     if (isLoad) {
         return (
             <NativeBaseProvider theme={theme}>
@@ -277,7 +286,7 @@ export default function CreateLec({ route, navigation }) {
                     end={{ x: 1, y: 0 }}
                     colors={['#c5d8ff', '#fedcc8']}
                     style={styles.container}>
-                    <Appbar lecture={lecture} user={user} />
+                    <Appbar lecture={lecture} user={user} navigation={navigation} />
                     <ScrollView
                         _contentContainerStyle={{
                             py: 3,
@@ -290,8 +299,8 @@ export default function CreateLec({ route, navigation }) {
                                     key={lecture.ownerImage}
                                     alt="Alternate Text" style={styles.profileImage} />
                                 <HStack space="0" pt="2" direction='column' style={styles.profileBox}>
-                                    <Text pt="1" fontFamily="body" fontWeight="700" style={styles.profileText}>{lecture.ownerName} </Text>
-                                    <Text pt="1" fontFamily="body" fontWeight="700" style={styles.profileText}>Contact : {lecture.contact}</Text>
+                                    <Link onPress={() => navigateToLibraryScreen()}><Text pt="1" fontFamily="body" fontWeight="700" style={styles.profileText}>{lecture.ownerName} </Text></Link>
+                                    <Text pt="1" fontFamily="body" fontWeight="700" style={styles.profileContact}>Contact : {lecture.contact}</Text>
                                 </HStack>
                             </HStack>
 
@@ -458,7 +467,11 @@ const styles = StyleSheet.create({
         borderRadius: getScreenWidth() * 0.16,
     },
     profileText: {
-        fontSize: normalize(16)
+        fontSize: normalize(16),
+        color: "#8d7d75"
+    },
+    profileContact: {
+        fontSize: normalize(16),
     },
     profileBox: {
         width: "75%"

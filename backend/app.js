@@ -56,7 +56,7 @@ app.get('/', (req, res) => {
 })
 
 app.post('/', async (req, res) => {
-    console.log(req.body)
+
     if (checkEmail(req.body.email.substring(req.body.email.length - 14, req.body.email.length))) {
         const userFromDB = await User.findOne({ email: req.body.email });
         if (userFromDB) {
@@ -227,7 +227,6 @@ app.post('/uploadLec', async (req, res) => {
                                 console.log(err)
                                 res.sendStatus(400)
                             }
-                            res.send(tag)
                         })
                     }
                 } catch (err) {
@@ -250,7 +249,6 @@ app.post('/uploadLec', async (req, res) => {
         const allTag = newTag.concat(oldTag);
 
         const lec = new Lecture({
-
             title: fields.title,
             description: fields.description,
             contact: fields.contact,
@@ -341,6 +339,10 @@ app.get('/getDataForLibrary', async (req, res) => {
         }
 
         data = {
+            "userFirstName": doc.firstname,
+            "userLastName": doc.lastname,
+            "userImage": doc.image,
+            "userEmail": doc.email,
             "rating": rating,
             "postCount": postCount,
             "userFollower": followerCount,
@@ -558,13 +560,11 @@ app.get('/getHomeData', async (req, res) => {
                             }
 
                             if (lecRecentArray.length == lecCount) {
-                                console.log("Pass2")
                                 const data = {
                                     recentView: lecRecentArray,
                                     newLec: lecNewestArray
                                 }
 
-                                console.log(data)
                                 res.send(data)
                             }
 
@@ -590,6 +590,66 @@ app.get('/getHomeData', async (req, res) => {
     }).clone().catch(function (err) {
         console.log(err)
     })
+
+})
+
+app.post('/editLecture', async (req, res) => {
+
+    let oldTagForUpdate = [];
+    req.body.oldTag.forEach(async (element, index) => {
+        if (!req.body.oldDataTag.includes(element)) {
+            oldTagForUpdate.push(element)
+        }
+    })
+    oldTagForUpdate.forEach(async (element) => {
+        try {
+            let doc = await Tag.findOne({ tagName: element });
+            await Tag.findOneAndUpdate({ tagName: element }, { count: doc.count + 1 })
+        } catch (err) {
+            console.log(err)
+        }
+    })
+
+    req.body.newTag.forEach(async (element) => {
+        try {
+            const tagFromDB = await Tag.findOne({ tagName: element });
+            if (tagFromDB) {
+                let doc = await Tag.findOne({ tagName: tagFromDB.tagName });
+                await Tag.findOneAndUpdate({ tagName: tagFromDB.tagName }, { count: doc.count + 1 })
+            } else {
+                const tag = new Tag({
+                    tagName: element,
+                    count: 1,
+                })
+                await tag.save((err, doc) => {
+                    if (err) {
+                        console.log(err)
+                    }
+                })
+            }
+        } catch (err) {
+            console.log(err)
+        }
+    })
+
+    const allTag = req.body.oldTag.concat(req.body.newTag);
+
+    const dataforUpdate = {
+        title: req.body.title,
+        description: req.body.description,
+        contact: req.body.contact,
+        tag: allTag,
+        privacy: req.body.privacy,
+        userPermission: req.body.permission,
+    }
+
+    try {
+        await Lecture.findOneAndUpdate({ title: req.body.oldTitle }, dataforUpdate)
+        res.sendStatus(200)
+    } catch (err) {
+        console.log(err)
+        res.sendStatus(500)
+    }
 
 })
 

@@ -56,7 +56,7 @@ const normalize = (size) => {
     }
 }
 
-export default function Library({ route, navigation }) {
+export default function OtherLibrary({ route, navigation }) {
 
     const { user } = route.params;
 
@@ -101,7 +101,8 @@ export default function Library({ route, navigation }) {
         try {
             setIsLoad(false)
 
-            const dataFromDB = await axios.get(`${API_LINK}/getDataForLibrary`, { params: { email: user.email } })
+            const dataFromDB = await axios.get(`${API_LINK}/getDataForLibrary`, { params: { email: route.params.ownerEmail } })
+            console.log(dataFromDB.data)
             const userLibData = {
                 "userFirstName": dataFromDB.data.userFirstName,
                 "userLastName": dataFromDB.data.userLastName,
@@ -143,7 +144,7 @@ export default function Library({ route, navigation }) {
 
                 <ErrorAlert isAlertOpen={isAlertOpen} setIsAlertOpen={setIsAlertOpen} />
                 <CreateLecButton navigation={navigation} user={user} />
-                <NavigationBar navigation={navigation} page={"Library"} user={user} />
+                <NavigationBar navigation={navigation} page={"Other Library"} user={user} />
             </NativeBaseProvider>
         );
     } else {

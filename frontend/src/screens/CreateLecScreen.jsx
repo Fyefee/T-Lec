@@ -1,12 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { StyleSheet, Dimensions, PixelRatio, Platform, TouchableOpacity } from 'react-native'
+import { useIsFocused } from "@react-navigation/native";
 import axios from 'axios';
 import { API_LINK, CLIENTID } from '@env';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
     Input, TextArea, HStack, Button, Icon, Text,
     NativeBaseProvider, Box, extendTheme, ScrollView,
-    Image, Select, CheckIcon, Modal
+    Image, Select, CheckIcon, Modal, Spinner
 } from "native-base";
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
@@ -83,6 +84,9 @@ export default function CreateLec({ route, navigation }) {
     let [haveTagInDB, setHaveTagInDB] = React.useState([])
     let [selectedTag, setSelectedTag] = React.useState([])
 
+    const [isLoad, setIsLoad] = React.useState(false)
+    const isFocused = useIsFocused();
+
     const { user } = route.params;
 
     const theme = extendTheme({
@@ -104,6 +108,43 @@ export default function CreateLec({ route, navigation }) {
             mono: 'Prompt',
         },
     });
+
+    useEffect(async () => {
+
+        try {
+            if (route.params.title == "Create Post") {
+
+                setPrivacy("")
+                setTitle("")
+                setDescription("")
+                setContact("")
+                setOldTag([])
+                setNewTag([])
+                setSelectedTag([])
+                setSelectedUser([])
+                setFileUploaded([])
+
+                setIsLoad(true)
+
+            } else {
+                setIsLoad(false)
+
+                setPrivacy(route.params.lecture.privacy)
+                setTitle(route.params.lecture.title)
+                setDescription(route.params.lecture.description)
+                setContact(route.params.lecture.contact)
+                setOldTag(route.params.lecture.tag)
+                setSelectedTag(route.params.lecture.tag)
+                setSelectedUser(route.params.lecture.permission)
+
+                setIsLoad(true)
+            }
+        }
+        catch (e) {
+            console.log("GetData error : ", e)
+        }
+
+    }, [isFocused])
 
     const openModal = async () => {
         try {
@@ -148,13 +189,11 @@ export default function CreateLec({ route, navigation }) {
     };
 
     const privacyInputHandler = (inputText) => {
-        //...เพิ่มโค้ด...อัพเดทค่าสเตท enteredValue ด้วยค่า inputText ที่รับมา
         setIsValidatePrivacy(true)
         setPrivacy(inputText)
     };
 
     const titleInputHandler = (inputText) => {
-        //...เพิ่มโค้ด...อัพเดทค่าสเตท enteredValue ด้วยค่า inputText ที่รับมา
         if (inputText.length >= 3) {
             setIsValidateTitle(true)
         }
@@ -216,14 +255,16 @@ export default function CreateLec({ route, navigation }) {
     const renderTagSearch = () => {
         const tagList = [];
         haveTagInDB.map(element => {
-            tagList.push(
-                <TouchableOpacity key={element.tagName} style={styles.tagSelectButton} onPress={() => addSelectedOldTag(element.tagName)}>
-                    <HStack style={styles.selectAddPermissionRow} mt="2.5" justifyContent="space-around">
-                        <Text fontFamily="body" fontWeight="700" my="1" pl="3" style={styles.fileText}># {element.tagName}</Text>
-                        <Text fontFamily="body" fontWeight="700" my="1" pl="3" style={styles.fileTextPost}>{element.count} Post</Text>
-                    </HStack>
-                </TouchableOpacity>
-            )
+            if (!selectedTag.includes(element.tagName)) {
+                tagList.push(
+                    <TouchableOpacity key={element.tagName} style={styles.tagSelectButton} onPress={() => addSelectedOldTag(element.tagName)}>
+                        <HStack style={styles.selectAddPermissionRow} mt="2.5" justifyContent="space-around">
+                            <Text fontFamily="body" fontWeight="700" my="1" pl="3" style={styles.fileText}># {element.tagName}</Text>
+                            <Text fontFamily="body" fontWeight="700" my="1" pl="3" style={styles.fileTextPost}>{element.count} Post</Text>
+                        </HStack>
+                    </TouchableOpacity>
+                )
+            }
         })
         return tagList
     }
@@ -235,7 +276,7 @@ export default function CreateLec({ route, navigation }) {
                 isDuplicate = true;
             }
         })
-        if (!isDuplicate) {
+        if (!isDuplicate && !selectedTag.includes(searchTag)) {
             return <TouchableOpacity style={styles.tagSelectButton} onPress={() => addSelectedNewTag(searchTag)}>
                 <HStack style={styles.selectAddPermissionRow} mt="2.5" justifyContent="space-around">
                     <Text fontFamily="body" fontWeight="700" my="1" pl="3" style={styles.fileText}># {searchTag}</Text>
@@ -300,12 +341,24 @@ export default function CreateLec({ route, navigation }) {
     }
 
     const deleteSelectedTag = (tagName) => {
-        const newList = [...selectedTag]
-        const tagIndex = newList.indexOf(tagName)
+        const newSelectedTagArray = [...selectedTag]
+        const newOldTagArray = [...oldTag]
+        const newNewTagArray = [...newTag]
+        const tagIndex = newSelectedTagArray.indexOf(tagName)
+        const oldTagIndex = newOldTagArray.indexOf(tagName)
+        const newTagIndex = newNewTagArray.indexOf(tagName)
         if (tagIndex > -1) {
-            newList.splice(tagIndex, 1);
+            newSelectedTagArray.splice(tagIndex, 1);
         }
-        setSelectedTag(newList)
+        if (oldTagIndex > -1) {
+            newOldTagArray.splice(oldTagIndex, 1);
+        }
+        if (newTagIndex > -1) {
+            newNewTagArray.splice(newTagIndex, 1);
+        }
+        setSelectedTag(newSelectedTagArray)
+        setOldTag(newOldTagArray)
+        setNewTag(newNewTagArray)
     }
 
     const uploadFile = async () => {
@@ -325,8 +378,6 @@ export default function CreateLec({ route, navigation }) {
             console.log("Upload file error");
         }
     }
-
-
 
     const saveLec = async () => {
         if (validateForm()) {
@@ -364,6 +415,38 @@ export default function CreateLec({ route, navigation }) {
         }
     }
 
+    const editLec = async () => {
+        if (validateEditForm()) {
+
+            try {
+
+                const data = {
+                    title: title,
+                    oldTitle: route.params.lecture.title,
+                    description: description,
+                    contact: contact,
+                    newTag: newTag,
+                    oldTag: oldTag,
+                    oldDataTag: route.params.lecture.tag,
+                    permission: selectedUser,
+                    privacy: privacy
+                }
+
+                const req = await axios.post(`${API_LINK}/editLecture`, data);
+
+                const lec = {
+                    title: title
+                }
+
+                navigation.navigate('Lecture', { user: user, lecture: lec })
+
+            } catch (err) {
+                console.log(err)
+            }
+
+        }
+    }
+
     const validateForm = () => {
 
         let isValidate = true;
@@ -386,198 +469,272 @@ export default function CreateLec({ route, navigation }) {
         return isValidate;
     }
 
-    return (
-        <NativeBaseProvider theme={theme}>
-            <LinearGradient start={{ x: 0, y: 1 }}
-                end={{ x: 1, y: 0 }}
-                colors={['#c5d8ff', '#fedcc8']}
-                style={styles.container}>
-                <Appbar />
-                <ScrollView
-                    _contentContainerStyle={{
-                        py: 3,
-                        px: 6,
-                    }}
-                    style={styles.scrollStyle}
-                >
-                    <Box>
-                        <HStack space="5">
-                            <Image source={{ uri: user.image, }}
-                                alt="Alternate Text" style={styles.profileImage} />
-                            <HStack space="0" direction='column'>
-                                <Text pt="1" fontFamily="body" fontWeight="700" style={styles.profileText}>{user.firstname} {user.lastname}</Text>
-                                <Select
-                                    variant="styled"
-                                    selectedValue={privacy}
-                                    placeholder="Select privacy"
-                                    onValueChange={privacyInputHandler}
-                                    _selectedItem={{
-                                        endIcon: <CheckIcon size={4} />
-                                    }}
-                                    style={styles.privacySelector}
-                                    fontFamily="body" fontWeight="700"
-                                >
-                                    <Select.Item label="Public" value="public" />
-                                    <Select.Item label="Private" value="private" />
-                                </Select>
-                                {!isValidatePrivacy ? (
-                                    <Text fontFamily="body" fontWeight="700" mt="1" style={styles.failValidateText}>Please select privacy</Text>
-                                ) : (
-                                    <></>
-                                )}
-                            </HStack>
-                        </HStack>
+    const validateEditForm = () => {
 
-                        <HStack space="3" px="4" pt="2" pb="3" mt="4" style={styles.titleInputBox}>
-                            <Text fontFamily="body" fontWeight="700" mt="2" style={styles.inputText}>Title :</Text>
-                            <Input px="0" py="0" size="xl" variant="unstyled" fontFamily="body" fontWeight="400"
-                                onChangeText={titleInputHandler}
-                                w={{
-                                    base: "80%",
-                                }} />
-                        </HStack>
-                        {!isValidateTitle ? (
-                            <Text fontFamily="body" fontWeight="700" mt="1" pl="4" style={styles.failValidateText}>Title must be more than 3 characters</Text>
-                        ) : (
-                            <></>
-                        )}
+        let isValidate = true;
 
-                        {!isValidateTitleDuplicate ? (
-                            <Text fontFamily="body" fontWeight="700" mt="1" pl="4" style={styles.failValidateText}>Your title is duplicateed.</Text>
-                        ) : (
-                            <></>
-                        )}
+        if (title.length < 3) {
+            setIsValidateTitle(false);
+            isValidate = false;
+        }
 
-                        <HStack space="3" px="2" py="2" mt="3" style={styles.titleInputBox}>
-                            <TextArea
-                                h={'32'}
-                                placeholder="Tell something...&#10;Example : This lecture is for sale"
-                                variant="unstyled"
-                                textAlignVertical="top"
-                                fontSize="15"
-                                onChangeText={(inputText) => setDescription(inputText)}
-                                w={{
-                                    base: "100%",
-                                }}
-                            />
-                        </HStack>
+        if (privacy == "") {
+            setIsValidatePrivacy(false);
+            isValidate = false;
+        }
 
-                        <HStack space="3" px="4" pt="2" pb="3" mt="3" style={styles.titleInputBox}>
-                            <Text fontFamily="body" fontWeight="700" mt="2" style={styles.inputText}>Contact :</Text>
-                            <Input px="0" py="0" size="xl" variant="unstyled" fontFamily="body" fontWeight="400"
-                                onChangeText={(inputText) => setContact(inputText)}
-                                w={{
-                                    base: "70%",
-                                }} />
-                        </HStack>
+        return isValidate;
+    }
 
-                        <HStack space="3" px="4" pt="2" mt="3" style={styles.tagInputBox} direction='column'>
-                            <HStack style={styles.uploadFileInputBox}>
-                                <Text fontFamily="body" fontWeight="700" mt="2" style={styles.inputText}>Tag</Text>
-                                <TouchableOpacity style={styles.addTagButton} onPress={() => openTagModal()}><FontAwesome name="plus" size={22} color="white" /></TouchableOpacity>
-                            </HStack>
-                            {selectedTag.length > 0 ? (
-                                <ScrollView
-                                    persistentScrollbar={true}
-                                    style={styles.selectFileScrollStyle}
-                                    nestedScrollEnabled={true}
-                                >
-                                    {renderSelectedTag()}
-
-                                </ScrollView>
-                            ) : (
-                                <></>
-                            )}
-                        </HStack>
-
-                        <HStack space="3" px="4" pt="2" pb="1" mt="3" style={styles.tagInputBox} direction='column'>
-                            <HStack style={styles.uploadFileInputBox}>
-                                <Text fontFamily="body" fontWeight="700" mt="2" style={styles.inputText}>Upload File</Text>
-                                {fileUploaded.length == 0 ? (
-                                    <TouchableOpacity style={styles.chooseFileButton} onPress={() => uploadFile()}><Text style={{ color: "white" }}>Choose File</Text></TouchableOpacity>
-                                ) : (
-                                    <></>
-                                )}
-
-                            </HStack>
-                            {fileUploaded.length > 0 ? (
-                                <ScrollView
-                                    persistentScrollbar={true}
-                                    style={styles.selectFileScrollStyle}
-                                    nestedScrollEnabled={true}
-                                >
-                                    {renderFileUpload()}
-
-                                </ScrollView>
-                            ) : (
-                                <></>
-                            )}
-                        </HStack>
-                        {!isValidateUploadFile ? (
-                            <Text fontFamily="body" fontWeight="700" mt="1" pl="4" style={styles.failValidateText}>Please select file</Text>
-                        ) : (
-                            <></>
-                        )}
-
-                        {privacy == "private" ? (
-                            <HStack space="3" px="4" pt="2" pb="1" mt="3" style={styles.permissionBox} direction='column'>
-                                <HStack style={styles.permissionInputBox}>
-                                    <Text fontFamily="body" fontWeight="700" mt="2" style={styles.inputText}>Add Permission</Text>
-                                    <TouchableOpacity style={styles.chooseFileButton} onPress={openModal}>
-                                        <Text style={{ color: "white" }}>Choose User</Text>
-                                    </TouchableOpacity>
+    if (isLoad) {
+        return (
+            <NativeBaseProvider theme={theme}>
+                <LinearGradient start={{ x: 0, y: 1 }}
+                    end={{ x: 1, y: 0 }}
+                    colors={['#c5d8ff', '#fedcc8']}
+                    style={styles.container}>
+                    <Appbar title={route.params.title} />
+                    <ScrollView
+                        _contentContainerStyle={{
+                            py: 3,
+                            px: 6,
+                        }}
+                        style={styles.scrollStyle}
+                    >
+                        <Box>
+                            <HStack space="5">
+                                <Image source={{ uri: user.image, }}
+                                    alt="Alternate Text" style={styles.profileImage} />
+                                <HStack space="0" direction='column'>
+                                    <Text pt="1" fontFamily="body" fontWeight="700" style={styles.profileText}>{user.firstname} {user.lastname}</Text>
+                                    <Select
+                                        variant="styled"
+                                        selectedValue={privacy}
+                                        placeholder="Select privacy"
+                                        onValueChange={privacyInputHandler}
+                                        _selectedItem={{
+                                            endIcon: <CheckIcon size={4} />
+                                        }}
+                                        style={styles.privacySelector}
+                                        fontFamily="body" fontWeight="700"
+                                    >
+                                        <Select.Item label="Public" value="public" />
+                                        <Select.Item label="Private" value="private" />
+                                    </Select>
+                                    {!isValidatePrivacy ? (
+                                        <Text fontFamily="body" fontWeight="700" mt="1" style={styles.failValidateText}>Please select privacy</Text>
+                                    ) : (
+                                        <></>
+                                    )}
                                 </HStack>
+                            </HStack>
 
-                                {selectedUser.length > 0 ? (
+                            <HStack space="3" px="4" pt="2" pb="3" mt="4" style={styles.titleInputBox}>
+                                <Text fontFamily="body" fontWeight="700" mt="2" style={styles.inputText}>Title :</Text>
+                                <Input px="0" py="0" size="xl" variant="unstyled" fontFamily="body" fontWeight="400"
+                                    onChangeText={titleInputHandler}
+                                    value={title}
+                                    w={{
+                                        base: "80%",
+                                    }} />
+                            </HStack>
+                            {!isValidateTitle ? (
+                                <Text fontFamily="body" fontWeight="700" mt="1" pl="4" style={styles.failValidateText}>Title must be more than 3 characters</Text>
+                            ) : (
+                                <></>
+                            )}
+
+                            {!isValidateTitleDuplicate ? (
+                                <Text fontFamily="body" fontWeight="700" mt="1" pl="4" style={styles.failValidateText}>Your title is duplicateed.</Text>
+                            ) : (
+                                <></>
+                            )}
+
+                            <HStack space="3" px="2" py="2" mt="3" style={styles.titleInputBox}>
+                                <TextArea
+                                    h={'32'}
+                                    placeholder="Tell something...&#10;Example : This lecture is for sale"
+                                    variant="unstyled"
+                                    textAlignVertical="top"
+                                    fontSize="15"
+                                    onChangeText={(inputText) => setDescription(inputText)}
+                                    value={description}
+                                    w={{
+                                        base: "100%",
+                                    }}
+                                />
+                            </HStack>
+
+                            <HStack space="3" px="4" pt="2" pb="3" mt="3" style={styles.titleInputBox}>
+                                <Text fontFamily="body" fontWeight="700" mt="2" style={styles.inputText}>Contact :</Text>
+                                <Input px="0" py="0" size="xl" variant="unstyled" fontFamily="body" fontWeight="400"
+                                    onChangeText={(inputText) => setContact(inputText)}
+                                    value={contact}
+                                    w={{
+                                        base: "70%",
+                                    }} />
+                            </HStack>
+
+                            <HStack space="3" px="4" pt="2" mt="3" style={styles.tagInputBox} direction='column'>
+                                <HStack style={styles.uploadFileInputBox}>
+                                    <Text fontFamily="body" fontWeight="700" mt="2" style={styles.inputText}>Tag</Text>
+                                    <TouchableOpacity style={styles.addTagButton} onPress={() => openTagModal()}><FontAwesome name="plus" size={22} color="white" /></TouchableOpacity>
+                                </HStack>
+                                {selectedTag.length > 0 ? (
                                     <ScrollView
                                         persistentScrollbar={true}
-                                        style={styles.permissionScrollStyle}
+                                        style={styles.selectFileScrollStyle}
                                         nestedScrollEnabled={true}
                                     >
-                                        {renderSelectedUserPermission()}
+                                        {renderSelectedTag()}
 
                                     </ScrollView>
                                 ) : (
                                     <></>
                                 )}
+                            </HStack>
 
+                            {route.params.title == "Create Post" ? (
+                                <HStack space="3" px="4" pt="2" pb="1" mt="3" style={styles.tagInputBox} direction='column'>
+                                    <HStack style={styles.uploadFileInputBox}>
+                                        <Text fontFamily="body" fontWeight="700" mt="2" style={styles.inputText}>Upload File</Text>
+                                        {fileUploaded.length == 0 ? (
+                                            <TouchableOpacity style={styles.chooseFileButton} onPress={() => uploadFile()}><Text style={{ color: "white" }}>Choose File</Text></TouchableOpacity>
+                                        ) : (
+                                            <></>
+                                        )}
+
+                                    </HStack>
+                                    {fileUploaded.length > 0 ? (
+                                        <ScrollView
+                                            persistentScrollbar={true}
+                                            style={styles.selectFileScrollStyle}
+                                            nestedScrollEnabled={true}
+                                        >
+                                            {renderFileUpload()}
+
+                                        </ScrollView>
+                                    ) : (
+                                        <></>
+                                    )}
+                                </HStack>
+                            ) : (
+                                <></>
+                            )}
+
+                            {!isValidateUploadFile ? (
+                                <Text fontFamily="body" fontWeight="700" mt="1" pl="4" style={styles.failValidateText}>Please select file</Text>
+                            ) : (
+                                <></>
+                            )}
+
+                            {privacy == "private" ? (
+                                <HStack space="3" px="4" pt="2" pb="1" mt="3" style={styles.permissionBox} direction='column'>
+                                    <HStack style={styles.permissionInputBox}>
+                                        <Text fontFamily="body" fontWeight="700" mt="2" style={styles.inputText}>Add Permission</Text>
+                                        <TouchableOpacity style={styles.chooseFileButton} onPress={openModal}>
+                                            <Text style={{ color: "white" }}>Choose User</Text>
+                                        </TouchableOpacity>
+                                    </HStack>
+
+                                    {selectedUser.length > 0 ? (
+                                        <ScrollView
+                                            persistentScrollbar={true}
+                                            style={styles.permissionScrollStyle}
+                                            nestedScrollEnabled={true}
+                                        >
+                                            {renderSelectedUserPermission()}
+
+                                        </ScrollView>
+                                    ) : (
+                                        <></>
+                                    )}
+
+
+                                </HStack>
+                            ) : (
+                                <></>
+                            )}
+
+                            <HStack space="3" pt="1" pb="1" mt="2" mb="3" style={styles.saveBox}>
+                                {route.params.title == "Create Post" ? (
+                                    <Button style={styles.saveButton} onPress={() => saveLec()} pt="3" endIcon={
+                                        <Icon as={Ionicons} name="save" size="sm" mb="2" />}
+                                    >
+                                        <Text style={styles.saveText}>Save</Text>
+                                    </Button>
+                                ) : (
+                                    <Button style={styles.saveButton} onPress={() => editLec()} pt="3" endIcon={
+                                        <Icon as={FontAwesome} name="wrench" size="sm" mb="2" />}
+                                    >
+                                        <Text style={styles.saveText}>Edit</Text>
+                                    </Button>
+                                )}
 
                             </HStack>
-                        ) : (
-                            <></>
-                        )}
 
-                        <HStack space="3" pt="1" pb="1" mt="2" mb="3" style={styles.saveBox}>
-                            <Button style={styles.saveButton} onPress={() => saveLec()} pt="3" endIcon={
-                                <Icon as={Ionicons} name="save" size="sm" mb="2" />}
-                            >
-                                <Text style={styles.saveText}>Save</Text>
-                            </Button>
-                        </HStack>
+                        </Box>
 
-                    </Box>
+                    </ScrollView>
 
-                </ScrollView>
-
-                <Modal isOpen={showModal} onClose={() => setShowModal(false)} size={"xl"}>
-                    <Modal.Content maxWidth="400px">
-                        <Modal.CloseButton />
-                        <Modal.Header>
-                            <Text fontFamily="body" fontWeight="700" style={styles.modalHeader}>
-                                Add Permission
+                    <Modal isOpen={showModal} onClose={() => setShowModal(false)} size={"xl"}>
+                        <Modal.Content maxWidth="400px">
+                            <Modal.CloseButton />
+                            <Modal.Header>
+                                <Text fontFamily="body" fontWeight="700" style={styles.modalHeader}>
+                                    Add Permission
                             </Text>
-                        </Modal.Header>
-                        <Modal.Body>
-                            <HStack space="3" px="2" pb="3" >
+                            </Modal.Header>
+                            <Modal.Body>
+                                <HStack space="3" px="2" pb="3" >
+                                    <Input
+                                        variant="underlined"
+                                        placeholder="Search"
+                                        width="70%"
+                                        borderRadius="10"
+                                        py="1"
+                                        px="2"
+                                        borderWidth="0"
+                                        onChangeText={searchInputHandler}
+                                        InputLeftElement={
+                                            <Icon
+                                                ml="2"
+                                                size="5"
+                                                color="gray.500"
+                                                as={<Ionicons name="ios-search" />}
+                                            />
+                                        }
+                                    />
+                                    <Button style={styles.idSearchButton} size="xs" onPress={searchIdHandler}><Text style={{ color: "white" }}>Search</Text></Button>
+                                </HStack>
+                                <ScrollView
+                                    persistentScrollbar={true}
+                                    style={styles.selectAddPermissionScrollStyle}
+                                >
+                                    {renderUserSearch()}
+                                </ScrollView>
+                            </Modal.Body>
+                        </Modal.Content>
+                    </Modal>
+
+                    <Modal isOpen={showTagModal} onClose={() => setShowTagModal(false)} size={"md"}>
+                        <Modal.Content maxWidth="400px">
+                            <Modal.CloseButton />
+                            <Modal.Header>
+                                <Text fontFamily="body" fontWeight="700" style={styles.modalHeader}>
+                                    Select Tag
+                            </Text>
+                            </Modal.Header>
+                            <Modal.Body>
                                 <Input
                                     variant="underlined"
                                     placeholder="Search"
-                                    width="70%"
+                                    width="100%"
                                     borderRadius="10"
                                     py="1"
                                     px="2"
                                     borderWidth="0"
-                                    onChangeText={searchInputHandler}
+                                    onChangeText={searchTagInputHandler}
                                     InputLeftElement={
                                         <Icon
                                             ml="2"
@@ -587,65 +744,40 @@ export default function CreateLec({ route, navigation }) {
                                         />
                                     }
                                 />
-                                <Button style={styles.idSearchButton} size="xs" onPress={searchIdHandler}><Text style={{ color: "white" }}>Search</Text></Button>
-                            </HStack>
-                            <ScrollView
-                                persistentScrollbar={true}
-                                style={styles.selectAddPermissionScrollStyle}
-                            >
-                                {renderUserSearch()}
-                            </ScrollView>
-                        </Modal.Body>
-                    </Modal.Content>
-                </Modal>
+                                {searchTag.length > 0 ? (
+                                    <ScrollView
+                                        persistentScrollbar={true}
+                                        style={styles.selectTagScrollStyle}
+                                        mt="1"
+                                    >
+                                        {renderNewTagSearch()}
+                                        {renderTagSearch()}
+                                    </ScrollView>
+                                ) : (
+                                    <></>
+                                )}
+                            </Modal.Body>
+                        </Modal.Content>
+                    </Modal>
 
-                <Modal isOpen={showTagModal} onClose={() => setShowTagModal(false)} size={"md"}>
-                    <Modal.Content maxWidth="400px">
-                        <Modal.CloseButton />
-                        <Modal.Header>
-                            <Text fontFamily="body" fontWeight="700" style={styles.modalHeader}>
-                                Select Tag
-                            </Text>
-                        </Modal.Header>
-                        <Modal.Body>
-                            <Input
-                                variant="underlined"
-                                placeholder="Search"
-                                width="100%"
-                                borderRadius="10"
-                                py="1"
-                                px="2"
-                                borderWidth="0"
-                                onChangeText={searchTagInputHandler}
-                                InputLeftElement={
-                                    <Icon
-                                        ml="2"
-                                        size="5"
-                                        color="gray.500"
-                                        as={<Ionicons name="ios-search" />}
-                                    />
-                                }
-                            />
-                            {searchTag.length > 0 ? (
-                                <ScrollView
-                                    persistentScrollbar={true}
-                                    style={styles.selectTagScrollStyle}
-                                    mt="1"
-                                >
-                                    {renderNewTagSearch()}
-                                    {renderTagSearch()}
-                                </ScrollView>
-                            ) : (
-                                <></>
-                            )}
-                        </Modal.Body>
-                    </Modal.Content>
-                </Modal>
-
-                <NavigationBar navigation={navigation} page={"CreateLec"} user={user} />
-            </LinearGradient>
-        </NativeBaseProvider>
-    );
+                    <NavigationBar navigation={navigation} page={"CreateLec"} user={user} />
+                </LinearGradient>
+            </NativeBaseProvider>
+        );
+    } else {
+        return (
+            <NativeBaseProvider theme={theme}>
+                <LinearGradient start={{ x: 0, y: 1 }}
+                    end={{ x: 1, y: 0 }}
+                    colors={['#c5d8ff', '#fedcc8']}
+                    style={styles.container}>
+                    <Box style={styles.blankStyle}>
+                        <Spinner size="lg" color="warning" />
+                    </Box>
+                </LinearGradient>
+            </NativeBaseProvider>
+        )
+    }
 
 }
 
@@ -809,5 +941,9 @@ const styles = StyleSheet.create({
     tagSelectButton: {
         backgroundColor: "#E8E8E8",
         margin: 2,
-    }
+    },
+    blankStyle: {
+        minHeight: getScreenHeight() * 0.3,
+        justifyContent: "center"
+    },
 });
