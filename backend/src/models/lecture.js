@@ -30,7 +30,7 @@ const LectureSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
-    likeFromUser: {
+    downloadFromUser: {
         type: Array, 
     },
     rating: {

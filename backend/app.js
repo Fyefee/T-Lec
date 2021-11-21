@@ -258,7 +258,7 @@ app.post('/uploadLec', async (req, res) => {
             privacy: fields.privacy,
             userPermission: JSON.parse(fields.permission),
             owner: fields.owner,
-            likeFromUser: [],
+            downloadFromUser: [],
             rating: [],
             fileName: fields.fileName,
             fileUrl: dirPath,
@@ -373,11 +373,6 @@ app.get('/getLectureData', async (req, res) => {
         const lecOwner = await User.findOne({ email: doc.owner })
 
         let userRating = 0;
-        let isLike = false;
-
-        if (doc.likeFromUser.includes(req.query.userEmail)) {
-            isLike = true;
-        }
 
         if (doc.rating.length != 0) {
             doc.rating.forEach((value, key) => {
@@ -413,7 +408,7 @@ app.get('/getLectureData', async (req, res) => {
             "ownerName": lecOwner.firstname + " " + lecOwner.lastname,
             "ownerEmail": lecOwner.email,
             "ownerImage": lecOwner.image,
-            "isLike": isLike,
+            "downloadCount": doc.downloadFromUser.length,
             "userRating": userRating
         }
 
