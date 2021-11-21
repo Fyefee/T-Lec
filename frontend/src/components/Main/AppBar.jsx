@@ -41,6 +41,10 @@ const normalize = (size) => {
 
 export default function AppBar(props) {
 
+    const changePageToRanking = () => {
+        props.navigation.navigate('Ranking', { user: props.user })
+    }
+
     return (
         <>
             <StatusBar backgroundColor={props.bgColor} barStyle="light-content" />
@@ -56,7 +60,8 @@ export default function AppBar(props) {
                         icon={<Ionicons name="trophy" style={styles.icon} />}
                         size="md"
                         mt="1"
-                        borderRadius="full" />
+                        borderRadius="full" 
+                        onPress={() => changePageToRanking()}/>
                     <IconButton
                         icon={<FontAwesome name="bell" style={styles.icon} />}
                         size="md"
