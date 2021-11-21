@@ -1,5 +1,5 @@
-import React from 'react';
-import { StyleSheet, Text, View, AppRegistry } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, AppRegistry, BackHandler  } from 'react-native';
 import Routes from './src/router/Routes';
 import LoginScreen from "./src/screens/Login.js";
 import { useFonts } from '@expo-google-fonts/prompt'
@@ -36,7 +36,7 @@ export default function App() {
     'Prompt-ThinItalic' : require('./src/assets/fonts/Prompt-ThinItalic.ttf'),
 
   });
-
+  
   if (!fontsLoaded) {
     return <></>
   }

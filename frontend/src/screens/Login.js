@@ -5,6 +5,7 @@ import { Restart } from 'fiction-expo-restart';
 import axios from 'axios';
 import { API_LINK, CLIENTID } from '@env';
 import { LinearGradient } from 'expo-linear-gradient';
+import { CommonActions } from '@react-navigation/native';
 
 const {
     width: SCREEN_WIDTH,
@@ -144,7 +145,12 @@ export default function App({ navigation }) {
                 console.log("Get session YAY!!")
                 console.log(userSession.data)
                 //navigation.navigate('CreateLec', { user: userSession.data })
-                navigation.navigate('Ranking', { user: userSession.data })
+                const resetAction = CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: 'Home', params: { user: userSession.data } }]
+                });
+                navigation.dispatch(resetAction);
+                // navigation.navigate('Home', { user: userSession.data })
             }
         }
         catch (e) {

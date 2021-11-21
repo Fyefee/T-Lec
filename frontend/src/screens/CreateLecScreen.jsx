@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { StyleSheet, Dimensions, PixelRatio, Platform, TouchableOpacity, View } from 'react-native'
+import { StyleSheet, Dimensions, PixelRatio, Platform, TouchableOpacity, View, KeyboardAvoidingView } from 'react-native'
 import axios from 'axios';
 import { API_LINK, CLIENTID } from '@env';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -14,22 +14,12 @@ import * as DocumentPicker from 'expo-document-picker';
 import NavigationBar from '../components/NavigationBar'
 import Appbar from '../components/CreateLec/AppBar'
 
+import * as FileSystem from 'expo-file-system';
 
 const {
     width: SCREEN_WIDTH,
     height: SCREEN_HEIGHT,
 } = Dimensions.get('window');
-
-const scale = SCREEN_WIDTH / 320;
-
-const normalize = (size) => {
-    const newSize = size * scale
-    if (Platform.OS === 'ios') {
-        return Math.round(PixelRatio.roundToNearestPixel(newSize))
-    } else {
-        return Math.round(PixelRatio.roundToNearestPixel(newSize)) - 2
-    }
-}
 
 const getScreenWidth = () => {
     // for use screen width 
@@ -51,6 +41,17 @@ const getScreenHeight = () => {
     }
 }
 
+const scale = getScreenWidth() / 320;
+
+const normalize = (size) => {
+    const newSize = size * scale
+    if (Platform.OS === 'ios') {
+        return Math.round(PixelRatio.roundToNearestPixel(newSize))
+    } else {
+        return Math.round(PixelRatio.roundToNearestPixel(newSize)) - 2
+    }
+}
+
 export default function CreateLec({ route, navigation }) {
 
     const [showModal, setShowModal] = useState(false)
@@ -64,6 +65,8 @@ export default function CreateLec({ route, navigation }) {
     let [isValidatePrivacy, setIsValidatePrivacy] = React.useState(true)
     let [isValidateUploadFile, setIsValidateUploadFile] = React.useState(true)
 
+    let [isValidateTitleDuplicate, setIsValidateTitleDuplicate] = React.useState(true)
+
     let [privacy, setPrivacy] = React.useState("")
     let [searchId, setSearchId] = React.useState("")
     let [fileUploaded, setFileUploaded] = React.useState([])
@@ -74,6 +77,8 @@ export default function CreateLec({ route, navigation }) {
     let [selectedUser, setSelectedUser] = React.useState([])
 
     let [tag, setTag] = React.useState([])
+    let [oldTag, setOldTag] = React.useState([])
+    let [newTag, setNewTag] = React.useState([])
     let [searchTag, setSearchTag] = React.useState("")
     let [haveTagInDB, setHaveTagInDB] = React.useState([])
     let [selectedTag, setSelectedTag] = React.useState([])
@@ -212,7 +217,7 @@ export default function CreateLec({ route, navigation }) {
         const tagList = [];
         haveTagInDB.map(element => {
             tagList.push(
-                <TouchableOpacity key={element.tagName} style={styles.tagSelectButton} onPress={() => addSelectedTag(element.tagName)}>
+                <TouchableOpacity key={element.tagName} style={styles.tagSelectButton} onPress={() => addSelectedOldTag(element.tagName)}>
                     <HStack style={styles.selectAddPermissionRow} mt="2.5" justifyContent="space-around">
                         <Text fontFamily="body" fontWeight="700" my="1" pl="3" style={styles.fileText}># {element.tagName}</Text>
                         <Text fontFamily="body" fontWeight="700" my="1" pl="3" style={styles.fileTextPost}>{element.count} Post</Text>
@@ -231,7 +236,7 @@ export default function CreateLec({ route, navigation }) {
             }
         })
         if (!isDuplicate) {
-            return <TouchableOpacity style={styles.tagSelectButton} onPress={() => addSelectedTag(searchTag)}>
+            return <TouchableOpacity style={styles.tagSelectButton} onPress={() => addSelectedNewTag(searchTag)}>
                 <HStack style={styles.selectAddPermissionRow} mt="2.5" justifyContent="space-around">
                     <Text fontFamily="body" fontWeight="700" my="1" pl="3" style={styles.fileText}># {searchTag}</Text>
                     <Text fontFamily="body" fontWeight="700" my="1" pl="3" style={styles.fileTextPost}>New Post</Text>
@@ -270,12 +275,27 @@ export default function CreateLec({ route, navigation }) {
         setSelectedUser(newList)
     }
 
-    const addSelectedTag = (tagName) => {
+    const addSelectedNewTag = (tagName) => {
         const newList = [...selectedTag];
         newList.push(tagName);
+        const newTagArray = [...newTag];
+        newTagArray.push(tagName)
         setSearchTag("");
         setHaveTagInDB([]);
         setSelectedTag(newList);
+        setNewTag(newTagArray)
+        setShowTagModal(false);
+    }
+
+    const addSelectedOldTag = (tagName) => {
+        const newList = [...selectedTag];
+        newList.push(tagName);
+        const oldTagArray = [...oldTag];
+        oldTagArray.push(tagName)
+        setSearchTag("");
+        setHaveTagInDB([]);
+        setSelectedTag(newList);
+        setOldTag(oldTagArray)
         setShowTagModal(false);
     }
 
@@ -306,19 +326,41 @@ export default function CreateLec({ route, navigation }) {
         }
     }
 
+
+
     const saveLec = async () => {
         if (validateForm()) {
-            const newLecture = {
-                title: title,
-                description: description,
-                contact: contact,
-                tag: selectedTag,
-                uploadedFile: fileUploaded,
-                permission: selectedUser,
-                privacy: privacy,
-                owner: user.email
-            };
-            console.log(newLecture)
+
+            try {
+                const res1 = await axios.post(`${API_LINK}/checkLecDuplicate`, { title: title.trim() })
+                if (res1.data) {
+                    setIsValidateTitleDuplicate(true)
+
+                    const fileBase64 = await FileSystem.readAsStringAsync(fileUploaded[0].uri, { encoding: 'base64' });
+
+                    var bodyFormData = new FormData();
+                    bodyFormData.append('title', title);
+                    bodyFormData.append('description', description);
+                    bodyFormData.append('contact', contact);
+                    bodyFormData.append('newTag', JSON.stringify(newTag));
+                    bodyFormData.append('oldTag', JSON.stringify(oldTag));
+                    bodyFormData.append('permission', JSON.stringify(selectedUser));
+                    bodyFormData.append('privacy', privacy);
+                    bodyFormData.append('owner', user.email);
+                    bodyFormData.append('fileName', fileUploaded[0].name);
+                    bodyFormData.append('fileBase64', fileBase64)
+
+                    const req = await axios.post(`${API_LINK}/uploadLec`, bodyFormData);
+
+                    navigation.navigate('Home', { user: user })
+
+                } else {
+                    setIsValidateTitleDuplicate(false)
+                }
+            } catch (err) {
+                console.log(err)
+            }
+
         }
     }
 
@@ -336,7 +378,7 @@ export default function CreateLec({ route, navigation }) {
             isValidate = false;
         }
 
-        if (fileUploaded.length == 0){
+        if (fileUploaded.length == 0) {
             setIsValidateUploadFile(false);
             isValidate = false;
         }
@@ -396,6 +438,12 @@ export default function CreateLec({ route, navigation }) {
                         </HStack>
                         {!isValidateTitle ? (
                             <Text fontFamily="body" fontWeight="700" mt="1" pl="4" style={styles.failValidateText}>Title must be more than 3 characters</Text>
+                        ) : (
+                            <></>
+                        )}
+
+                        {!isValidateTitleDuplicate ? (
+                            <Text fontFamily="body" fontWeight="700" mt="1" pl="4" style={styles.failValidateText}>Your title is duplicateed.</Text>
                         ) : (
                             <></>
                         )}
@@ -594,7 +642,7 @@ export default function CreateLec({ route, navigation }) {
                     </Modal.Content>
                 </Modal>
 
-                <NavigationBar page={"CreateLec"} />
+                <NavigationBar navigation={navigation} page={"CreateLec"} user={user} />
             </LinearGradient>
         </NativeBaseProvider>
     );
