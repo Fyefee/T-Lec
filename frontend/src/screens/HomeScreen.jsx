@@ -1,16 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { useIsFocused } from "@react-navigation/native";
-import { StyleSheet, Dimensions, PixelRatio, Platform, TouchableOpacity, View, BackHandler } from 'react-native'
+import { StyleSheet, Dimensions, PixelRatio, Platform } from 'react-native'
 import axios from 'axios';
-import { API_LINK, CLIENTID } from '@env';
+import { API_LINK } from '@env';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
-    Input, TextArea, VStack, HStack, Button, IconButton, Icon, Text,
-    NativeBaseProvider, Center, Box, StatusBar, extendTheme, ScrollView,
-    Image, Select, CheckIcon, Item, Modal, FormControl, AlertDialog, Spinner
+    HStack, Text, NativeBaseProvider, Box, extendTheme, ScrollView, Spinner
 } from "native-base";
-import { FontAwesome, Ionicons, MaterialIcons } from '@expo/vector-icons';
-import * as DocumentPicker from 'expo-document-picker';
 
 import CreateLecButton from '../components/Main/CreateLecButton'
 import Appbar from "../components/Main/AppBar"
@@ -74,7 +70,6 @@ export default function Home({ route, navigation }) {
             }
         },
 
-        // Make sure values below matches any of the keys in `fontConfig`
         fonts: {
             heading: 'Prompt',
             body: 'Prompt',

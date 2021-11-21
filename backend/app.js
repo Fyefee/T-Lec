@@ -317,7 +317,10 @@ app.get('/getDataForLibrary', async (req, res) => {
             lecFromEmail.forEach((element) => {
 
                 rating += element.ratingAvg
-                ratingCount += 1;
+
+                if (element.ratingAvg > 0){
+                    ratingCount += 1;
+                }
 
                 postCount += 1;
 
@@ -414,9 +417,6 @@ app.get('/getLectureData', async (req, res) => {
             "userRating": userRating
         }
 
-        // console.log(doc)
-        // console.log(lecOwner)
-        // console.log(data)
         res.send(data)
 
     }).clone().catch(function (err) {

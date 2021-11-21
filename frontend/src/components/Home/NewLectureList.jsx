@@ -1,10 +1,7 @@
 import React from 'react'
 import { StyleSheet, Dimensions, PixelRatio, TouchableOpacity } from 'react-native'
-import {
-    HStack, IconButton, Icon, Text, StatusBar, Image, KeyboardAvoidingView, ScrollView
-} from "native-base";
-import { FontAwesome, Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
+import { HStack, Text, Image } from "native-base";
+import { FontAwesome } from '@expo/vector-icons';
 
 const {
     width: SCREEN_WIDTH,
@@ -123,7 +120,6 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.32,
         shadowRadius: 5.46,
-
         elevation: 9,
     },
     profileImage: {

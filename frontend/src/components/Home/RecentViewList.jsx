@@ -1,8 +1,7 @@
 import React from 'react'
 import { StyleSheet, Dimensions, PixelRatio, TouchableOpacity } from 'react-native'
-import { HStack, IconButton, Icon, Text, StatusBar, Image, KeyboardAvoidingView, ScrollView
- } from "native-base";
-import { FontAwesome, Ionicons } from '@expo/vector-icons';
+import { HStack, Text, Image, ScrollView} from "native-base";
+import { FontAwesome} from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
 const {
@@ -114,13 +113,11 @@ export default function RecentViewList(props) {
         </ScrollView>
     );
 
-
 }
 
 const styles = StyleSheet.create({
     recentViewScroll: {
         width: '100%',
-        //height: getScreenHeight() * 0.335,
     },
     recentViewBox: {
         width: getScreenWidth() * 0.35,
@@ -136,7 +133,6 @@ const styles = StyleSheet.create({
         },
         shadowOpacity: 0.32,
         shadowRadius: 5.46,
-
         elevation: 9,
     },
     textRecentHeader: {
