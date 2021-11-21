@@ -109,8 +109,7 @@ export default function CreateLec({ route, navigation }) {
 
         try {
             setIsLoad(true)
-
-            const dataFromDB = await axios.get(`${API_LINK}/getLectureData`, { params: { title: route.params.lecture.name, userEmail: user.email } })
+            const dataFromDB = await axios.get(`${API_LINK}/getLectureData`, { params: { title: route.params.lecture.title, userEmail: user.email } })
             // const userLibData = {
             //     "rating": dataFromDB.data.rating,
             //     "postCount": dataFromDB.data.postCount,

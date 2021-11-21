@@ -142,7 +142,7 @@ export default function Library({ route, navigation }) {
             collectionArray.push(
                 <TouchableOpacity key={index} style={styles.collectionBox} my="2"
                     onPress={() => navigateToLectureScreen(element)}>
-                    <Text numberOfLines={2} pt="2" px="2">{element.name}</Text>
+                    <Text numberOfLines={2} pt="2" px="2">{element.title}</Text>
                     <HStack space="1" p="1" style={styles.collectionBoxStack}>
                         {element.privacy == "public" ? (
                             <Ionicons name="earth-sharp" style={styles.collectionPrivacyIcon} />
@@ -399,6 +399,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: "rgba(255, 255, 255, 0.5)",
+        marginTop: 8
     },
     collectionBoxStack: {
         position: "absolute",

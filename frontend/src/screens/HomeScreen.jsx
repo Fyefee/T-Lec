@@ -89,6 +89,7 @@ export default function Home({ route, navigation }) {
 
             const dataFromDB = await axios.get(`${API_LINK}/getHomeData`, { params: { email: user.email } })
             setRecentView(dataFromDB.data.recentView)
+            setNewLec(dataFromDB.data.newLec)
 
             setIsLoad(true)
 
@@ -102,66 +103,27 @@ export default function Home({ route, navigation }) {
 
     let [recentView, setRecentView] = React.useState([])
 
-    let [newLec, setNewLec] = React.useState([
-        {
-            "lecName": "Mobile Device",
-            "photoUrl": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
-            "lecTag": [
-                "MobileDevice",
-                "ปี3_เทอม1_final"
-            ],
-            "lecDescription": "Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!",
-            "lecRating": 4
-        },
-        {
-            "lecName": "SOP",
-            "photoUrl": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
-            "lecTag": [
-                "MobileDevice",
-                "ปี3_เทอม1_final"
-            ],
-            "lecDescription": "Hello",
-            "lecRating": 5
-        },
-        {
-            "lecName": "Mobile Device",
-            "photoUrl": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
-            "lecTag": [
-                "MobileDevice",
-                "ปี3_เทอม1_final"
-            ],
-            "lecDescription": "Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World! Hello World!",
-            "lecRating": 4
-        },
-        {
-            "lecName": "SOP",
-            "photoUrl": "https://lh3.googleusercontent.com/a/AATXAJwO0xmKV4E3ef4UvdkySmG1_eE8ApICu9TTRVzR=s96-c",
-            "lecTag": [
-                "MobileDevice",
-                "ปี3_เทอม1_final"
-            ],
-            "lecDescription": "Hello",
-            "lecRating": 5
-        },
-    ])
+    let [newLec, setNewLec] = React.useState([])
 
     const renderRecentViewBox = () => {
         let BoxArray = [];
         recentView.map((element, index) => {
             BoxArray.push(
-                <LinearGradient start={{ x: 0, y: 1 }}
-                    end={{ x: 1, y: 0 }}
-                    colors={['#ddeaf8', '#fff2e2']}
-                    key={index} style={styles.recentViewBox}>
-                    <HStack space="1" py="1" px="1" direction='column'>
-                        <Image source={{ uri: element.photoUrl, }} alt="User Image" style={styles.profileRecentImage} />
-                        <Text pt="1" pl="2" fontFamily="body" fontWeight="400" style={styles.textRecentHeader} numberOfLines={1}>{element.lecName}</Text>
-                        <Text pl="2" fontFamily="body" fontWeight="300" style={styles.textRecentTag} lineHeight="2xs" numberOfLines={2}>Tag : {renderNewLecTag(element)}</Text>
-                        <HStack pl="3">
-                            {renderStar(element, styles.starIconRecent)}
+                <TouchableOpacity key={index} onPress={() => navigateToLectureScreen(element)}>
+                    <LinearGradient start={{ x: 0, y: 1 }}
+                        end={{ x: 1, y: 0 }}
+                        colors={['#ddeaf8', '#fff2e2']}
+                        style={styles.recentViewBox}>
+                        <HStack space="1" py="1" px="1" direction='column'>
+                            <Image source={{ uri: element.photoUrl, }} alt="User Image" style={styles.profileRecentImage} />
+                            <Text pt="1" pl="2" fontFamily="body" fontWeight="400" style={styles.textRecentHeader} numberOfLines={1}>{element.title}</Text>
+                            <Text pl="2" fontFamily="body" fontWeight="300" style={styles.textRecentTag} lineHeight="2xs" numberOfLines={2}>Tag : {renderNewLecTag(element)}</Text>
+                            <HStack pl="3">
+                                {renderStar(element, styles.starIconRecent)}
+                            </HStack>
                         </HStack>
-                    </HStack>
-                </LinearGradient>
+                    </LinearGradient>
+                </TouchableOpacity>
             )
         })
         return BoxArray;
@@ -171,11 +133,11 @@ export default function Home({ route, navigation }) {
         let BoxArray = [];
         newLec.map((element, index) => {
             BoxArray.push(
-                <Box key={index} style={styles.newLecBox}>
+                <TouchableOpacity key={index} style={styles.newLecBox} onPress={() => navigateToLectureScreen(element)}>
                     <HStack space="1" py="1" px="4" alignItems="center">
                         <Image source={{ uri: element.photoUrl, }} alt="User Image" style={styles.profileImage} />
                         <HStack py="1" px="1" direction='column'>
-                            <Text pt="1" pl="2" fontFamily="body" fontWeight="400" style={styles.textNewLecHeader} numberOfLines={1}>{element.lecName}</Text>
+                            <Text pt="1" pl="2" fontFamily="body" fontWeight="400" style={styles.textNewLecHeader} numberOfLines={1}>{element.title}</Text>
                             <Text pl="2" fontFamily="body" fontWeight="300" style={styles.textNewLecTag} lineHeight="2xs" numberOfLines={1}>Tag : {renderNewLecTag(element)}</Text>
                             <Text pt="1" pl="2" fontFamily="body" fontWeight="300" style={styles.textNewLecDescription} lineHeight="2xs" numberOfLines={2}>{element.lecDescription}</Text>
                             <HStack px="1">
@@ -183,7 +145,7 @@ export default function Home({ route, navigation }) {
                             </HStack>
                         </HStack>
                     </HStack>
-                </Box>
+                </TouchableOpacity>
             )
         })
         return BoxArray;
@@ -216,6 +178,10 @@ export default function Home({ route, navigation }) {
         }
         return star;
     }
+
+    const navigateToLectureScreen = (lecture) => {
+        navigation.navigate('Lecture', { user: user, lecture: lecture })
+    } 
 
     if (isLoad) {
         return (
@@ -255,7 +221,14 @@ export default function Home({ route, navigation }) {
                                 )}
 
                             <Text pt="5" pl="2" fontFamily="body" fontWeight="700" style={styles.TextHeader}>NEW !!</Text>
-                        {renderNewLecBox()}
+                            {newLec.length > 0 ? (
+                                <>
+                                    {renderNewLecBox()}
+                                </>
+                                ) : (
+                                    <Text pt="1" pl="5" fontFamily="body" fontWeight="700" style={styles.warningText}>There are currently no new lectures.</Text>
+                                )}
+                            
                         </HStack>
                     </ScrollView>
 
@@ -350,6 +323,7 @@ const styles = StyleSheet.create({
         borderRadius: getScreenWidth() * 0.025,
         alignItems: 'flex-start',
         justifyContent: 'center',
+        marginBottom: 8,
         backgroundColor: "rgb(255, 255, 255)",
         shadowColor: "#000",
         shadowOffset: {

@@ -322,7 +322,7 @@ app.get('/getDataForLibrary', async (req, res) => {
                 postCount += 1;
 
                 let lecture = {
-                    name: element.title,
+                    title: element.title,
                     privacy: element.privacy
                 }
 
@@ -509,38 +509,72 @@ app.post('/rateLecture', async (req, res) => {
 
 })
 
+function compareDate( a, b ) {
+    if ( a.createdDate < b.createdDate ){
+      return 1;
+    }
+    if ( a.createdDate > b.createdDate ){
+      return -1;
+    }
+    return 0;
+}
+
 app.get('/getHomeData', async (req, res) => {
 
     await User.findOne({ email: req.query.email }, async function (err, doc) {
 
         const lecRecentArray = [];
+        const lecNewestArray = [];
         let lecCount = doc.recentView.length;
 
-        doc.recentView.forEach(async (element, index) => {
-            const lecRecent = await Lecture.findOne({ title: element }).clone()
-            
-            if (lecRecent) {
-                const lecOwner = await User.findOne({ email: lecRecent.owner }).clone()
-                lecRecentArray.push({
-                    lecName: lecRecent.title,
-                    photoUrl: lecOwner.image,
-                    lecTag: lecRecent.tag,
-                    lecDescription: lecRecent.description,
-                    lecRating: lecRecent.ratingAvg
+        const newLecData = await Lecture.find({}).sort("-createdDate").limit(5)
+        newLecData.forEach(async (element, index) => { 
+            const lecOwner = await User.findOne({ email: element.owner }).clone()
+            newLec = {
+                title: element.title,
+                photoUrl: lecOwner.image,
+                lecTag: element.tag,
+                lecDescription: element.description,
+                lecRating: element.ratingAvg,
+                createdDate: element.createdDate,
+                owner: lecOwner.email
+            }
+            lecNewestArray.push(newLec)
+
+            if (lecNewestArray.length == newLecData.length) {
+
+                lecNewestArray.sort(compareDate)
+
+                doc.recentView.forEach(async (element, index) => {
+                    const lecRecent = await Lecture.findOne({ title: element }).clone()
+
+                    if (lecRecent) {
+                        const lecOwner = await User.findOne({ email: lecRecent.owner }).clone()
+                        lecRecentArray.push({
+                            title: lecRecent.title,
+                            photoUrl: lecOwner.image,
+                            lecTag: lecRecent.tag,
+                            lecDescription: lecRecent.description,
+                            lecRating: lecRecent.ratingAvg,
+                            owner: lecOwner.email
+                        })
+                    } else {
+                        lecCount -= 1
+                    }
+
+                    if (lecRecentArray.length == lecCount) {
+                        const data = {
+                            recentView: lecRecentArray,
+                            newLec: lecNewestArray
+                        }
+                        res.send(data)
+                    }
+
                 })
-            } else {
-                lecCount -= 1
-            }
 
-            if (lecRecentArray.length == lecCount){
-                console.log(lecRecentArray)
-                const data = {
-                    "recentView": lecRecentArray
-                }
-                res.send(data)
             }
-
         })
+
 
     }).clone().catch(function (err) {
         console.log(err)
