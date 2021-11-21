@@ -11,7 +11,7 @@ import {
 } from "native-base";
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { withTheme } from 'styled-components';
-import { flex } from 'styled-system';
+import { flex, flexDirection } from 'styled-system';
 
 const {
     width: SCREEN_WIDTH,
@@ -160,9 +160,9 @@ export default function Ranking({ route, navigation }) {
             <IconButton pt="5" icon={<Icon as={<FontAwesome name="arrow-circle-left" size={20} />}
                      size='lg' style={{color:"white", position: 'absolute', top:getScreenHeight()/20, left:getScreenWidth()/30}}/>}/>
             <Text pt="20" fontFamily="body" fontWeight="700" style={styles.ranking_header}>RANKING</Text>
-            <Image source={require("../assets/decoration/top_frame1.png")} style={styles.topFrame1} ></Image>
-            <Image source={require("../assets/decoration/top_frame2.png")} style={styles.topFrame2} ></Image>
-            <Image source={require("../assets/decoration/top_frame3.png")} style={styles.topFrame3} ></Image>
+            <Image source={require("../assets/decoration/top_frame1.png")} alt="top_frame1" style={styles.topFrame1} ></Image>
+            <Image source={require("../assets/decoration/top_frame2.png")} alt="top_frame2" style={styles.topFrame2} ></Image>
+            <Image source={require("../assets/decoration/top_frame3.png")} alt="top_frame3" style={styles.topFrame3} ></Image>
             <Image source={{ uri: ranking[0].ownerImage, }} style={styles.ownerImage1} alt="1 Owner Image"/>
             <Image source={{ uri: ranking[1].ownerImage, }} style={styles.ownerImage2} alt="2 Owner Image"/>
             <Image source={{ uri: ranking[2].ownerImage, }} style={styles.ownerImage3} alt="3 Owner Image"/>
@@ -174,10 +174,12 @@ export default function Ranking({ route, navigation }) {
             <Text pt="3" fontWeight="700" style={[styles.top3_name3,{fontSize: normalize(20)}]}>{ranking[2].LectureName}</Text>  
             
             {top10_container.map((top, index) => (  
-                <View style={styles.top10_container}>
-                <Text style={{color:'white', fontSize:19}}>{index+1}</Text>
-                <Text style={{color:'white', fontSize:19}}>{top.title}</Text>
-                <Text style={{color:'white', fontSize:19}}>{top.owner}</Text>
+              <View style={styles.top10_container}>   
+             <View>
+                 <Text style={{color:'white', fontSize:19}}> {top.title}</Text>
+                 <Text style={{color:'white', fontSize:19}}> {top.owner}</Text>
+              </View>
+              <Text style={{color:'white', fontSize:19}}>{index+1} </Text>
                 </View>
             ))}  
           </ScrollView>
@@ -203,13 +205,14 @@ const styles = StyleSheet.create({
     top10_container:{
         backgroundColor: "rgba(255, 255, 255, 0.25)",
         width:getScreenWidth()/1.2,
-        height:60,
+        height:75,
         justifyContent: 'space-around',
         alignItems: 'center', 
         bottom: getScreenWidth() * 1.35,
-        borderRadius: 20,
+        borderRadius: 40,
         left: getScreenWidth()*0.08,
         marginBottom:20,
+        flexDirection:'row'
     },
     ranking_header: {
         justifyContent: 'center',
