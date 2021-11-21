@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useIsFocused } from "@react-navigation/native";
 import { StyleSheet, Dimensions, PixelRatio, Platform, TouchableOpacity, View} from 'react-native'
 import axios from 'axios';
 import { API_LINK, CLIENTID } from '@env';
@@ -9,7 +10,6 @@ import {
     Image, Select, CheckIcon, Item, Modal, FormControl
 } from "native-base";
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
-import NavigationBar from '../components/NavigationBar'
 import { withTheme } from 'styled-components';
 import { flex } from 'styled-system';
 
@@ -52,6 +52,26 @@ const getScreenHeight = () => {
 export default function Ranking({ route, navigation }) {
 
     const { user } = route.params;
+    const [isLoad, setIsLoad] = React.useState(false)
+    const isFocused = useIsFocused();
+
+    useEffect(async () => {
+
+        try {
+            setIsLoad(false)
+            
+            const dataFromDB = await axios.get(`${API_LINK}/getRanking`, { params: { email: user.email } })
+            settop10_container(dataFromDB.data)
+            setIsLoad(true)
+            
+        }
+        catch (e) {
+            console.log("GetData error : ", e)
+        }
+
+    }, [isFocused])
+
+    let [top10_container, settop10_container] = React.useState([])
 
     let [ranking, setRanking] = React.useState([
         {
@@ -143,22 +163,22 @@ export default function Ranking({ route, navigation }) {
             <Image source={require("../assets/decoration/top_frame1.png")} style={styles.topFrame1} ></Image>
             <Image source={require("../assets/decoration/top_frame2.png")} style={styles.topFrame2} ></Image>
             <Image source={require("../assets/decoration/top_frame3.png")} style={styles.topFrame3} ></Image>
-            <Image source={{ uri: ranking[0].ownerImage, }} style={styles.ownerImage1} />
-            <Image source={{ uri: ranking[1].ownerImage, }} style={styles.ownerImage2} />
-            <Image source={{ uri: ranking[2].ownerImage, }} style={styles.ownerImage3} />
+            <Image source={{ uri: ranking[0].ownerImage, }} style={styles.ownerImage1} alt="1 Owner Image"/>
+            <Image source={{ uri: ranking[1].ownerImage, }} style={styles.ownerImage2} alt="2 Owner Image"/>
+            <Image source={{ uri: ranking[2].ownerImage, }} style={styles.ownerImage3} alt="3 Owner Image"/>
             <Text pt="1" fontWeight="0" style={[styles.top3_name1,{fontSize: normalize(18)}]}>{ranking[0].owner}</Text>
             <Text pt="4" fontWeight="700" style={[styles.top3_name1,{fontSize: normalize(20)}]}>{ranking[0].LectureName}</Text>
             <Text pt="1"  fontWeight="0" style={[styles.top3_name2,{fontSize: normalize(18)}]}>{ranking[1].owner}</Text>
             <Text pt="3" fontWeight="700" style={[styles.top3_name2,{fontSize: normalize(20)}]}>{ranking[1].LectureName}</Text>
             <Text pt="1"  fontWeight="0" style={[styles.top3_name3,{fontSize: normalize(18)}]}>{ranking[2].owner}</Text>
             <Text pt="3" fontWeight="700" style={[styles.top3_name3,{fontSize: normalize(20)}]}>{ranking[2].LectureName}</Text>  
-                
-            {ranking.map((top, index) => (  
-              <View style={styles.top10_container}>
-              <Text style={{color:'white', fontSize:19}}>{top.LectureName}</Text>
-              <Text style={{color:'white', fontSize:19}}>{top.owner}</Text>
-              <Text style={{color:'white', fontSize:19}}>{index+1}</Text>
-          </View>
+            
+            {top10_container.map((top, index) => (  
+                <View style={styles.top10_container}>
+                <Text style={{color:'white', fontSize:19}}>{index+1}</Text>
+                <Text style={{color:'white', fontSize:19}}>{top.title}</Text>
+                <Text style={{color:'white', fontSize:19}}>{top.owner}</Text>
+                </View>
             ))}  
           </ScrollView>
         </NativeBaseProvider>
@@ -190,7 +210,6 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         left: getScreenWidth()*0.08,
         marginBottom:20,
-        flexDirection: "row",
     },
     ranking_header: {
         justifyContent: 'center',

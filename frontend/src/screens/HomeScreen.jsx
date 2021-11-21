@@ -84,13 +84,12 @@ export default function Home({ route, navigation }) {
 
         try {
             setIsLoad(false)
-
+            
             const dataFromDB = await axios.get(`${API_LINK}/getHomeData`, { params: { email: user.email } })
             setRecentView(dataFromDB.data.recentView)
             setNewLec(dataFromDB.data.newLec)
-
             setIsLoad(true)
-
+            
         }
         catch (e) {
             console.log("GetData error : ", e)
