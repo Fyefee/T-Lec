@@ -632,11 +632,12 @@ app.get('/getRanking', async (req, res) => {
         data.forEach(function (lecture) {
             top_ratingAvg.push(lecture.ratingAvg)
         });
+        top_ratingAvg.sort(function(a, b){return a-b});
 
         check = true
-        data.forEach(function (lecture) {
+        top_ratingAvg.forEach(max => {
             data.map((item, i) =>  {
-                if(item.ratingAvg == Math.max.apply(null, top_ratingAvg) && check){
+                if(item.ratingAvg == max && check){
                     sorted_data.push(item)
                     data.splice(i, 1)
                     check = false
