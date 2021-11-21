@@ -137,6 +137,8 @@ export default function Ranking({ route, navigation }) {
         <LinearGradient start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} colors={['#c5d8ff', '#fedcc8']} style={styles.container}>
         <NativeBaseProvider theme={theme}>
             <ScrollView style={styles.scrollView}> 
+            <IconButton pt="5" icon={<Icon as={<FontAwesome name="arrow-circle-left" size={20} />}
+                     size='lg' style={{color:"white", position: 'absolute', top:getScreenHeight()/20, left:getScreenWidth()/30}}/>}/>
             <Text pt="20" fontFamily="body" fontWeight="700" style={styles.ranking_header}>RANKING</Text>
             <Image source={require("../assets/decoration/top_frame1.png")} style={styles.topFrame1} ></Image>
             <Image source={require("../assets/decoration/top_frame2.png")} style={styles.topFrame2} ></Image>
@@ -195,7 +197,7 @@ const styles = StyleSheet.create({
         alignItems: 'center', 
         textAlign: 'center',
         fontSize: normalize(30),
-        color: "white"
+        color: "white",
     },
     ownerImage1:{
         zIndex: 3 ,
@@ -218,7 +220,7 @@ const styles = StyleSheet.create({
         width: getScreenWidth() * 0.38,
         height: getScreenWidth() * 0.38,
         borderRadius: getScreenWidth() * 0.36,
-        bottom: getScreenWidth() * 1.24,
+        bottom: getScreenHeight() * 0.75,
         left: getScreenWidth() * 0.53
     },
     top3_name1:{
@@ -242,7 +244,7 @@ const styles = StyleSheet.create({
     topFrame1:{
         position: 'absolute',
         zIndex: 4 ,
-        top: getScreenWidth() * 0.21,
+        top: getScreenHeight() * 0.17,
         width: getScreenWidth() * 0.75,
         height: getScreenWidth() * 0.75,
         right: getScreenWidth() * 0.14
@@ -257,7 +259,7 @@ const styles = StyleSheet.create({
     topFrame3:{
         position: 'absolute',
         zIndex: 3 ,
-        top: getScreenWidth() * 0.32,
+        top: getScreenHeight() * 0.23,
         width: getScreenWidth() * 0.75,
         height: getScreenWidth() * 0.75,
         left: getScreenWidth() * 0.34
