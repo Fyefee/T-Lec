@@ -777,3 +777,52 @@ passport.deserializeUser((user, cb) => {
     //console.log(`Deserialize user : ${user}`)
     cb(null, user)
 });
+
+app.get('/getRanking', async (req, res) => {
+    await Lecture.find({}, function (err, lectures) {
+        var data = []
+        var sorted_data = []
+        var check = true
+        lectures.forEach(function (lecture) {
+            if (data.length > 0){
+                sum_lecture = (lecture.downloadFromUser).length + lecture.ratingAvg
+                data.map((item, i) =>  {
+                    sum_item = (item.downloadFromUser).length + item.ratingAvg
+                    if((sum_item <= sum_lecture && data.length < 10) && check){
+                        data.push(lecture)
+                        check = false
+                    }
+                    else if ((sum_item < sum_lecture && data.length >= 10) && check){
+                        data.splice(i, 1)
+                        data.push(lecture)
+                        check = false
+                    }
+                });
+                check = true
+            }
+            else{
+                data.push(lecture) 
+            }
+        });
+
+        var top_ratingAvg = []
+        data.forEach(function (lecture) {
+            top_ratingAvg.push(lecture.ratingAvg + (lecture.downloadFromUser).length)
+        });
+        
+        top_ratingAvg.sort(function(a, b){return b-a});
+
+        check = true
+        top_ratingAvg.forEach(max => {
+            data.map((item, i) =>  {
+                if((item.ratingAvg + (item.downloadFromUser).length) == max && check){
+                    sorted_data.push(item)
+                    data.splice(i, 1)
+                    check = false
+                }
+            });
+            check = true
+        });
+        res.send(sorted_data)
+    }).clone().catch(function (err) { console.log("getAllUserId Error : " + e); })
+})
