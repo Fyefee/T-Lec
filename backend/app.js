@@ -761,12 +761,14 @@ app.get('/getRanking', async (req, res) => {
         var check = true
         lectures.forEach(function (lecture) {
             if (data.length > 0){
+                sum_lecture = (lecture.downloadFromUser).length + lecture.ratingAvg
                 data.map((item, i) =>  {
-                    if((item.ratingAvg <= lecture.ratingAvg && data.length < 10) && check){
+                    sum_item = (item.downloadFromUser).length + item.ratingAvg
+                    if((sum_item <= sum_lecture && data.length < 10) && check){
                         data.push(lecture)
                         check = false
                     }
-                    else if ((item.ratingAvg < lecture.ratingAvg && data.length >= 10) && check){
+                    else if ((sum_item < sum_lecture && data.length >= 10) && check){
                         data.splice(i, 1)
                         data.push(lecture)
                         check = false
@@ -781,14 +783,15 @@ app.get('/getRanking', async (req, res) => {
 
         var top_ratingAvg = []
         data.forEach(function (lecture) {
-            top_ratingAvg.push(lecture.ratingAvg)
+            top_ratingAvg.push(lecture.ratingAvg + (lecture.downloadFromUser).length)
         });
-        top_ratingAvg.sort(function(a, b){return a-b});
+        
+        top_ratingAvg.sort(function(a, b){return b-a});
 
         check = true
         top_ratingAvg.forEach(max => {
             data.map((item, i) =>  {
-                if(item.ratingAvg == max && check){
+                if((item.ratingAvg + (item.downloadFromUser).length) == max && check){
                     sorted_data.push(item)
                     data.splice(i, 1)
                     check = false
