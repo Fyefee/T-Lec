@@ -112,7 +112,7 @@ export default function Home({ route, navigation }) {
                     colors={['#c5d8ff', '#fedcc8']}
                     style={styles.container}>
 
-                    <Appbar user={user} bgColor={"#c5d8ff"} navigation={navigation} notification={notification} setNotification={setNotification} />
+                    <Appbar user={user} bgColor={"rgba(255,255,255,0.01)"} navigation={navigation} notification={notification} setNotification={setNotification} />
                     <ScrollView
                         _contentContainerStyle={{
                             pt: 6,
