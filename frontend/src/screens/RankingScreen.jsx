@@ -72,6 +72,41 @@ export default function Ranking({ route, navigation }) {
     }, [isFocused])
 
     let [top10_container, settop10_container] = React.useState([])
+    const top3_list = top10_container.filter((item, index) => index < 3);
+
+    const top3 = () => {
+        const top3 = [];
+        top3_list.map((top, index) => {
+            console.log("----------")
+            console.log(top)
+            if (index == 0) {
+                top3.push(
+                    <View>
+                        <Text pt="4" fontWeight="700" style={[styles.top3_name1,{fontSize: normalize(20)}]}>{top.title}</Text>
+                        <Text fontWeight="0" style={[styles.top3_name1,{fontSize: normalize(12)}]}>{top.owner}</Text>
+                    </View> 
+                )
+            }
+            else if (index == 1){
+                top3.push(
+                    <View>
+                        <Text pt="10" fontWeight="700" style={[styles.top3_name2,{fontSize: normalize(20)}]}>{top.title}</Text>
+                        <Text  fontWeight="0" style={[styles.top3_name2,{fontSize: normalize(12)}]}>{top.owner}</Text> 
+                    </View>
+                )
+            }
+            else if (index == 2){
+                top3.push(
+                    <View>
+                        <Text pt="3" fontWeight="700" style={[styles.top3_name3,{fontSize: normalize(20)}]}>{top.title}</Text> 
+                        <Text fontWeight="0" style={[styles.top3_name3,{fontSize: normalize(12)}]}>{top.owner}</Text>
+                    </View>
+                )
+            }
+        })
+    
+        return top3
+    }
 
     let [ranking, setRanking] = React.useState([
         {
@@ -166,15 +201,9 @@ export default function Ranking({ route, navigation }) {
             <Image source={{ uri: ranking[0].ownerImage, }} style={styles.ownerImage1} alt="1 Owner Image"/>
             <Image source={{ uri: ranking[1].ownerImage, }} style={styles.ownerImage2} alt="2 Owner Image"/>
             <Image source={{ uri: ranking[2].ownerImage, }} style={styles.ownerImage3} alt="3 Owner Image"/>
-            <Text pt="1" fontWeight="0" style={[styles.top3_name1,{fontSize: normalize(18)}]}>{ranking[0].owner}</Text>
-            <Text pt="4" fontWeight="700" style={[styles.top3_name1,{fontSize: normalize(20)}]}>{ranking[0].LectureName}</Text>
-            <Text pt="1"  fontWeight="0" style={[styles.top3_name2,{fontSize: normalize(18)}]}>{ranking[1].owner}</Text>
-            <Text pt="3" fontWeight="700" style={[styles.top3_name2,{fontSize: normalize(20)}]}>{ranking[1].LectureName}</Text>
-            <Text pt="1"  fontWeight="0" style={[styles.top3_name3,{fontSize: normalize(18)}]}>{ranking[2].owner}</Text>
-            <Text pt="3" fontWeight="700" style={[styles.top3_name3,{fontSize: normalize(20)}]}>{ranking[2].LectureName}</Text>  
-            
+            {top3()} 
             {top10_container.map((top, index) => (  
-              <View style={styles.top10_container}>   
+              <View style={styles.top10_container} key={index}>   
              <View>
                  <Text style={{color:'white', fontSize:19}}> {top.title}</Text>
                  <Text style={{color:'white', fontSize:19}}> {top.owner}</Text>
@@ -208,7 +237,7 @@ const styles = StyleSheet.create({
         height:75,
         justifyContent: 'space-around',
         alignItems: 'center', 
-        bottom: getScreenWidth() * 1.35,
+        bottom: getScreenWidth() * 1.32,
         borderRadius: 40,
         left: getScreenWidth()*0.08,
         marginBottom:20,
