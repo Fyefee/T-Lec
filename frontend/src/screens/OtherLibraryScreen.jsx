@@ -73,10 +73,12 @@ export default function OtherLibrary({ route, navigation }) {
     const isFocused = useIsFocused();
 
     let [collection, setCollection] = React.useState([])
+    let [notification, setNotification] = React.useState([])
 
     const [isAlertOpen, setIsAlertOpen] = React.useState(false)
 
     const [isFollow, setIsFollow] = React.useState(false)
+    
 
     const theme = extendTheme({
         fontConfig: {
@@ -118,6 +120,7 @@ export default function OtherLibrary({ route, navigation }) {
             setUserInfo(userLibData);
             setCollection(dataFromDB.data.userLecture);
             setIsFollow(dataFromDB.data.isFollow)
+            setNotification(dataFromDB.data.notification)
             
             setIsLoad(true)
         }
@@ -130,7 +133,7 @@ export default function OtherLibrary({ route, navigation }) {
     if (isLoad) {
         return (
             <NativeBaseProvider theme={theme}>
-                <Appbar user={user} bgColor={"#fef1e6"} navigation={navigation} />
+                <Appbar user={user} bgColor={"#fef1e6"} navigation={navigation} notification={notification} setNotification={setNotification}/>
                 <ScrollView
                     _contentContainerStyle={{
                         pt: 6,
@@ -153,7 +156,7 @@ export default function OtherLibrary({ route, navigation }) {
     } else {
         return (
             <NativeBaseProvider theme={theme}>
-                <Appbar user={user} bgColor={"#fef1e6"} navigation={navigation} />
+                <Appbar user={user} bgColor={"#fef1e6"} navigation={navigation} notification={notification} setNotification={setNotification} />
                 <ScrollView
                     _contentContainerStyle={{
                         pt: 6,

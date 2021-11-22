@@ -30,6 +30,9 @@ const UserSchema = new mongoose.Schema({
     },
     recentView: {
         type: Array, 
+    },
+    notification : {
+        type: Array, 
     }
 })
 

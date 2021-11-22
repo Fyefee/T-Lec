@@ -86,7 +86,8 @@ app.post('/', async (req, res) => {
                     following: [],
                     follower: [],
                     post: [],
-                    recentView: []
+                    recentView: [],
+                    notification: []
                 })
                 await user.save((err, doc) => {
                     req.login(doc, (err) => {
@@ -259,6 +260,23 @@ app.post('/uploadLec', async (req, res) => {
 
         const allTag = newTag.concat(oldTag);
 
+        await User.findOne({ email: fields.owner }, async function (err, doc) {
+            doc.follower.forEach(async (element) => {
+                try {
+                    const userFollower = await User.findOne({ email: element })
+                    let notificationArray = [...userFollower.notification]
+                    let newNotification = {
+                        ownerName: doc.firstname + " " + doc.lastname,
+                        lectureTitle: fields.title
+                    }
+                    notificationArray.push(newNotification)
+                    await User.findOneAndUpdate({ email: userFollower.email }, { notification: notificationArray })
+                } catch (err) {
+                    console.log(err)
+                }
+            })
+        }).clone()
+
         const lec = new Lecture({
             title: fields.title,
             description: fields.description,
@@ -279,10 +297,9 @@ app.post('/uploadLec', async (req, res) => {
 
             fs.mkdirSync("." + dirPath, { recursive: true })
             fs.writeFile(path.resolve(__dirname + dirPath, fields.fileName), base64string, { encoding: 'base64' }, function (err) {
+                if (err)
                 console.log(err);
             });
-
-            console.log(lec)
 
             await lec.save(async (err, doc) => {
                 if (err) {
@@ -303,8 +320,6 @@ app.post('/uploadLec', async (req, res) => {
         }
 
     });
-
-    res.status(200)
 
 })
 
@@ -352,16 +367,17 @@ app.get('/getDataForLibrary', async (req, res) => {
         const isFollow = doc.follower.includes(req.query.userEmail)
 
         data = {
-            "userFirstName": doc.firstname,
-            "userLastName": doc.lastname,
-            "userImage": doc.image,
-            "userEmail": doc.email,
-            "rating": rating,
-            "postCount": postCount,
-            "userFollower": followerCount,
-            "userFollowing": followingCount,
-            "userLecture": lecToSend,
-            "isFollow": isFollow
+            userFirstName: doc.firstname,
+            userLastName: doc.lastname,
+            userImage: doc.image,
+            userEmail: doc.email,
+            rating: rating,
+            postCount: postCount,
+            userFollower: followerCount,
+            userFollowing: followingCount,
+            userLecture: lecToSend,
+            isFollow: isFollow,
+            notification: doc.notification
         }
 
         res.send(data)
@@ -576,7 +592,8 @@ app.get('/getHomeData', async (req, res) => {
                             if (lecRecentArray.length == lecCount) {
                                 const data = {
                                     recentView: lecRecentArray,
-                                    newLec: lecNewestArray
+                                    newLec: lecNewestArray,
+                                    notification: doc.notification
                                 }
 
                                 res.send(data)
@@ -586,7 +603,8 @@ app.get('/getHomeData', async (req, res) => {
                     } else {
                         const data = {
                             recentView: [],
-                            newLec: lecNewestArray
+                            newLec: lecNewestArray,
+                            notification: doc.notification
                         }
                         res.send(data)
                     }
@@ -596,7 +614,8 @@ app.get('/getHomeData', async (req, res) => {
         } else {
             const data = {
                 recentView: [],
-                newLec: []
+                newLec: [],
+                notification: doc.notification
             }
             res.send(data)
         }
@@ -699,6 +718,27 @@ app.post('/followUser', async (req, res) => {
         await User.findOneAndUpdate({ email: doc.email }, { following: followArray })
 
     }).clone()
+
+    res.sendStatus(200)
+
+})
+
+app.delete('/deleteNotification', async (req, res) => {
+
+    const user = JSON.parse(req.query.user)
+    const notification = JSON.parse(req.query.notification)
+
+    await User.findOne({ email: user.email }, async function (err, doc) {
+        let oldNotificationArray = [...doc.notification]
+        oldNotificationArray.forEach(async (element, index) => {
+            if (element.lectureTitle == notification.lectureTitle){
+                oldNotificationArray.splice(index, 1)
+            }
+        })
+        await User.findOneAndUpdate({ email: doc.email }, { notification: oldNotificationArray })
+    }).clone().catch(function (err) {
+        console.log(err);
+    })
 
     res.sendStatus(200)
 

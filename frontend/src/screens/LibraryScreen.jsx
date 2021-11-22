@@ -76,6 +76,8 @@ export default function Library({ route, navigation }) {
 
     const [isAlertOpen, setIsAlertOpen] = React.useState(false)
 
+    let [notification, setNotification] = React.useState([])
+
     const theme = extendTheme({
         fontConfig: {
             Prompt: {
@@ -114,6 +116,7 @@ export default function Library({ route, navigation }) {
             }
             setUserInfo(userLibData);
             setCollection(dataFromDB.data.userLecture);
+            setNotification(dataFromDB.data.notification)
             
             setIsLoad(true)
         }
@@ -126,7 +129,7 @@ export default function Library({ route, navigation }) {
     if (isLoad) {
         return (
             <NativeBaseProvider theme={theme}>
-                <Appbar user={user} bgColor={"#fef1e6"} navigation={navigation} />
+                <Appbar user={user} bgColor={"#fef1e6"} navigation={navigation} notification={notification} setNotification={setNotification}/>
                 <ScrollView
                     _contentContainerStyle={{
                         pt: 6,
@@ -149,7 +152,7 @@ export default function Library({ route, navigation }) {
     } else {
         return (
             <NativeBaseProvider theme={theme}>
-                <Appbar user={user} bgColor={"#fef1e6"} navigation={navigation} />
+                <Appbar user={user} bgColor={"#fef1e6"} navigation={navigation} notification={notification} setNotification={setNotification} />
                 <ScrollView
                     _contentContainerStyle={{
                         pt: 6,
