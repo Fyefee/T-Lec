@@ -46,7 +46,7 @@ export default function NewLectureList(props) {
         props.newLec.map((element, index) => {
             BoxArray.push(
                 <TouchableOpacity key={index} style={styles.newLecBox} onPress={() => navigateToLectureScreen(element)}>
-                    <HStack space="1" py="1" px="4" alignItems="center">
+                    <HStack space="1" py="1" px="4" alignItems="center" style={styles.stackBox}>
                         <Image source={{ uri: element.photoUrl, }} alt="User Image" style={styles.profileImage} />
                         <HStack py="1" px="1" direction='column'>
                             <Text pt="1" pl="2" fontFamily="body" fontWeight="400" style={styles.textNewLecHeader} numberOfLines={1}>{element.title}</Text>
@@ -146,4 +146,7 @@ const styles = StyleSheet.create({
         color: "#ffd259",
         marginRight: getScreenWidth() * 0.01,
     },
+    stackBox: {
+        width: "85%",
+    }
 });
