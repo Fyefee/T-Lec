@@ -1,8 +1,10 @@
 import React from 'react'
-import { StyleSheet, Dimensions, PixelRatio, TouchableOpacity } from 'react-native'
-import { HStack, Text, Image, Spinner } from "native-base";
+import { StyleSheet, Dimensions, PixelRatio } from 'react-native'
+import { HStack, Text, Image, Spinner, Button, Icon } from "native-base";
 import { FontAwesome } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import axios from 'axios';
+import { API_LINK, CLIENTID } from '@env';
 
 const {
     width: SCREEN_WIDTH,
@@ -58,21 +60,61 @@ export default function NewLectureList(props) {
         return star;
     }
 
+    const followUser = async () => {
+        try {
+            const data = {
+                userEmail: props.user.email,
+                followEmail: props.userInfo.userEmail
+            }
+
+            await axios.post(`${API_LINK}/followUser`, data);
+
+            props.setIsFollow(!props.isFollow)
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
     if (props.isLoad) {
         return (
             <LinearGradient start={{ x: 0, y: 1 }}
                 end={{ x: 1, y: 0 }}
                 colors={['#ffe4ca', '#90aacb']}
-                style={styles.userCard}
+                style={[props.userInfo.userEmail == props.user.email ? styles.userCard : styles.otherUserCard]}
             >
-                <HStack space="0" justifyContent="space-around">
-                    <HStack space="2" py="5" px="5" direction='column'>
-                        <Image mt="2" source={{ uri: props.user.image }}
+                <HStack space="0" justifyContent="space-around" alignItems="center">
+                    <HStack space="1" px="5" direction='column'>
+                        <Image mt="2" source={{ uri: props.userInfo.userImage }}
                             alt="UserIcon" style={styles.userImage} />
-                        <Text pt="1" fontFamily="body" fontWeight="700" style={styles.cardUserName}>{props.user.firstname}{"\n"}{props.user.lastname}</Text>
+                        <Text pt="1" fontFamily="body" fontWeight="700" style={styles.cardUserName}>{props.userInfo.userFirstName}{"\n"}{props.userInfo.userLastName}</Text>
+                        {props.userInfo.userEmail != props.user.email ? (
+                            <>
+                                {!props.isFollow ? (
+                                    <Button
+                                        leftIcon={<Icon as={FontAwesome} name="plus" size="sm" />}
+                                        size="xs"
+                                        onPress={() => followUser()}
+                                    >
+                                        <Text pt="1" fontFamily="body" fontWeight="700" style={styles.followButtonText}>FOLLOW</Text>
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        leftIcon={<Icon as={FontAwesome} name="minus" size="sm" />}
+                                        style={styles.unfollowButton}
+                                        size="xs"
+                                        onPress={() => followUser()}
+                                    >
+                                        <Text pt="1" fontFamily="body" fontWeight="700" style={styles.followButtonText}>UNFOLLOW</Text>
+                                    </Button>
+                                )}
+                            </>
+                        ) : (
+                            <></>
+                        )}
+
                     </HStack>
 
-                    <HStack space="4" py="9" pr="4" direction='column'>
+                    <HStack space="4" pr="4" direction='column' alignItems="center">
                         {props.userInfo.rating == null ? (
                             <Text pt="1" fontFamily="body" fontWeight="700" style={styles.cardRatingText}>Never get ratings</Text>
                         ) : (
@@ -125,10 +167,18 @@ const styles = StyleSheet.create({
         borderRadius: getScreenWidth() * 0.03,
         justifyContent: 'center',
     },
+    otherUserCard: {
+        width: "100%",
+        height: getScreenHeight() * 0.35,
+        minHeight: getScreenHeight() * 0.35,
+        borderRadius: getScreenWidth() * 0.03,
+        justifyContent: 'center',
+    },
     userImage: {
         width: getScreenWidth() * 0.25,
         height: getScreenWidth() * 0.25,
         borderRadius: getScreenWidth() * 0.25 / 2,
+        alignSelf: "center"
     },
     cardUserName: {
         fontSize: normalize(15),
@@ -147,4 +197,12 @@ const styles = StyleSheet.create({
         fontSize: normalize(14),
         textAlign: "center"
     },
+    followButtonText: {
+        fontSize: normalize(14),
+        textAlign: "center",
+        color: "white"
+    },
+    unfollowButton: {
+        backgroundColor: "salmon"
+    }
 });

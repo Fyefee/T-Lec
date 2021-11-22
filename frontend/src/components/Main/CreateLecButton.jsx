@@ -42,7 +42,7 @@ const normalize = (size) => {
 export default function CreateLecButton(props) {
 
     const changePage = () => {
-        props.navigation.navigate('CreateLec', { user: props.user })
+        props.navigation.navigate('CreateLec', { user: props.user, title: "Create Post" })
     }
 
     return (

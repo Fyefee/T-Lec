@@ -56,32 +56,19 @@ app.get('/', (req, res) => {
 })
 
 app.post('/', async (req, res) => {
-    console.log(req.body)
-    if (checkEmail(req.body.email.substring(req.body.email.length - 14, req.body.email.length))) {
-        const userFromDB = await User.findOne({ email: req.body.email });
-        if (userFromDB) {
-            req.login(userFromDB, (err) => {
-                if (err) {
-                    console.log(err)
-                    res.sendStatus(400)
+
+    try {
+        if (checkEmail(req.body.email.substring(req.body.email.length - 14, req.body.email.length))) {
+            const userFromDB = await User.findOne({ email: req.body.email });
+            if (userFromDB) {
+                const newData = {
+                    firstname: req.body.givenName,
+                    lastname: req.body.familyName,
+                    image: req.body.photoUrl,
+                    email: req.body.email,
                 }
-                console.log("Login Complete")
-                res.sendStatus(200)
-            })
-        }
-        else {
-            const user = new User({
-                firstname: req.body.givenName,
-                lastname: req.body.familyName,
-                image: req.body.photoUrl,
-                email: req.body.email,
-                following: [],
-                follower: 0,
-                post: [],
-                recentView: []
-            })
-            await user.save((err, doc) => {
-                req.login(doc, (err) => {
+                await User.findOneAndUpdate({ email: userFromDB.email }, newData)
+                req.login(userFromDB, (err) => {
                     if (err) {
                         console.log(err)
                         res.sendStatus(400)
@@ -89,13 +76,38 @@ app.post('/', async (req, res) => {
                     console.log("Login Complete")
                     res.sendStatus(200)
                 })
-            })
+            }
+            else {
+                const user = new User({
+                    firstname: req.body.givenName,
+                    lastname: req.body.familyName,
+                    image: req.body.photoUrl,
+                    email: req.body.email,
+                    following: [],
+                    follower: [],
+                    post: [],
+                    recentView: [],
+                    notification: []
+                })
+                await user.save((err, doc) => {
+                    req.login(doc, (err) => {
+                        if (err) {
+                            console.log(err)
+                            res.sendStatus(400)
+                        }
+                        console.log("Login Complete")
+                        res.sendStatus(200)
+                    })
+                })
+            }
         }
-    }
-    else {
-        console.log("send wrong domain")
-        req.logout()
-        res.send('wrong domain')
+        else {
+            console.log("send wrong domain")
+            req.logout()
+            res.send('wrong domain')
+        }
+    } catch (err) {
+        console.log(err)
     }
 
 })
@@ -227,7 +239,6 @@ app.post('/uploadLec', async (req, res) => {
                                 console.log(err)
                                 res.sendStatus(400)
                             }
-                            res.send(tag)
                         })
                     }
                 } catch (err) {
@@ -249,8 +260,24 @@ app.post('/uploadLec', async (req, res) => {
 
         const allTag = newTag.concat(oldTag);
 
-        const lec = new Lecture({
+        await User.findOne({ email: fields.owner }, async function (err, doc) {
+            doc.follower.forEach(async (element) => {
+                try {
+                    const userFollower = await User.findOne({ email: element })
+                    let notificationArray = [...userFollower.notification]
+                    let newNotification = {
+                        ownerName: doc.firstname + " " + doc.lastname,
+                        lectureTitle: fields.title
+                    }
+                    notificationArray.push(newNotification)
+                    await User.findOneAndUpdate({ email: userFollower.email }, { notification: notificationArray })
+                } catch (err) {
+                    console.log(err)
+                }
+            })
+        }).clone()
 
+        const lec = new Lecture({
             title: fields.title,
             description: fields.description,
             contact: fields.contact,
@@ -270,10 +297,9 @@ app.post('/uploadLec', async (req, res) => {
 
             fs.mkdirSync("." + dirPath, { recursive: true })
             fs.writeFile(path.resolve(__dirname + dirPath, fields.fileName), base64string, { encoding: 'base64' }, function (err) {
+                if (err)
                 console.log(err);
             });
-
-            console.log(lec)
 
             await lec.save(async (err, doc) => {
                 if (err) {
@@ -295,8 +321,6 @@ app.post('/uploadLec', async (req, res) => {
 
     });
 
-    res.status(200)
-
 })
 
 app.get('/getDataForLibrary', async (req, res) => {
@@ -310,7 +334,7 @@ app.get('/getDataForLibrary', async (req, res) => {
         let ratingCount = 0;
 
         let postCount = 0;
-        let followerCount = doc.follower;
+        let followerCount = doc.follower.length;
         let followingCount = doc.following.length;
 
         if (lecFromEmail) {
@@ -340,12 +364,20 @@ app.get('/getDataForLibrary', async (req, res) => {
             rating /= ratingCount
         }
 
+        const isFollow = doc.follower.includes(req.query.userEmail)
+
         data = {
-            "rating": rating,
-            "postCount": postCount,
-            "userFollower": followerCount,
-            "userFollowing": followingCount,
-            "userLecture": lecToSend
+            userFirstName: doc.firstname,
+            userLastName: doc.lastname,
+            userImage: doc.image,
+            userEmail: doc.email,
+            rating: rating,
+            postCount: postCount,
+            userFollower: followerCount,
+            userFollowing: followingCount,
+            userLecture: lecToSend,
+            isFollow: isFollow,
+            notification: doc.notification
         }
 
         res.send(data)
@@ -558,13 +590,12 @@ app.get('/getHomeData', async (req, res) => {
                             }
 
                             if (lecRecentArray.length == lecCount) {
-                                console.log("Pass2")
                                 const data = {
                                     recentView: lecRecentArray,
-                                    newLec: lecNewestArray
+                                    newLec: lecNewestArray,
+                                    notification: doc.notification
                                 }
 
-                                console.log(data)
                                 res.send(data)
                             }
 
@@ -572,7 +603,8 @@ app.get('/getHomeData', async (req, res) => {
                     } else {
                         const data = {
                             recentView: [],
-                            newLec: lecNewestArray
+                            newLec: lecNewestArray,
+                            notification: doc.notification
                         }
                         res.send(data)
                     }
@@ -582,7 +614,8 @@ app.get('/getHomeData', async (req, res) => {
         } else {
             const data = {
                 recentView: [],
-                newLec: []
+                newLec: [],
+                notification: doc.notification
             }
             res.send(data)
         }
@@ -590,6 +623,124 @@ app.get('/getHomeData', async (req, res) => {
     }).clone().catch(function (err) {
         console.log(err)
     })
+
+})
+
+app.post('/editLecture', async (req, res) => {
+
+    let oldTagForUpdate = [];
+    req.body.oldTag.forEach(async (element, index) => {
+        if (!req.body.oldDataTag.includes(element)) {
+            oldTagForUpdate.push(element)
+        }
+    })
+    oldTagForUpdate.forEach(async (element) => {
+        try {
+            let doc = await Tag.findOne({ tagName: element });
+            await Tag.findOneAndUpdate({ tagName: element }, { count: doc.count + 1 })
+        } catch (err) {
+            console.log(err)
+        }
+    })
+
+    req.body.newTag.forEach(async (element) => {
+        try {
+            const tagFromDB = await Tag.findOne({ tagName: element });
+            if (tagFromDB) {
+                let doc = await Tag.findOne({ tagName: tagFromDB.tagName });
+                await Tag.findOneAndUpdate({ tagName: tagFromDB.tagName }, { count: doc.count + 1 })
+            } else {
+                const tag = new Tag({
+                    tagName: element,
+                    count: 1,
+                })
+                await tag.save((err, doc) => {
+                    if (err) {
+                        console.log(err)
+                    }
+                })
+            }
+        } catch (err) {
+            console.log(err)
+        }
+    })
+
+    const allTag = req.body.oldTag.concat(req.body.newTag);
+
+    const dataforUpdate = {
+        title: req.body.title,
+        description: req.body.description,
+        contact: req.body.contact,
+        tag: allTag,
+        privacy: req.body.privacy,
+        userPermission: req.body.permission,
+    }
+
+    try {
+        await Lecture.findOneAndUpdate({ title: req.body.oldTitle }, dataforUpdate)
+        res.sendStatus(200)
+    } catch (err) {
+        console.log(err)
+        res.sendStatus(500)
+    }
+
+})
+
+app.post('/followUser', async (req, res) => {
+
+    console.log(req.body)
+    await User.findOne({ email: req.body.followEmail }, async function (err, doc) {
+
+        let followArray = [...doc.follower]
+
+        if (followArray.includes(req.body.userEmail)) {
+            const index = followArray.indexOf(req.body.userEmail)
+            followArray.splice(index, 1)
+        } else {
+            followArray.push(req.body.userEmail)
+        }
+
+        await User.findOneAndUpdate({ email: doc.email }, { follower: followArray })
+
+    }).clone()
+
+    await User.findOne({ email: req.body.userEmail }, async function (err, doc) {
+
+        let followArray = [...doc.following]
+
+        if (followArray.includes(req.body.followEmail)) {
+            const index = followArray.indexOf(req.body.followEmail)
+            followArray.splice(index, 1)
+        } else {
+            followArray.push(req.body.followEmail)
+        }
+
+        await User.findOneAndUpdate({ email: doc.email }, { following: followArray })
+
+    }).clone()
+
+    res.sendStatus(200)
+
+})
+
+app.delete('/deleteNotification', async (req, res) => {
+
+    const user = JSON.parse(req.query.user)
+    const notification = JSON.parse(req.query.notification)
+
+    await User.findOne({ email: user.email }, async function (err, doc) {
+        let oldNotificationArray = [...doc.notification]
+        oldNotificationArray.forEach(async (element, index) => {
+            if (element.lectureTitle == notification.lectureTitle){
+                oldNotificationArray.splice(index, 1)
+            }
+        })
+        await User.findOneAndUpdate({ email: doc.email }, { notification: oldNotificationArray })
+    }).clone().catch(function (err) {
+        console.log(err);
+    })
+
+    res.sendStatus(200)
 
 })
 

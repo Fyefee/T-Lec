@@ -1,7 +1,9 @@
 import React from 'react'
 import { StyleSheet, Dimensions, PixelRatio } from 'react-native'
-import { HStack, IconButton, Icon, Text, StatusBar, Image, KeyboardAvoidingView } from "native-base";
+import { HStack, IconButton, Icon, Text, StatusBar, Image, Popover, Button, Badge, VStack } from "native-base";
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
+import { API_LINK, CLIENTID } from '@env';
+import axios from 'axios';
 
 const {
     width: SCREEN_WIDTH,
@@ -41,8 +43,42 @@ const normalize = (size) => {
 
 export default function AppBar(props) {
 
+    const renderNotification = () => {
+        const notificationList = [];
+        props.notification.map((element, index) => {
+            notificationList.push(
+                <HStack key={index} px="1" mt="1.5" style={styles.notificationList}>
+                    <HStack direction='column' width="90%">
+                        <Text fontFamily="body" fontWeight="700" numberOfLines={1} style={styles.notificationText}>{element.ownerName}</Text>
+                        <Text fontFamily="body" fontWeight="700" numberOfLines={1} style={styles.notificationText}>CreatePost : {element.lectureTitle}</Text>
+                    </HStack>
+                    <IconButton
+                        icon={<FontAwesome name="close" />}
+                        size="md"
+                        borderRadius="full"
+                        mr="1"
+                        onPress={() => deleteNotification(element)} />
+                </HStack>
+            )
+        })
+        return notificationList
+    }
+
     const changePageToRanking = () => {
         props.navigation.navigate('Ranking', { user: props.user })
+    }
+
+    const deleteNotification = async (element) => {
+        try {
+            await axios.delete(`${API_LINK}/deleteNotification`, { params: { user: props.user, notification: element } })
+            let notificationArray = [...props.notification];
+            const index = notificationArray.indexOf(element)
+            notificationArray.splice(index, 1)
+            props.setNotification(notificationArray)
+
+        } catch (err) {
+            console.log(err)
+        }
     }
 
     return (
@@ -60,14 +96,49 @@ export default function AppBar(props) {
                         icon={<Ionicons name="trophy" style={styles.icon} />}
                         size="md"
                         mt="1"
-                        borderRadius="full" 
-                        onPress={() => changePageToRanking()}/>
-                    <IconButton
-                        icon={<FontAwesome name="bell" style={styles.icon} />}
-                        size="md"
-                        mr="2"
-                        mt="1"
-                        borderRadius="full" />
+                        borderRadius="full"
+                        onPress={() => changePageToRanking()} />
+
+
+                    <Popover
+                        placement="bottom right"
+                        trigger={(triggerProps) => {
+                            return (
+                                <VStack>
+                                    {props.notification.length > 0 ? (
+                                        <Badge
+                                            colorScheme="danger" rounded="999px"
+                                            zIndex={1} variant="solid" alignSelf="flex-end"
+                                            _text={{
+                                                fontSize: 12,
+                                            }}
+                                            style={styles.notificationBadge}
+                                        >
+                                            {props.notification.length}
+                                        </Badge>
+                                    ) : (
+                                        <></>
+                                    )}
+                                    <IconButton
+                                        icon={<FontAwesome name="bell" style={styles.icon} />}
+                                        size="md"
+                                        mr="2"
+                                        mt="1"
+                                        borderRadius="full"
+                                        {...triggerProps} />
+                                </VStack>
+                            )
+                        }}
+                    >
+                        <Popover.Content w="64">
+                            <Popover.Body>
+                                <HStack space="1" direction='column'>
+                                    {renderNotification()}
+                                </HStack>
+                            </Popover.Body>
+                        </Popover.Content>
+                    </Popover>
+
                     <Image mt="2" source={{ uri: props.user.image }}
                         alt="UserIcon" style={styles.commentImage} />
                 </HStack>
@@ -104,5 +175,15 @@ const styles = StyleSheet.create({
     icon: {
         fontSize: normalize(23),
         color: "black"
+    },
+    notificationList: {
+        justifyContent: "space-between",
+        width: "100%"
+    },
+    notificationText: {
+        fontSize: normalize(12),
+    },
+    notificationBadge: {
+        position: "absolute"
     },
 });

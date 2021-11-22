@@ -56,7 +56,7 @@ const normalize = (size) => {
     }
 }
 
-export default function Library({ route, navigation }) {
+export default function OtherLibrary({ route, navigation }) {
 
     const { user } = route.params;
 
@@ -73,10 +73,12 @@ export default function Library({ route, navigation }) {
     const isFocused = useIsFocused();
 
     let [collection, setCollection] = React.useState([])
+    let [notification, setNotification] = React.useState([])
 
     const [isAlertOpen, setIsAlertOpen] = React.useState(false)
 
-    let [notification, setNotification] = React.useState([])
+    const [isFollow, setIsFollow] = React.useState(false)
+    
 
     const theme = extendTheme({
         fontConfig: {
@@ -103,7 +105,8 @@ export default function Library({ route, navigation }) {
         try {
             setIsLoad(false)
 
-            const dataFromDB = await axios.get(`${API_LINK}/getDataForLibrary`, { params: { email: user.email, userEmail: user.email } })
+            const dataFromDB = await axios.get(`${API_LINK}/getDataForLibrary`, { params: { email: route.params.ownerEmail, userEmail: user.email } })
+            console.log(dataFromDB.data)
             const userLibData = {
                 "userFirstName": dataFromDB.data.userFirstName,
                 "userLastName": dataFromDB.data.userLastName,
@@ -116,6 +119,7 @@ export default function Library({ route, navigation }) {
             }
             setUserInfo(userLibData);
             setCollection(dataFromDB.data.userLecture);
+            setIsFollow(dataFromDB.data.isFollow)
             setNotification(dataFromDB.data.notification)
             
             setIsLoad(true)
@@ -139,14 +143,14 @@ export default function Library({ route, navigation }) {
                     style={styles.scrollStyle}
                 >
                     <HStack space="4" direction='column'>
-                        <UserCard isLoad={isLoad} user={user} userInfo={userInfo} />
+                        <UserCard isLoad={isLoad} user={user} userInfo={userInfo} isFollow={isFollow} setIsFollow={setIsFollow}/>
                         <CollectionCard isLoad={isLoad} user={user} collection={collection} navigation={navigation} setIsAlertOpen={setIsAlertOpen}/>
                     </HStack>
                 </ScrollView>
 
                 <ErrorAlert isAlertOpen={isAlertOpen} setIsAlertOpen={setIsAlertOpen} />
                 <CreateLecButton navigation={navigation} user={user} />
-                <NavigationBar navigation={navigation} page={"Library"} user={user} />
+                <NavigationBar navigation={navigation} page={"Other Library"} user={user} />
             </NativeBaseProvider>
         );
     } else {

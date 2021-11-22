@@ -5,10 +5,8 @@ import { FontAwesome, Ionicons } from '@expo/vector-icons';
 
 export default function AppBar(props) {
 
-    
-
-    const rateLecture = async () => {
-
+    const navigateToEditLecScreen = () => {
+        props.navigation.navigate('CreateLec', { user: props.user, title: "Edit Post", lecture: props.lecture })
     }
 
     return (
@@ -24,17 +22,10 @@ export default function AppBar(props) {
                 <HStack space="2" alignItems='center'>
                     {props.lecture.ownerEmail == props.user.email ? (
                         <IconButton icon={<Icon as={<FontAwesome name="edit" size={24} />}
-                            color="#8d7d75" size='md' />} borderRadius="full" />
+                            color="#8d7d75" size='md' />} borderRadius="full" 
+                            onPress={() => navigateToEditLecScreen()}/>
                     ) : (
-                        <>
-                            {props.lecture.isLike ? (
-                                <IconButton icon={<Icon as={<FontAwesome name="heart" size={24} />}
-                                    color="#ff0000" size='md' />} borderRadius="full" />
-                            ) : (
-                                <IconButton icon={<Icon as={<FontAwesome name="heart-o" size={24} />}
-                                    color="#ff0000" size='md' />} borderRadius="full" />
-                            )}
-                        </>
+                        <></>
                     )}
 
                 </HStack>

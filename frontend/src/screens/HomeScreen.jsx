@@ -84,12 +84,14 @@ export default function Home({ route, navigation }) {
 
         try {
             setIsLoad(false)
-            
+
             const dataFromDB = await axios.get(`${API_LINK}/getHomeData`, { params: { email: user.email } })
             setRecentView(dataFromDB.data.recentView)
             setNewLec(dataFromDB.data.newLec)
+            setNotification(dataFromDB.data.notification)
+
             setIsLoad(true)
-            
+
         }
         catch (e) {
             console.log("GetData error : ", e)
@@ -99,8 +101,8 @@ export default function Home({ route, navigation }) {
 
 
     let [recentView, setRecentView] = React.useState([])
-
     let [newLec, setNewLec] = React.useState([])
+    let [notification, setNotification] = React.useState([])
 
     if (isLoad) {
         return (
@@ -110,7 +112,7 @@ export default function Home({ route, navigation }) {
                     colors={['#c5d8ff', '#fedcc8']}
                     style={styles.container}>
 
-                    <Appbar user={user} bgColor={"#c5d8ff"} navigation={navigation} />
+                    <Appbar user={user} bgColor={"#c5d8ff"} navigation={navigation} notification={notification} setNotification={setNotification} />
                     <ScrollView
                         _contentContainerStyle={{
                             pt: 6,
