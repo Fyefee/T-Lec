@@ -57,31 +57,18 @@ app.get('/', (req, res) => {
 
 app.post('/', async (req, res) => {
 
-    if (checkEmail(req.body.email.substring(req.body.email.length - 14, req.body.email.length))) {
-        const userFromDB = await User.findOne({ email: req.body.email });
-        if (userFromDB) {
-            req.login(userFromDB, (err) => {
-                if (err) {
-                    console.log(err)
-                    res.sendStatus(400)
+    try {
+        if (checkEmail(req.body.email.substring(req.body.email.length - 14, req.body.email.length))) {
+            const userFromDB = await User.findOne({ email: req.body.email });
+            if (userFromDB) {
+                const newData = {
+                    firstname: req.body.givenName,
+                    lastname: req.body.familyName,
+                    image: req.body.photoUrl,
+                    email: req.body.email,
                 }
-                console.log("Login Complete")
-                res.sendStatus(200)
-            })
-        }
-        else {
-            const user = new User({
-                firstname: req.body.givenName,
-                lastname: req.body.familyName,
-                image: req.body.photoUrl,
-                email: req.body.email,
-                following: [],
-                follower: [],
-                post: [],
-                recentView: []
-            })
-            await user.save((err, doc) => {
-                req.login(doc, (err) => {
+                await User.findOneAndUpdate({ email: userFromDB.email }, newData)
+                req.login(userFromDB, (err) => {
                     if (err) {
                         console.log(err)
                         res.sendStatus(400)
@@ -89,13 +76,37 @@ app.post('/', async (req, res) => {
                     console.log("Login Complete")
                     res.sendStatus(200)
                 })
-            })
+            }
+            else {
+                const user = new User({
+                    firstname: req.body.givenName,
+                    lastname: req.body.familyName,
+                    image: req.body.photoUrl,
+                    email: req.body.email,
+                    following: [],
+                    follower: [],
+                    post: [],
+                    recentView: []
+                })
+                await user.save((err, doc) => {
+                    req.login(doc, (err) => {
+                        if (err) {
+                            console.log(err)
+                            res.sendStatus(400)
+                        }
+                        console.log("Login Complete")
+                        res.sendStatus(200)
+                    })
+                })
+            }
         }
-    }
-    else {
-        console.log("send wrong domain")
-        req.logout()
-        res.send('wrong domain')
+        else {
+            console.log("send wrong domain")
+            req.logout()
+            res.send('wrong domain')
+        }
+    } catch (err) {
+        console.log(err)
     }
 
 })
@@ -663,7 +674,7 @@ app.post('/followUser', async (req, res) => {
 
         let followArray = [...doc.follower]
 
-        if (followArray.includes(req.body.userEmail)){
+        if (followArray.includes(req.body.userEmail)) {
             const index = followArray.indexOf(req.body.userEmail)
             followArray.splice(index, 1)
         } else {
@@ -671,14 +682,14 @@ app.post('/followUser', async (req, res) => {
         }
 
         await User.findOneAndUpdate({ email: doc.email }, { follower: followArray })
-        
+
     }).clone()
 
     await User.findOne({ email: req.body.userEmail }, async function (err, doc) {
 
         let followArray = [...doc.following]
 
-        if (followArray.includes(req.body.followEmail)){
+        if (followArray.includes(req.body.followEmail)) {
             const index = followArray.indexOf(req.body.followEmail)
             followArray.splice(index, 1)
         } else {
@@ -686,7 +697,7 @@ app.post('/followUser', async (req, res) => {
         }
 
         await User.findOneAndUpdate({ email: doc.email }, { following: followArray })
-        
+
     }).clone()
 
     res.sendStatus(200)

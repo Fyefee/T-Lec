@@ -76,7 +76,6 @@ export default function CreateLec({ route, navigation }) {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false)
     const [isRatingModalOpen, setIsRatingModalOpen] = React.useState(false)
     const [deleteObject, setDeleteObject] = React.useState(null)
-    const [commentInputRef, setCommentInputRef] = React.useState(null)
 
     const onClose = () => setIsOpen(false)
 
@@ -110,14 +109,7 @@ export default function CreateLec({ route, navigation }) {
         try {
             setIsLoad(true)
             const dataFromDB = await axios.get(`${API_LINK}/getLectureData`, { params: { title: route.params.lecture.title, userEmail: user.email } })
-            // const userLibData = {
-            //     "rating": dataFromDB.data.rating,
-            //     "postCount": dataFromDB.data.postCount,
-            //     "userFollower": dataFromDB.data.userFollower,
-            //     "userFollowing": dataFromDB.data.userFollowing
-            // }
-            // setUserInfo(userLibData);
-            // setCollection(dataFromDB.data.userLecture);
+
             setLecture(dataFromDB.data)
             setRating(dataFromDB.data.userRating)
 
@@ -271,7 +263,7 @@ export default function CreateLec({ route, navigation }) {
     }
 
     const navigateToLibraryScreen = () => {
-        if (lecture.ownerEmail == user.email){
+        if (lecture.ownerEmail == user.email) {
             navigation.navigate('Library', { user: user })
         }
         else {
@@ -310,7 +302,16 @@ export default function CreateLec({ route, navigation }) {
                             </HStack>
 
                             <HStack space="1" px="8" mt="3" justifyContent="space-around">
-                                <Button style={styles.downloadFileButton} size="lg"><Text style={styles.downloadFileButtonText}>Download</Text></Button>
+                                {(lecture.privacy != "private") || (lecture.ownerEmail == user.email) || lecture.permission.includes(user.email) ? (
+                                    <Button style={styles.downloadFileButton} size="lg">
+                                        <Text style={styles.downloadFileButtonText}>Download</Text>
+                                    </Button>
+                                ) : (
+                                    <Button style={styles.downloadFileButton} size="lg" isDisabled
+                                    endIcon={<Icon as={FontAwesome} name="lock" size="sm" mb="1" />}>
+                                        <Text style={styles.downloadFileButtonText}>Download</Text>
+                                    </Button>
+                                )}
 
                                 <HStack space="1" pt="2">
                                     {renderStar()}
@@ -348,7 +349,7 @@ export default function CreateLec({ route, navigation }) {
                                 <Input variant="rounded" placeholder="Comment"
                                     size="md" px="6" style={styles.addCommentInput}
                                     onChangeText={(inputText) => setNewComment(inputText)}
-                                    getRef={(ref) => setCommentInputRef(ref)} />
+                                    value={newComment} />
                                 <IconButton
                                     size="md"
                                     variant="solid"
