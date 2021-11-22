@@ -39,12 +39,16 @@ export default function AppBar(props) {
         props.navigation.navigate('Library', { user: props.user })
     }
 
+    const changePageToSearch = () => {
+        props.navigation.navigate('Search', { user: props.user })
+    }
+
     return (
         <>
             <StatusBar backgroundColor="#fedcc8" barStyle="light-content" />
             <HStack bg='#fedcc8' pl="10" pr="4" py="1" style={styles.navigationBar}>
 
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => changePageToSearch()}>
                     <HStack space="0" alignItems='center' direction='column'>
                         <Icon as={<FontAwesome name="search" size={24} />}
                             my="1" size='md' style={[props.page == "Search" ? styles.textSelected : styles.text]} />

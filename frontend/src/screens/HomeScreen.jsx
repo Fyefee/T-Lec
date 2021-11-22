@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
     },
     TextHeader: {
         fontSize: normalize(23),
-        alignSelf: "flex-start",        
+        alignSelf: "flex-start",
     },
     blankStyle: {
         minHeight: getScreenHeight() * 0.3,

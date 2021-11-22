@@ -298,7 +298,7 @@ app.post('/uploadLec', async (req, res) => {
             fs.mkdirSync("." + dirPath, { recursive: true })
             fs.writeFile(path.resolve(__dirname + dirPath, fields.fileName), base64string, { encoding: 'base64' }, function (err) {
                 if (err)
-                console.log(err);
+                    console.log(err);
             });
 
             await lec.save(async (err, doc) => {
@@ -731,7 +731,7 @@ app.delete('/deleteNotification', async (req, res) => {
     await User.findOne({ email: user.email }, async function (err, doc) {
         let oldNotificationArray = [...doc.notification]
         oldNotificationArray.forEach(async (element, index) => {
-            if (element.lectureTitle == notification.lectureTitle){
+            if (element.lectureTitle == notification.lectureTitle) {
                 oldNotificationArray.splice(index, 1)
             }
         })
@@ -742,6 +742,30 @@ app.delete('/deleteNotification', async (req, res) => {
 
     res.sendStatus(200)
 
+})
+
+app.get('/getDataForSearch', async (req, res) => {
+    await Lecture.find({}, function (err, lecture) {
+        let dataArray = [];
+        lecture.forEach(async (element, index) => {
+            const userFromDB = await User.findOne({ email: element.owner });
+            let lecData = {
+                title: element.title,
+                ownerName: userFromDB.firstname + " " + userFromDB.lastname,
+                ownerEmail: element.owner,
+                tag: element.tag,
+                photoUrl: userFromDB.image
+            }
+            dataArray.push(lecData)
+            if (dataArray.length == lecture.length){
+                res.send(dataArray)
+            }
+        })
+        
+    }).clone().catch(function (err) { 
+        console.log("getSearchData Error : " + e); 
+        res.sendStatus(500)
+    })
 })
 
 passport.serializeUser((user, cb) => {
