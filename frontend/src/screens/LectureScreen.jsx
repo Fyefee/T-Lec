@@ -7,7 +7,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import {
     Input, TextArea, VStack, HStack, Button, IconButton, Icon, Text,
     NativeBaseProvider, Center, Box, StatusBar, extendTheme, ScrollView,
-    Image, Select, CheckIcon, Item, Modal, FormControl, AlertDialog, Spinner
+    Image, Select, CheckIcon, Item, Modal, FormControl, AlertDialog, Spinner, Link
 } from "native-base";
 import { FontAwesome, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
@@ -76,7 +76,6 @@ export default function CreateLec({ route, navigation }) {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false)
     const [isRatingModalOpen, setIsRatingModalOpen] = React.useState(false)
     const [deleteObject, setDeleteObject] = React.useState(null)
-    const [commentInputRef, setCommentInputRef] = React.useState(null)
 
     const onClose = () => setIsOpen(false)
 
@@ -110,14 +109,7 @@ export default function CreateLec({ route, navigation }) {
         try {
             setIsLoad(true)
             const dataFromDB = await axios.get(`${API_LINK}/getLectureData`, { params: { title: route.params.lecture.title, userEmail: user.email } })
-            // const userLibData = {
-            //     "rating": dataFromDB.data.rating,
-            //     "postCount": dataFromDB.data.postCount,
-            //     "userFollower": dataFromDB.data.userFollower,
-            //     "userFollowing": dataFromDB.data.userFollowing
-            // }
-            // setUserInfo(userLibData);
-            // setCollection(dataFromDB.data.userLecture);
+
             setLecture(dataFromDB.data)
             setRating(dataFromDB.data.userRating)
 
@@ -270,6 +262,15 @@ export default function CreateLec({ route, navigation }) {
         }
     }
 
+    const navigateToLibraryScreen = () => {
+        if (lecture.ownerEmail == user.email) {
+            navigation.navigate('Library', { user: user })
+        }
+        else {
+            navigation.navigate('OtherLibrary', { user: user, ownerEmail: lecture.ownerEmail })
+        }
+    }
+
     if (isLoad) {
         return (
             <NativeBaseProvider theme={theme}>
@@ -277,7 +278,7 @@ export default function CreateLec({ route, navigation }) {
                     end={{ x: 1, y: 0 }}
                     colors={['#c5d8ff', '#fedcc8']}
                     style={styles.container}>
-                    <Appbar lecture={lecture} user={user} />
+                    <Appbar lecture={lecture} user={user} navigation={navigation} />
                     <ScrollView
                         _contentContainerStyle={{
                             py: 3,
@@ -290,8 +291,8 @@ export default function CreateLec({ route, navigation }) {
                                     key={lecture.ownerImage}
                                     alt="Alternate Text" style={styles.profileImage} />
                                 <HStack space="0" pt="2" direction='column' style={styles.profileBox}>
-                                    <Text pt="1" fontFamily="body" fontWeight="700" style={styles.profileText}>{lecture.ownerName} </Text>
-                                    <Text pt="1" fontFamily="body" fontWeight="700" style={styles.profileText}>Contact : {lecture.contact}</Text>
+                                    <Link onPress={() => navigateToLibraryScreen()}><Text pt="1" fontFamily="body" fontWeight="700" style={styles.profileText}>{lecture.ownerName} </Text></Link>
+                                    <Text pt="1" fontFamily="body" fontWeight="700" style={styles.profileContact}>Contact : {lecture.contact}</Text>
                                 </HStack>
                             </HStack>
 
@@ -301,7 +302,16 @@ export default function CreateLec({ route, navigation }) {
                             </HStack>
 
                             <HStack space="1" px="8" mt="3" justifyContent="space-around">
-                                <Button style={styles.downloadFileButton} size="lg"><Text style={styles.downloadFileButtonText}>Download</Text></Button>
+                                {(lecture.privacy != "private") || (lecture.ownerEmail == user.email) || lecture.permission.includes(user.email) ? (
+                                    <Button style={styles.downloadFileButton} size="lg">
+                                        <Text style={styles.downloadFileButtonText}>Download</Text>
+                                    </Button>
+                                ) : (
+                                    <Button style={styles.downloadFileButton} size="lg" isDisabled
+                                    endIcon={<Icon as={FontAwesome} name="lock" size="sm" mb="1" />}>
+                                        <Text style={styles.downloadFileButtonText}>Download</Text>
+                                    </Button>
+                                )}
 
                                 <HStack space="1" pt="2">
                                     {renderStar()}
@@ -339,7 +349,7 @@ export default function CreateLec({ route, navigation }) {
                                 <Input variant="rounded" placeholder="Comment"
                                     size="md" px="6" style={styles.addCommentInput}
                                     onChangeText={(inputText) => setNewComment(inputText)}
-                                    getRef={(ref) => setCommentInputRef(ref)} />
+                                    value={newComment} />
                                 <IconButton
                                     size="md"
                                     variant="solid"
@@ -458,7 +468,11 @@ const styles = StyleSheet.create({
         borderRadius: getScreenWidth() * 0.16,
     },
     profileText: {
-        fontSize: normalize(16)
+        fontSize: normalize(16),
+        color: "#8d7d75"
+    },
+    profileContact: {
+        fontSize: normalize(16),
     },
     profileBox: {
         width: "75%"

@@ -116,6 +116,7 @@ export default function NewLectureList(props) {
                     end={{ x: 1, y: 0 }}
                     colors={['#c5d8ff', '#fedcc8']}
                     style={styles.collectionCard}
+                    px="3"
                 >
                     <Text pt="6" pl="5" fontFamily="body" fontWeight="700" style={styles.collectionHeader}>Collection</Text>
                     {props.collection.length > 3 ? (
@@ -123,7 +124,7 @@ export default function NewLectureList(props) {
                             {renderCollection()}
                         </Wrap>
                     ) : (
-                        <HStack space="5" pt="2" pb="6">
+                        <HStack space="2" pt="2" pb="6">
                             {renderCollection()}
                         </HStack>
                     )}
