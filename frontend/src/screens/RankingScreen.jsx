@@ -83,7 +83,7 @@ export default function Ranking({ route, navigation }) {
                 top3.push(
                     <View>
                         <Text pt="4" fontWeight="700" style={[styles.top3_name1,{fontSize: normalize(20)}]}>{top.title}</Text>
-                        <Text fontWeight="0" style={[styles.top3_name1,{fontSize: normalize(12)}]}>{top.owner}</Text>
+                        <Text fontWeight="0" style={[styles.top3_name1,{fontSize: normalize(1)}]}>{top.owner}</Text>
                     </View> 
                 )
             }
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
         height:75,
         justifyContent: 'space-around',
         alignItems: 'center', 
-        bottom: getScreenWidth() * 1.32,
+        bottom: getScreenWidth() * 1.3,
         borderRadius: 40,
         left: getScreenWidth()*0.08,
         marginBottom:20,
