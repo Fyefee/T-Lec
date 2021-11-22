@@ -3,6 +3,8 @@ import { StyleSheet, Dimensions, PixelRatio } from 'react-native'
 import { HStack, Text, Image, Spinner, Button, Icon } from "native-base";
 import { FontAwesome } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import axios from 'axios';
+import { API_LINK, CLIENTID } from '@env';
 
 const {
     width: SCREEN_WIDTH,
@@ -58,6 +60,21 @@ export default function NewLectureList(props) {
         return star;
     }
 
+    const followUser = async () => {
+        try {
+            const data = {
+                userEmail: props.user.email,
+                followEmail: props.userInfo.userEmail
+            }
+
+            await axios.post(`${API_LINK}/followUser`, data);
+
+            props.setIsFollow(!props.isFollow)
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
     if (props.isLoad) {
         return (
             <LinearGradient start={{ x: 0, y: 1 }}
@@ -71,13 +88,26 @@ export default function NewLectureList(props) {
                             alt="UserIcon" style={styles.userImage} />
                         <Text pt="1" fontFamily="body" fontWeight="700" style={styles.cardUserName}>{props.userInfo.userFirstName}{"\n"}{props.userInfo.userLastName}</Text>
                         {props.userInfo.userEmail != props.user.email ? (
-                            <Button
-                                leftIcon={<Icon as={FontAwesome} name="plus" size="sm" />}
-                                style={styles.followButton}
-                                size="xs"
-                            >
-                                <Text pt="1" fontFamily="body" fontWeight="700" style={styles.followButtonText}>FOLLOW</Text>
-                            </Button>
+                            <>
+                                {!props.isFollow ? (
+                                    <Button
+                                        leftIcon={<Icon as={FontAwesome} name="plus" size="sm" />}
+                                        size="xs"
+                                        onPress={() => followUser()}
+                                    >
+                                        <Text pt="1" fontFamily="body" fontWeight="700" style={styles.followButtonText}>FOLLOW</Text>
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        leftIcon={<Icon as={FontAwesome} name="minus" size="sm" />}
+                                        style={styles.unfollowButton}
+                                        size="xs"
+                                        onPress={() => followUser()}
+                                    >
+                                        <Text pt="1" fontFamily="body" fontWeight="700" style={styles.followButtonText}>UNFOLLOW</Text>
+                                    </Button>
+                                )}
+                            </>
                         ) : (
                             <></>
                         )}
@@ -171,5 +201,8 @@ const styles = StyleSheet.create({
         fontSize: normalize(14),
         textAlign: "center",
         color: "white"
+    },
+    unfollowButton: {
+        backgroundColor: "salmon"
     }
 });

@@ -101,7 +101,7 @@ export default function Library({ route, navigation }) {
         try {
             setIsLoad(false)
 
-            const dataFromDB = await axios.get(`${API_LINK}/getDataForLibrary`, { params: { email: user.email } })
+            const dataFromDB = await axios.get(`${API_LINK}/getDataForLibrary`, { params: { email: user.email, userEmail: user.email } })
             const userLibData = {
                 "userFirstName": dataFromDB.data.userFirstName,
                 "userLastName": dataFromDB.data.userLastName,

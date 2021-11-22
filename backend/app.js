@@ -76,7 +76,7 @@ app.post('/', async (req, res) => {
                 image: req.body.photoUrl,
                 email: req.body.email,
                 following: [],
-                follower: 0,
+                follower: [],
                 post: [],
                 recentView: []
             })
@@ -308,7 +308,7 @@ app.get('/getDataForLibrary', async (req, res) => {
         let ratingCount = 0;
 
         let postCount = 0;
-        let followerCount = doc.follower;
+        let followerCount = doc.follower.length;
         let followingCount = doc.following.length;
 
         if (lecFromEmail) {
@@ -338,6 +338,8 @@ app.get('/getDataForLibrary', async (req, res) => {
             rating /= ratingCount
         }
 
+        const isFollow = doc.follower.includes(req.query.userEmail)
+
         data = {
             "userFirstName": doc.firstname,
             "userLastName": doc.lastname,
@@ -347,7 +349,8 @@ app.get('/getDataForLibrary', async (req, res) => {
             "postCount": postCount,
             "userFollower": followerCount,
             "userFollowing": followingCount,
-            "userLecture": lecToSend
+            "userLecture": lecToSend,
+            "isFollow": isFollow
         }
 
         res.send(data)
@@ -650,6 +653,43 @@ app.post('/editLecture', async (req, res) => {
         console.log(err)
         res.sendStatus(500)
     }
+
+})
+
+app.post('/followUser', async (req, res) => {
+
+    console.log(req.body)
+    await User.findOne({ email: req.body.followEmail }, async function (err, doc) {
+
+        let followArray = [...doc.follower]
+
+        if (followArray.includes(req.body.userEmail)){
+            const index = followArray.indexOf(req.body.userEmail)
+            followArray.splice(index, 1)
+        } else {
+            followArray.push(req.body.userEmail)
+        }
+
+        await User.findOneAndUpdate({ email: doc.email }, { follower: followArray })
+        
+    }).clone()
+
+    await User.findOne({ email: req.body.userEmail }, async function (err, doc) {
+
+        let followArray = [...doc.following]
+
+        if (followArray.includes(req.body.followEmail)){
+            const index = followArray.indexOf(req.body.followEmail)
+            followArray.splice(index, 1)
+        } else {
+            followArray.push(req.body.followEmail)
+        }
+
+        await User.findOneAndUpdate({ email: doc.email }, { following: followArray })
+        
+    }).clone()
+
+    res.sendStatus(200)
 
 })
 

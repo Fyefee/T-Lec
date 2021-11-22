@@ -76,6 +76,8 @@ export default function OtherLibrary({ route, navigation }) {
 
     const [isAlertOpen, setIsAlertOpen] = React.useState(false)
 
+    const [isFollow, setIsFollow] = React.useState(false)
+
     const theme = extendTheme({
         fontConfig: {
             Prompt: {
@@ -101,7 +103,7 @@ export default function OtherLibrary({ route, navigation }) {
         try {
             setIsLoad(false)
 
-            const dataFromDB = await axios.get(`${API_LINK}/getDataForLibrary`, { params: { email: route.params.ownerEmail } })
+            const dataFromDB = await axios.get(`${API_LINK}/getDataForLibrary`, { params: { email: route.params.ownerEmail, userEmail: user.email } })
             console.log(dataFromDB.data)
             const userLibData = {
                 "userFirstName": dataFromDB.data.userFirstName,
@@ -115,6 +117,7 @@ export default function OtherLibrary({ route, navigation }) {
             }
             setUserInfo(userLibData);
             setCollection(dataFromDB.data.userLecture);
+            setIsFollow(dataFromDB.data.isFollow)
             
             setIsLoad(true)
         }
@@ -137,7 +140,7 @@ export default function OtherLibrary({ route, navigation }) {
                     style={styles.scrollStyle}
                 >
                     <HStack space="4" direction='column'>
-                        <UserCard isLoad={isLoad} user={user} userInfo={userInfo} />
+                        <UserCard isLoad={isLoad} user={user} userInfo={userInfo} isFollow={isFollow} setIsFollow={setIsFollow}/>
                         <CollectionCard isLoad={isLoad} user={user} collection={collection} navigation={navigation} setIsAlertOpen={setIsAlertOpen}/>
                     </HStack>
                 </ScrollView>

@@ -23,7 +23,7 @@ const UserSchema = new mongoose.Schema({
         type: Array, 
     },
     follower: {
-        type: Number, 
+        type: Array, 
     },
     post: {
         type: Array, 
