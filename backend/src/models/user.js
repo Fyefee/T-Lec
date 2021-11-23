@@ -18,6 +18,21 @@ const UserSchema = new mongoose.Schema({
     email: {
         type: String, 
         required: true,
+    },
+    following: {
+        type: Array, 
+    },
+    follower: {
+        type: Array, 
+    },
+    post: {
+        type: Array, 
+    },
+    recentView: {
+        type: Array, 
+    },
+    notification : {
+        type: Array, 
     }
 })
 
