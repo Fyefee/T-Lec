@@ -11,6 +11,8 @@ import {
 } from "native-base";
 import { FontAwesome, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
+import * as FileSystem from 'expo-file-system';
+import { StorageAccessFramework } from 'expo-file-system';
 
 import ErrorAlert from '../components/ErrorAlert'
 import NavigationBar from '../components/NavigationBar'
@@ -271,6 +273,64 @@ export default function CreateLec({ route, navigation }) {
         }
     }
 
+    const downloadFile = async () => {
+
+        try {
+            const dataFromDB = await axios.post(`${API_LINK}/downloadFile`, { lecture: lecture })
+
+            // const folder = FileSystem.StorageAccessFramework.getUriForDirectoryInRoot("DocumentPicker");
+            // console.log(folder);
+            // const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync(folder);
+            // if (!permissions.granted) return;
+
+            // console.log(permissions);
+
+            // let filePath = await FileSystem.StorageAccessFramework.createFileAsync(permissions.directoryUri, "test.pdf", "application/pdf");
+            
+            // console.log(filePath);
+
+            // const permissions = await StorageAccessFramework.requestDirectoryPermissionsAsync();
+            // if (permissions.granted) {
+            //     // Gets SAF URI from response
+            //     const uri = permissions.directoryUri;
+                
+            //     // Gets all files inside of selected directory
+            //     const files = await FileSystem.readDirectoryAsync(uri);
+            //     console.log(files)
+            //     // alert(`Files inside ${uri}:\n\n${JSON.stringify(files)}`);
+            //   }
+
+            // try {
+            //     console.log(filePath)
+            //     await FileSystem.StorageAccessFramework.writeAsStringAsync(filePath, dataFromDB.data, { encoding: FileSystem.EncodingType.Base64 });
+            //     console.log("download success!")
+            // } catch (err) {
+            //     console.log(err);
+            // }
+            // const filename = FileSystem.documentDirectory + "some_unique_file_name.pdf";
+            // await FileSystem.writeAsStringAsync(filename, dataFromDB.data, {
+            //     encoding: FileSystem.EncodingType.Base64,
+            // });
+            
+        } catch (err) {
+            console.log(err)
+        }
+
+
+        // const data = await axios({
+        //     method: 'post',
+        //     url: `${API_LINK}/downloadFile`,
+        //     data: { 'lecture': lecture },
+        //     responseType: 'arraybuffer',
+        // }).then((response) => {
+        //     return Buffer.from(response.data).toString('base64');
+        // }).catch(function (error) {
+        //     return null;
+        // });
+
+        //console.log(dataFromDB.data)
+    }
+
     if (isLoad) {
         return (
             <NativeBaseProvider theme={theme}>
@@ -303,12 +363,12 @@ export default function CreateLec({ route, navigation }) {
 
                             <HStack space="1" px="8" mt="3" justifyContent="space-around">
                                 {(lecture.privacy != "private") || (lecture.ownerEmail == user.email) || lecture.permission.includes(user.email) ? (
-                                    <Button style={styles.downloadFileButton} size="lg">
+                                    <Button style={styles.downloadFileButton} size="lg" onPress={() => downloadFile()}>
                                         <Text style={styles.downloadFileButtonText}>Download</Text>
                                     </Button>
                                 ) : (
                                     <Button style={styles.downloadFileButton} size="lg" isDisabled
-                                    endIcon={<Icon as={FontAwesome} name="lock" size="sm" mb="1" />}>
+                                        endIcon={<Icon as={FontAwesome} name="lock" size="sm" mb="1" />}>
                                         <Text style={styles.downloadFileButtonText}>Download</Text>
                                     </Button>
                                 )}

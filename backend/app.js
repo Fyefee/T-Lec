@@ -52,7 +52,6 @@ const checkEmail = (domain) => {
 
 app.get('/', (req, res) => {
     res.send(req.user)
-    console.log(req.user)
 })
 
 app.post('/', async (req, res) => {
@@ -688,7 +687,6 @@ app.post('/editLecture', async (req, res) => {
 
 app.post('/followUser', async (req, res) => {
 
-    console.log(req.body)
     await User.findOne({ email: req.body.followEmail }, async function (err, doc) {
 
         let followArray = [...doc.follower]
@@ -757,13 +755,13 @@ app.get('/getDataForSearch', async (req, res) => {
                 photoUrl: userFromDB.image
             }
             dataArray.push(lecData)
-            if (dataArray.length == lecture.length){
+            if (dataArray.length == lecture.length) {
                 res.send(dataArray)
             }
         })
-        
-    }).clone().catch(function (err) { 
-        console.log("getSearchData Error : " + e); 
+
+    }).clone().catch(function (err) {
+        console.log("getSearchData Error : " + e);
         res.sendStatus(500)
     })
 })
@@ -784,15 +782,15 @@ app.get('/getRanking', async (req, res) => {
         var sorted_data = []
         var check = true
         lectures.forEach(function (lecture) {
-            if (data.length > 0){
+            if (data.length > 0) {
                 sum_lecture = (lecture.downloadFromUser).length + lecture.ratingAvg
-                data.map((item, i) =>  {
+                data.map((item, i) => {
                     sum_item = (item.downloadFromUser).length + item.ratingAvg
-                    if((sum_item <= sum_lecture && data.length < 10) && check){
+                    if ((sum_item <= sum_lecture && data.length < 10) && check) {
                         data.push(lecture)
                         check = false
                     }
-                    else if ((sum_item < sum_lecture && data.length >= 10) && check){
+                    else if ((sum_item < sum_lecture && data.length >= 10) && check) {
                         data.splice(i, 1)
                         data.push(lecture)
                         check = false
@@ -800,8 +798,8 @@ app.get('/getRanking', async (req, res) => {
                 });
                 check = true
             }
-            else{
-                data.push(lecture) 
+            else {
+                data.push(lecture)
             }
         });
 
@@ -809,13 +807,13 @@ app.get('/getRanking', async (req, res) => {
         data.forEach(function (lecture) {
             top_ratingAvg.push(lecture.ratingAvg + (lecture.downloadFromUser).length)
         });
-        
-        top_ratingAvg.sort(function(a, b){return b-a});
+
+        top_ratingAvg.sort(function (a, b) { return b - a });
 
         check = true
         top_ratingAvg.forEach(max => {
-            data.map((item, i) =>  {
-                if((item.ratingAvg + (item.downloadFromUser).length) == max && check){
+            data.map((item, i) => {
+                if ((item.ratingAvg + (item.downloadFromUser).length) == max && check) {
                     sorted_data.push(item)
                     data.splice(i, 1)
                     check = false
@@ -826,3 +824,33 @@ app.get('/getRanking', async (req, res) => {
         res.send(sorted_data)
     }).clone().catch(function (err) { console.log("getAllUserId Error : " + e); })
 })
+
+app.post('/downloadFile', async (req, res) => {
+
+    await Lecture.findOne({ title: req.body.lecture.title }, async function (err, doc) {
+
+        fs.readFile(path.resolve(__dirname + doc.fileUrl + doc.fileName), { encoding: 'base64' }, function (err, data) {
+            //console.log(data)
+            res.send(data)
+        });
+
+        // const contents = fs.readFile(path.resolve(__dirname + doc.fileUrl + doc.fileName), {encoding: 'base64'});
+        // console.log(contents)
+
+    }).clone().catch(function (err) {
+        console.log(err);
+        res.sendStatus(500)
+    })
+    //res.sendStatus(200)
+
+})
+
+app.get('/logout', function (req, res) {
+    try {
+        req.logout();
+        res.sendStatus(200)
+    } catch (err) {
+        console.log(err)
+        res.sendStatus(500)
+    }
+});

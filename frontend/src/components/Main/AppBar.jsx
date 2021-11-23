@@ -1,6 +1,6 @@
 import React from 'react'
 import { StyleSheet, Dimensions, PixelRatio } from 'react-native'
-import { HStack, IconButton, Icon, Text, StatusBar, Image, Popover, Button, Badge, VStack } from "native-base";
+import { HStack, IconButton, Icon, Text, StatusBar, Image, Popover, Button, Badge, VStack, Pressable } from "native-base";
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { API_LINK, CLIENTID } from '@env';
 import axios from 'axios';
@@ -81,6 +81,15 @@ export default function AppBar(props) {
         }
     }
 
+    const logout = async () => {
+        try {
+            await axios.get(`${API_LINK}/logout`)
+            props.navigation.navigate('Login')
+        } catch (err) {
+            console.log(err)
+        }
+    }
+
     return (
         <>
             <StatusBar backgroundColor={props.bgColor} barStyle="light-content" />
@@ -139,8 +148,25 @@ export default function AppBar(props) {
                         </Popover.Content>
                     </Popover>
 
-                    <Image mt="2" source={{ uri: props.user.image }}
-                        alt="UserIcon" style={styles.commentImage} />
+                    <Popover
+                        placement="bottom right"
+                        trigger={(triggerProps) => {
+                            return (
+                                <Pressable {...triggerProps}>
+                                    <Image mt="2" source={{ uri: props.user.image }}
+                                        alt="UserIcon" style={styles.commentImage} />
+                                </Pressable>
+                            )
+                        }}
+                    >
+                        <Popover.Content w="32">
+                            <Popover.Body>
+                                <Button colorScheme="danger" variant="unstyled" onPress={() => logout()}>
+                                    <Text fontFamily="body" fontWeight="700">Logout</Text>
+                                </Button>
+                            </Popover.Body>
+                        </Popover.Content>
+                    </Popover>
                 </HStack>
 
             </HStack>

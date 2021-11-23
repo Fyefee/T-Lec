@@ -364,6 +364,7 @@ export default function CreateLec({ route, navigation }) {
     const uploadFile = async () => {
         try {
             let result = await DocumentPicker.getDocumentAsync({});
+            console.log(result)
             if (result.type == "cancel") {
                 console.log("Upload Cancel")
             } else if (result.type == "success") {
