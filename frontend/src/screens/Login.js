@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, Dimensions, Easing, Image, Animated, PixelRatio
 import * as Google from 'expo-google-app-auth';
 import { Restart } from 'fiction-expo-restart';
 import axios from 'axios';
-import { API_LINK, CLIENTID } from '@env';
+import { API_LINK, CLIENTID, USER_SERVICE_LINK } from '@env';
 import { LinearGradient } from 'expo-linear-gradient';
 import { CommonActions } from '@react-navigation/native';
 
@@ -139,18 +139,20 @@ export default function App({ navigation }) {
 
     const getSession = async () => {
         try {
-            const userSession = await axios.get(`${API_LINK}/getSession`)
-            if (userSession.data) {
-                setUser(userSession.data)
-                console.log("Get session YAY!!")
-                //navigation.navigate('CreateLec', { user: userSession.data })
-                const resetAction = CommonActions.reset({
-                    index: 0,
-                    routes: [{ name: 'Home', params: { user: userSession.data } }]
-                });
-                navigation.dispatch(resetAction);
-                // navigation.navigate('Home', { user: userSession.data })
-            }
+            //const userSession = await axios.get(`${API_LINK}/getSession`)
+            const userSession = await axios.get(`${USER_SERVICE_LINK}/test`)
+            // if (userSession.data) {
+            //     setUser(userSession.data)
+            //     console.log("Get session YAY!!")
+            //     navigation.navigate('CreateLec', { user: userSession.data })
+            //     const resetAction = CommonActions.reset({
+            //         index: 0,
+            //         routes: [{ name: 'Home', params: { user: userSession.data } }]
+            //     });
+            //     navigation.dispatch(resetAction);
+            //     navigation.navigate('Home', { user: userSession.data })
+            // }
+            console.log(userSession)
         }
         catch (e) {
             console.log("Session error : ", e)
