@@ -139,8 +139,11 @@ export default function App({ navigation }) {
 
     const getSession = async () => {
         try {
-            //const userSession = await axios.get(`${API_LINK}/getSession`)
-            const userSession = await axios.get(`${USER_SERVICE_LINK}/test`)
+            // const userSession = await axios.get(`${API_LINK}/getSession`)
+
+            // const userSession = await axios.get(`${USER_SERVICE_LINK}/users`)
+
+
             // if (userSession.data) {
             //     setUser(userSession.data)
             //     console.log("Get session YAY!!")
@@ -152,7 +155,7 @@ export default function App({ navigation }) {
             //     navigation.dispatch(resetAction);
             //     navigation.navigate('Home', { user: userSession.data })
             // }
-            console.log(userSession)
+            // console.log(userSession)
         }
         catch (e) {
             console.log("Session error : ", e)
@@ -166,7 +169,24 @@ export default function App({ navigation }) {
                 scopes: ["profile", "email"]
             })
             if (type === "success") {
-                const response = await axios.post(`${API_LINK}/`, user);
+
+                // const response = await axios.post(`${API_LINK}/`, user);
+                // var bodyFormData = new FormData();
+                // bodyFormData.append('email', user.email);
+                const response = await axios.post(`${USER_SERVICE_LINK}/login`, user);
+
+                if (response.data) {
+                    setUser(response.data)
+                    navigation.navigate('CreateLec', { user: response.data })
+                    const resetAction = CommonActions.reset({
+                        index: 0,
+                        routes: [{ name: 'Home', params: { user: response.data } }]
+                    });
+                    navigation.dispatch(resetAction);
+                    navigation.navigate('Home', { user: response.data })
+                }
+
+
                 if (response.data == "wrong domain") {
                     Alert.alert("Please login with @it.kmitl.ac.th mail")
                 }

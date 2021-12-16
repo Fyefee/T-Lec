@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useIsFocused } from "@react-navigation/native";
 import { StyleSheet, Dimensions, PixelRatio, Platform, TouchableOpacity, View } from 'react-native'
 import axios from 'axios';
-import { API_LINK, CLIENTID } from '@env';
+import { API_LINK, CLIENTID, USER_SERVICE_LINK } from '@env';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
     Input, TextArea, VStack, HStack, Button, IconButton, Icon, Text,
@@ -103,7 +103,10 @@ export default function Library({ route, navigation }) {
         try {
             setIsLoad(false)
 
-            const dataFromDB = await axios.get(`${API_LINK}/getDataForLibrary`, { params: { email: user.email, userEmail: user.email } })
+            //const dataFromDB = await axios.get(`${API_LINK}/getDataForLibrary`, { params: { email: user.email, userEmail: user.email } })
+            const dataFromDB = await axios.get(`${USER_SERVICE_LINK}/getDataForLibrary`, { params: { email: user.email, userEmail: user.email } })
+            const notificationFromDB = await axios.get(`${USER_SERVICE_LINK}/getNotificationByEmail/${user.email}`)
+
             const userLibData = {
                 "userFirstName": dataFromDB.data.userFirstName,
                 "userLastName": dataFromDB.data.userLastName,
@@ -116,7 +119,7 @@ export default function Library({ route, navigation }) {
             }
             setUserInfo(userLibData);
             setCollection(dataFromDB.data.userLecture);
-            setNotification(dataFromDB.data.notification)
+            setNotification(notificationFromDB.data);
             
             setIsLoad(true)
         }

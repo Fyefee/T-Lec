@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useIsFocused } from "@react-navigation/native";
 import { StyleSheet, Dimensions, PixelRatio, Platform, TouchableOpacity, View } from 'react-native'
 import axios from 'axios';
-import { API_LINK, CLIENTID } from '@env';
+import { API_LINK, CLIENTID, LECTURE_SERVICE_LINK } from '@env';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
     Input, TextArea, VStack, HStack, Button, IconButton, Icon, Text,
@@ -110,7 +110,8 @@ export default function CreateLec({ route, navigation }) {
 
         try {
             setIsLoad(true)
-            const dataFromDB = await axios.get(`${API_LINK}/getLectureData`, { params: { title: route.params.lecture.title, userEmail: user.email } })
+            //const dataFromDB = await axios.get(`${API_LINK}/getLectureData`, { params: { title: route.params.lecture.title, userEmail: user.email } })
+            const dataFromDB = await axios.get(`${LECTURE_SERVICE_LINK}/getLectureData`, { params: { title: route.params.lecture.title, userEmail: user.email } })
 
             setLecture(dataFromDB.data)
             setRating(dataFromDB.data.userRating)
@@ -216,7 +217,9 @@ export default function CreateLec({ route, navigation }) {
 
         try {
 
-            await axios.delete(`${API_LINK}/deleteComment`, { params: { title: lecture.title, comment: deleteObject } })
+            //await axios.delete(`${API_LINK}/deleteComment`, { params: { title: lecture.title, comment: deleteObject } })
+
+            await axios.post(`${LECTURE_SERVICE_LINK}/deleteComment`, { lecTitle: lecture.title, comment: deleteObject })
 
             let index = lecture.comment.indexOf(deleteObject);
             lecture.comment.splice(index, 1);
@@ -239,7 +242,9 @@ export default function CreateLec({ route, navigation }) {
                 "createdDate": Date.now()
             }
 
-            await axios.post(`${API_LINK}/addComment`, { lecTitle: lecture.title, comment: comment })
+            //await axios.post(`${API_LINK}/addComment`, { lecTitle: lecture.title, comment: comment })
+
+            await axios.post(`${LECTURE_SERVICE_LINK}/addComment`, { lecTitle: lecture.title, comment: comment })
 
             lecture.comment.push(comment);
             setNewComment("");
@@ -255,7 +260,13 @@ export default function CreateLec({ route, navigation }) {
 
     const rateLecture = async () => {
         try {
-            await axios.post(`${API_LINK}/rateLecture`, { lecTitle: lecture.title, rating: rating, userEmail: user.email })
+            // await axios.post(`${API_LINK}/rateLecture`, { lecTitle: lecture.title, rating: rating, userEmail: user.email })
+            var bodyFormData = new FormData();
+            bodyFormData.append("title", lecture.title);
+            bodyFormData.append("rating", rating);
+            bodyFormData.append("userEmail", user.email);
+
+            await axios.post(`${LECTURE_SERVICE_LINK}/rateLecture`, bodyFormData)
         }
         catch (err) {
             setIsAlertOpen(true)

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useIsFocused } from "@react-navigation/native";
 import { StyleSheet, Dimensions, PixelRatio, Platform } from 'react-native'
 import axios from 'axios';
-import { API_LINK } from '@env';
+import { API_LINK, USER_SERVICE_LINK, LECTURE_SERVICE_LINK } from '@env';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
     HStack, Text, NativeBaseProvider, Box, extendTheme, ScrollView, Spinner
@@ -85,10 +85,15 @@ export default function Home({ route, navigation }) {
         try {
             setIsLoad(false)
 
-            const dataFromDB = await axios.get(`${API_LINK}/getHomeData`, { params: { email: user.email } })
+            const notificationFromDB = await axios.get(`${USER_SERVICE_LINK}/getNotificationByEmail/${user.email}`)
+
+            // const dataFromDB = await axios.get(`${API_LINK}/getHomeData`, { params: { email: user.email } })
+            const dataFromDB = await axios.get(`${LECTURE_SERVICE_LINK}/getHomeData/${user.email}`)
+            
+
             setRecentView(dataFromDB.data.recentView)
             setNewLec(dataFromDB.data.newLec)
-            setNotification(dataFromDB.data.notification)
+            setNotification(notificationFromDB.data)
 
             setIsLoad(true)
 

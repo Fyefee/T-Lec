@@ -1,0 +1,170 @@
+package com.sop_project.lectureservice.controller;
+
+import com.mongodb.client.gridfs.model.GridFSFile;
+import com.sop_project.lectureservice.data.*;
+import com.sop_project.lectureservice.repository.LectureService;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+@RestController
+public class LectureController {
+
+    @Autowired
+    private LectureService lectureService;
+
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
+    @RequestMapping(value = "/getHomeData/{email}", method = RequestMethod.GET)
+    public ResponseEntity<?> getHomeData(@PathVariable("email") String userEmail){
+
+        HomeData homeData = new HomeData();
+
+        Page<Lecture> data = lectureService.getSortedLectureAndLimit();
+        for (Lecture lecture : data.getContent()){
+            FilterUserData user = getUserByEmail(lecture.getOwner());
+            homeData.getNewLec().add(new FilterHomeLectureData(lecture.getTitle(),
+                    user.getImage(), lecture.getTag(), lecture.getDescription(), lecture.getRatingAvg(),
+                    lecture.getOwner()));
+        }
+
+        ArrayList<String> recentView =  getRecentView(userEmail);
+        //ArrayList<String> recentView = getRecentView("62070166@it.kmitl.ac.th");
+        for (String lecTitle : recentView){
+            Lecture lecture = lectureService.getLectureByTitle(lecTitle);
+            if (lecture != null){
+                FilterUserData user = getUserByEmail(lecture.getOwner());
+                homeData.getRecentView().add(new FilterHomeLectureData(lecture.getTitle(),
+                        user.getImage(), lecture.getTag(), lecture.getDescription(), lecture.getRatingAvg(),
+                        lecture.getOwner()));
+            }
+            else {
+                homeData.getRecentView().add(null);
+            }
+        }
+
+        return ResponseEntity.ok(homeData);
+    }
+
+    @RequestMapping(value = "/checkLecDuplicate/{title}", method = RequestMethod.POST)
+    public ResponseEntity<?> checkLecDuplicate(@PathVariable String title){
+
+        Lecture lecture = lectureService.getLectureByTitle(title);
+        if (lecture == null){
+            return ResponseEntity.ok(true);
+        }
+        else {
+            return ResponseEntity.ok(false);
+        }
+    }
+
+    @RequestMapping(value = "/uploadLec", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> uploadLec(@RequestPart("file") GridFSFile file){
+        System.out.println(file);
+        return ResponseEntity.ok(true);
+    }
+
+    @RequestMapping(value = "/getLectureByOwner/{owner}", method = RequestMethod.GET)
+    public ResponseEntity<?> getLectureByOwner(@PathVariable("owner") String owner){
+        List<Lecture> lectures = lectureService.getLectureByOwner(owner);
+        ArrayList<FilterLectureData> filterLectureData = new ArrayList<>();
+        for (Lecture lecture : lectures){
+            filterLectureData.add(new FilterLectureData(lecture.getTitle(), lecture.getPrivacy(), lecture.getRatingAvg()));
+        }
+        return ResponseEntity.ok(filterLectureData);
+    }
+
+    @RequestMapping(value = "/testRabbit", method = RequestMethod.GET)
+    public ResponseEntity<?> testRabbit(){
+        rabbitTemplate.convertAndSend("LectureExchange", "have", "Please");
+        return ResponseEntity.ok(null);
+    }
+
+    @RequestMapping(value = "/getLectureData", method = RequestMethod.GET)
+    public ResponseEntity<?> getLectureData(@RequestParam("title") String title, @RequestParam("userEmail") String userEmail){
+        Lecture lecture = lectureService.getLectureByTitle(title);
+        FilterUserData ownerData = getUserByEmail(lecture.getOwner());
+
+        int userRating = 0;
+
+        for (UserRating rating : lecture.getRating()){
+            if (rating.getEmail().equals(userEmail))
+                userRating = rating.getRating();
+        }
+
+        String result = updateUser(title, userEmail);
+
+        LecturePageData data = new LecturePageData(lecture.getTitle(), lecture.getContact(), lecture.getDescription(),
+                lecture.getUserPermission(), lecture.getPrivacy(), lecture.getTag(), lecture.getRatingAvg(),
+                lecture.getComment(), ownerData.getFirstname() + " " + ownerData.getLastname(), ownerData.getEmail(),
+                ownerData.getImage(), lecture.getDownloadFromUser().size(), userRating);
+
+        return ResponseEntity.ok(data);
+    }
+
+    @RequestMapping(value = "/addComment", method = RequestMethod.POST)
+    public ResponseEntity<?> addComment(@RequestBody AddCommentData data){
+        Lecture lecture = lectureService.getLectureByTitle(data.getLecTitle());
+        ArrayList<Comment> commentList = lecture.getComment();
+        commentList.add(data.getComment());
+        lecture.setComment(commentList);
+        lectureService.updateLecture(lecture);
+        return ResponseEntity.ok("Update Comment Complete");
+    }
+
+    @RequestMapping(value = "/deleteComment", method = RequestMethod.POST)
+    public ResponseEntity<?> deleteComment(@RequestBody AddCommentData data){
+        Lecture lecture = lectureService.getLectureByTitle(data.getLecTitle());
+        ArrayList<Comment> commentList = lecture.getComment();
+        commentList.remove(data.getComment());
+        lecture.setComment(commentList);
+        lectureService.updateLecture(lecture);
+        return ResponseEntity.ok("Delete Comment Complete");
+    }
+
+    @RequestMapping(value = "/rateLecture", method = RequestMethod.POST)
+    public ResponseEntity<?> rateLecture(@RequestPart("title") String title, @RequestPart("rating") int rating, @RequestPart("userEmail") String userEmail){
+        System.out.println(title + rating + userEmail);
+        return ResponseEntity.ok("Rating Lecture Complete");
+    }
+
+    public FilterUserData getUserByEmail(String email){
+        FilterUserData out = WebClient.create()
+                .get()
+                .uri("http://192.168.1.9:3001/user-service/getUserByEmail/" + email)
+                .retrieve()
+                .bodyToMono(FilterUserData.class)
+                .block();
+        return out;
+    }
+
+    public ArrayList<String> getRecentView(String email){
+        ArrayList out = WebClient.create()
+                .get()
+                .uri("http://192.168.1.9:3001/user-service/getRecentViewByEmail/" + email)
+                .retrieve()
+                .bodyToMono(ArrayList.class)
+                .block();
+        return out;
+    }
+
+    public String updateUser(String title, String email){
+        String out = WebClient.create()
+                .post()
+                .uri("http://192.168.1.9:3001/user-service/updateRecentView/" + title + "/" + email)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+        return out;
+    }
+}
