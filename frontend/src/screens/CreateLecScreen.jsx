@@ -392,7 +392,7 @@ export default function CreateLec({ route, navigation }) {
                 if (res1.data) {
                     // setIsValidateTitleDuplicate(true)
 
-                    // const fileBase64 = await FileSystem.readAsStringAsync(fileUploaded[0].uri, { encoding: 'base64' });
+                    const fileBase64 = await FileSystem.readAsStringAsync(fileUploaded[0].uri, { encoding: 'base64' });
 
                     // var bodyFormData = new FormData();
                     // bodyFormData.append('title', title);
@@ -412,10 +412,22 @@ export default function CreateLec({ route, navigation }) {
 
                     setIsValidateTitleDuplicate(true)
 
-                    var bodyFormData = new FormData();
-                    bodyFormData.append('file', fileUploaded[0])
+                    var data = {
+                        title: title,
+                        description: description,
+                        contact: contact,
+                        newTag: newTag,
+                        oldTag: oldTag,
+                        permission: selectedUser,
+                        privacy: privacy,
+                        owner: user.email,
+                        fileName: fileUploaded[0].name,
+                        fileBase64: fileBase64
+                    }
 
-                    const req = await axios.post(`${LECTURE_SERVICE_LINK}/uploadLec`, bodyFormData);
+                    const req = await axios.post(`${LECTURE_SERVICE_LINK}/uploadLec`, data);
+
+                    navigation.navigate('Home', { user: user })
 
                 } else {
                     setIsValidateTitleDuplicate(false)

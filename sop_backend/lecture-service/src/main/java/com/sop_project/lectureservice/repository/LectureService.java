@@ -55,4 +55,8 @@ public class LectureService {
         }
     }
 
+    public Lecture createLecture(Lecture lecture){
+        return lectureRepository.save(lecture);
+    }
+
 }

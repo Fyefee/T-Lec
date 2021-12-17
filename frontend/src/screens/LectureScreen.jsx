@@ -283,18 +283,19 @@ export default function CreateLec({ route, navigation }) {
     const downloadFile = async () => {
 
         try {
-            const dataFromDB = await axios.post(`${API_LINK}/downloadFile`, { lecture: lecture })
+            // const dataFromDB = await axios.post(`${API_LINK}/downloadFile`, { lecture: lecture })
+            const dataFromDB = await axios.get(`${LECTURE_SERVICE_LINK}/downloadFile`, { params: { title: lecture.title }})
 
-            // const folder = FileSystem.StorageAccessFramework.getUriForDirectoryInRoot("DocumentPicker");
-            // console.log(folder);
-            // const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync(folder);
-            // if (!permissions.granted) return;
+            const folder = FileSystem.StorageAccessFramework.getUriForDirectoryInRoot("DocumentPicker");
+            console.log(folder);
+            const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync(folder);
+            if (!permissions.granted) return;
 
-            // console.log(permissions);
+            console.log(permissions);
 
-            // let filePath = await FileSystem.StorageAccessFramework.createFileAsync(permissions.directoryUri, "test.pdf", "application/pdf");
+            let filePath = await FileSystem.StorageAccessFramework.createFileAsync(permissions.directoryUri, "test.pdf", "application/pdf");
             
-            // console.log(filePath);
+            console.log(filePath);
 
             // const permissions = await StorageAccessFramework.requestDirectoryPermissionsAsync();
             // if (permissions.granted) {
@@ -307,13 +308,13 @@ export default function CreateLec({ route, navigation }) {
             //     // alert(`Files inside ${uri}:\n\n${JSON.stringify(files)}`);
             //   }
 
-            // try {
-            //     console.log(filePath)
-            //     await FileSystem.StorageAccessFramework.writeAsStringAsync(filePath, dataFromDB.data, { encoding: FileSystem.EncodingType.Base64 });
-            //     console.log("download success!")
-            // } catch (err) {
-            //     console.log(err);
-            // }
+            try {
+                console.log(filePath)
+                await FileSystem.StorageAccessFramework.writeAsStringAsync(filePath, dataFromDB.data, { encoding: FileSystem.EncodingType.Base64 });
+                console.log("download success!")
+            } catch (err) {
+                console.log(err);
+            }
             // const filename = FileSystem.documentDirectory + "some_unique_file_name.pdf";
             // await FileSystem.writeAsStringAsync(filename, dataFromDB.data, {
             //     encoding: FileSystem.EncodingType.Base64,

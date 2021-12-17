@@ -5,10 +5,7 @@ import com.sop_project.tagservice.data.UpdateTag;
 import com.sop_project.tagservice.repository.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 
@@ -25,7 +22,6 @@ public class TagController {
 
     @RequestMapping(value = "/updateLectureTag", method = RequestMethod.POST)
     public ResponseEntity<?> updateLectureTag(@RequestBody UpdateTag data){
-        System.out.println(data);
         ArrayList<String> oldTagForUpdate = new ArrayList<>();
         for (String tag : data.getOldTag()){
             if (!data.getOldDataTag().contains(tag))
@@ -43,4 +39,19 @@ public class TagController {
 
         return ResponseEntity.ok("Update Tag Complete");
     }
+
+    @RequestMapping(value = "/createTag/{name}", method = RequestMethod.POST)
+    public ResponseEntity<?> createTag(@PathVariable("name") String tagName){
+        tagService.createdNewTag(new Tag(null ,tagName, 1));
+        return ResponseEntity.ok(true);
+    }
+
+    @RequestMapping(value = "/updateTag/{name}", method = RequestMethod.POST)
+    public ResponseEntity<?> updateTag(@PathVariable("name") String tagName){
+        Tag tag = tagService.getTagByName(tagName);
+        tag.setCount(tag.getCount() + 1);
+        tagService.updateTag(tag);
+        return ResponseEntity.ok(true);
+    }
+
 }

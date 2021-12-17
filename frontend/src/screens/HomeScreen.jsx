@@ -90,7 +90,7 @@ export default function Home({ route, navigation }) {
             // const dataFromDB = await axios.get(`${API_LINK}/getHomeData`, { params: { email: user.email } })
             const dataFromDB = await axios.get(`${LECTURE_SERVICE_LINK}/getHomeData/${user.email}`)
             
-
+            console.log(dataFromDB.data.recentView)
             setRecentView(dataFromDB.data.recentView)
             setNewLec(dataFromDB.data.newLec)
             setNotification(notificationFromDB.data)

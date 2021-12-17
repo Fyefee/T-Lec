@@ -33,7 +33,6 @@ public class TagService {
 
     @Cacheable(value="tags")
     public Tag createdNewTag(Tag tag){
-        System.out.println(tag);
         return repository.save(tag);
     }
 }

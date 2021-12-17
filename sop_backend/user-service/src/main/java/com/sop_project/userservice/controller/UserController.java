@@ -108,7 +108,6 @@ public class UserController {
 
         for (FilterLectureData lecture : lectureData){
             rating += lecture.getRatingAvg();
-            postCount += 1;
 
             if (lecture.getRatingAvg() > 0){
                 ratingCount += 1;
@@ -167,6 +166,20 @@ public class UserController {
         userService.updateUser(userData);
 
         return ResponseEntity.ok("Update Follow Complete");
+    }
+
+    @RequestMapping(value = "/addNotification/{email}/{title}", method = RequestMethod.POST)
+    public ResponseEntity<?> addNotification(@PathVariable("email") String email, @PathVariable("title") String title){
+
+        User owner = userService.getUserByEmail(email);
+        for (String follower : owner.getFollower()){
+            User user = userService.getUserByEmail(follower);
+            ArrayList<Notification> notifications = user.getNotification();
+            notifications.add(new Notification(owner.getFirstname() + " " + owner.getLastname(), title));
+            userService.updateUser(user);
+        }
+
+        return ResponseEntity.ok("Add Notification Complete");
     }
 
     private ArrayList<String> toggleFollow(ArrayList<String> follow, String email){
