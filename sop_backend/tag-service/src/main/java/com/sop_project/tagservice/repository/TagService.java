@@ -21,4 +21,19 @@ public class TagService {
     public List<Tag> getAllTag(){
         return repository.findAllTag();
     }
+
+    @Cacheable(value="tags")
+    public Tag getTagByName(String name){
+        return repository.findByTagName(name);
+    }
+
+    public Tag updateTag(Tag tag){
+        return repository.save(tag);
+    }
+
+    @Cacheable(value="tags")
+    public Tag createdNewTag(Tag tag){
+        System.out.println(tag);
+        return repository.save(tag);
+    }
 }

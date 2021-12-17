@@ -9,6 +9,7 @@ public class AddCommentData {
     private Comment comment;
 
     public AddCommentData() {
+        this("", null);
     }
 
     public AddCommentData(String lecTitle, Comment comment) {

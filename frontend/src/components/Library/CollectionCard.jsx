@@ -3,7 +3,7 @@ import { StyleSheet, Dimensions, PixelRatio, TouchableOpacity } from 'react-nati
 import { HStack, Text, Spinner, Wrap, Popover, Button, IconButton, AlertDialog } from "native-base";
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { API_LINK, CLIENTID } from '@env';
+import { API_LINK, CLIENTID, LECTURE_SERVICE_LINK } from '@env';
 import axios from 'axios';
 
 const {
@@ -100,7 +100,8 @@ export default function NewLectureList(props) {
 
     const deleteCollection = async () => {
         try {
-            await axios.delete(`${API_LINK}/deleteLec`, { params: { title: deleteObject.title } })
+            // await axios.delete(`${API_LINK}/deleteLec`, { params: { title: deleteObject.title } })
+            await axios.delete(`${LECTURE_SERVICE_LINK}/deleteLec`, { params: { title: deleteObject.title } })
             props.collection.splice(props.collection.indexOf(deleteObject), 1)
         } catch (err) {
             props.setIsAlertOpen(true)

@@ -13,17 +13,13 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @RestController
 public class LectureController {
 
     @Autowired
     private LectureService lectureService;
-
-    @Autowired
-    private RabbitTemplate rabbitTemplate;
 
     @RequestMapping(value = "/getHomeData/{email}", method = RequestMethod.GET)
     public ResponseEntity<?> getHomeData(@PathVariable("email") String userEmail){
@@ -133,9 +129,102 @@ public class LectureController {
     }
 
     @RequestMapping(value = "/rateLecture", method = RequestMethod.POST)
-    public ResponseEntity<?> rateLecture(@RequestPart("title") String title, @RequestPart("rating") int rating, @RequestPart("userEmail") String userEmail){
-        System.out.println(title + rating + userEmail);
+    public ResponseEntity<?> rateLecture(@RequestBody RatingData data){
+        Lecture lecture = lectureService.getLectureByTitle(data.getLecTitle());
+        ArrayList<UserRating> rating = lecture.getRating();
+        boolean isDuplicate = false;
+        int duplicateIndex = -1;
+        int index = 0;
+
+        for (UserRating userRating : rating){
+            if (userRating.getEmail().equals(data.getUserEmail())){
+                isDuplicate = true;
+                duplicateIndex = index;
+            }
+            index += 1;
+        }
+
+        if (isDuplicate)
+            rating.remove(duplicateIndex);
+        rating.add(new UserRating(data.getUserEmail(), data.getRating()));
+
+        double rate = 0;
+        if (rating.size() > 0) {
+            for (UserRating userRating : rating) {
+                rate += userRating.getRating();
+            }
+            rate /= rating.size();
+        }
+
+        lecture.setRating(rating);
+        lecture.setRatingAvg(rate);
+        lectureService.updateLecture(lecture);
+
         return ResponseEntity.ok("Rating Lecture Complete");
+    }
+
+    @RequestMapping(value = "/getDataForSearch", method = RequestMethod.GET)
+    public ResponseEntity<?> getDataForSearch(){
+        List<Lecture> lectures = lectureService.getAllLecture();
+        ArrayList<FilterSearchLectureData> data = new ArrayList<>();
+        for (Lecture lecture : lectures){
+            FilterUserData user = getUserByEmail(lecture.getOwner());
+            data.add(new FilterSearchLectureData(lecture.getTitle(), user.getFirstname() + " " + user.getLastname(),
+                    user.getEmail(), lecture.getTag(), user.getImage()));
+        }
+        return ResponseEntity.ok(data);
+    }
+
+    @RequestMapping(value = "/editLecture", method = RequestMethod.POST)
+    public ResponseEntity<?> editLecture(@RequestBody UpdateLectureData data){
+        Lecture lecture = lectureService.getLectureByTitle(data.getOldTitle());
+        lecture.setTitle(data.getTitle());
+        lecture.setDescription(data.getDescription());
+        lecture.setContact(data.getContact());
+        lecture.setTag(data.getTag());
+        lecture.setPrivacy(data.getPrivacy());
+        lecture.setUserPermission(data.getPermission());
+        lectureService.updateLecture(lecture);
+        return ResponseEntity.ok("Update Lecture Complete");
+    }
+
+    @RequestMapping(value = "/deleteLec", method = RequestMethod.DELETE)
+    public ResponseEntity<?> deleteLec(@RequestParam("title") String title){
+        Lecture lecture = lectureService.getLectureByTitle(title);
+        lectureService.deleteLecture(lecture);
+        return ResponseEntity.ok("Delete Lecture Complete");
+    }
+
+    @RequestMapping(value = "/getRanking", method = RequestMethod.GET)
+    public ResponseEntity<?> getRanking(){
+        List<Lecture> lectureList = lectureService.getAllLecture();
+        ArrayList<FilterRankingLectureData> lectureWithScore = new ArrayList<>();
+        for (Lecture lecture : lectureList){
+            if (lecture.getRating().size() != 0){
+                double score = 0;
+                if (lecture.getDownloadFromUser().size() == 0)
+                    score = lecture.getRatingAvg();
+                else
+                    score = lecture.getDownloadFromUser().size() * lecture.getRatingAvg();
+                FilterUserData user = getUserByEmail(lecture.getOwner());
+                lectureWithScore.add(new FilterRankingLectureData(lecture.getTitle(), lecture.getOwner(),
+                        user.getImage(), score));
+            }
+        }
+        Collections.sort(lectureWithScore, (o1, o2) -> {
+            if (o1.getScore() > o2.getScore())
+                return -1;
+            else if (o1.getScore() == o2.getScore())
+                return 0;
+            else
+                return 1;
+        });
+
+        List<FilterRankingLectureData> newList = lectureWithScore;
+        if (lectureWithScore.size() > 10){
+            newList = lectureWithScore.subList(0, 10);
+        }
+        return ResponseEntity.ok(newList);
     }
 
     public FilterUserData getUserByEmail(String email){

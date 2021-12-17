@@ -4,6 +4,7 @@ import com.sop_project.userservice.data.*;
 import com.sop_project.userservice.repository.UserService;
 import org.bson.json.JsonObject;
 import org.json.JSONObject;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity<?> login(@RequestBody LoginUser loginUser){
         if (loginUser.getEmail().contains("@it.kmitl.ac.th")) {
@@ -31,10 +35,11 @@ public class UserController {
                 User newUser = new User(null, loginUser.getGivenName(), loginUser.getFamilyName(),
                         loginUser.getPhotoUrl(), loginUser.getEmail(), new ArrayList<>(),
                         new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-                userService.createdNewUser(newUser);
-                return ResponseEntity.ok(createUserData(newUser));
+                FilterUserData userFromRabbit = (FilterUserData) rabbitTemplate.convertSendAndReceive("UserExchange", "new", newUser);
+                return ResponseEntity.ok(userFromRabbit);
             } else {
-                return ResponseEntity.ok(createUserData(user));
+                FilterUserData userFromRabbit = (FilterUserData) rabbitTemplate.convertSendAndReceive("UserExchange", "old", loginUser);
+                return ResponseEntity.ok(userFromRabbit);
             }
         }
         else {
@@ -138,6 +143,38 @@ public class UserController {
         userService.updateUser(user);
 
         return ResponseEntity.ok("Update Complete");
+    }
+
+    @RequestMapping(value = "/deleteNotification", method = RequestMethod.POST)
+    public ResponseEntity<?> deleteNotification(@RequestBody DeleteNotificationData data){
+        User user = userService.getUserByEmail(data.getEmail());
+        ArrayList<Notification> notifications = user.getNotification();
+        notifications.remove(data.getNotification());
+        user.setNotification(notifications);
+        userService.updateUser(user);
+        return ResponseEntity.ok("Delete Notification Complete");
+    }
+
+    @RequestMapping(value = "/followUser", method = RequestMethod.GET)
+    public ResponseEntity<?> followUser(@RequestParam("userEmail") String userEmail, @RequestParam("followEmail") String followEmail){
+
+        User followUserData = userService.getUserByEmail(followEmail);
+        followUserData.setFollower(toggleFollow(followUserData.getFollower(), userEmail));
+        userService.updateUser(followUserData);
+
+        User userData = userService.getUserByEmail(userEmail);
+        userData.setFollowing(toggleFollow(userData.getFollowing(), followEmail));
+        userService.updateUser(userData);
+
+        return ResponseEntity.ok("Update Follow Complete");
+    }
+
+    private ArrayList<String> toggleFollow(ArrayList<String> follow, String email){
+        if (follow.contains(email))
+            follow.remove(email);
+        else
+            follow.add(email);
+        return follow;
     }
 
     private FilterUserData createUserData(User user){

@@ -15,6 +15,7 @@ public class FilterHomeLectureData {
     private String owner;
 
     public FilterHomeLectureData() {
+        this("", "", new ArrayList<>(), "", 0, "");
     }
 
     public FilterHomeLectureData(String title, String photoUrl, ArrayList<String> lecTag, String lecDescription, double lecRating, String owner) {

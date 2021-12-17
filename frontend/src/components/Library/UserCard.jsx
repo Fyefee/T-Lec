@@ -4,7 +4,7 @@ import { HStack, Text, Image, Spinner, Button, Icon } from "native-base";
 import { FontAwesome } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import axios from 'axios';
-import { API_LINK, CLIENTID } from '@env';
+import { API_LINK, CLIENTID, USER_SERVICE_LINK } from '@env';
 
 const {
     width: SCREEN_WIDTH,
@@ -67,7 +67,8 @@ export default function NewLectureList(props) {
                 followEmail: props.userInfo.userEmail
             }
 
-            await axios.post(`${API_LINK}/followUser`, data);
+            //await axios.post(`${API_LINK}/followUser`, data);
+            await axios.get(`${USER_SERVICE_LINK}/followUser`, { params : data });
 
             props.setIsFollow(!props.isFollow)
         } catch (err) {

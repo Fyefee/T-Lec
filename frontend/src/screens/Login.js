@@ -174,10 +174,8 @@ export default function App({ navigation }) {
                 // var bodyFormData = new FormData();
                 // bodyFormData.append('email', user.email);
                 const response = await axios.post(`${USER_SERVICE_LINK}/login`, user);
-
                 if (response.data) {
                     setUser(response.data)
-                    navigation.navigate('CreateLec', { user: response.data })
                     const resetAction = CommonActions.reset({
                         index: 0,
                         routes: [{ name: 'Home', params: { user: response.data } }]

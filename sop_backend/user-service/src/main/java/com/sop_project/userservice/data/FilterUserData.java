@@ -15,6 +15,7 @@ public class FilterUserData implements Serializable {
     private String email;
 
     public FilterUserData() {
+        this("", "", "", "");
     }
 
     public FilterUserData(String firstname, String lastname, String image, String email) {

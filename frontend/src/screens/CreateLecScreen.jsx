@@ -432,19 +432,37 @@ export default function CreateLec({ route, navigation }) {
 
             try {
 
+                // const data = {
+                //     title: title,
+                //     oldTitle: route.params.lecture.title,
+                //     description: description,
+                //     contact: contact,
+                //     newTag: newTag,
+                //     oldTag: oldTag,
+                //     oldDataTag: route.params.lecture.tag,
+                //     permission: selectedUser,
+                //     privacy: privacy
+                // }
+
                 const data = {
                     title: title,
                     oldTitle: route.params.lecture.title,
                     description: description,
                     contact: contact,
-                    newTag: newTag,
-                    oldTag: oldTag,
-                    oldDataTag: route.params.lecture.tag,
+                    tag: newTag.concat(oldTag),
                     permission: selectedUser,
                     privacy: privacy
                 }
 
-                const req = await axios.post(`${API_LINK}/editLecture`, data);
+                const tagData = {
+                    newTag: newTag,
+                    oldTag: oldTag,
+                    oldDataTag: route.params.lecture.tag,
+                }
+
+                // const req = await axios.post(`${API_LINK}/editLecture`, data);
+                await axios.post(`${LECTURE_SERVICE_LINK}/editLecture`, data);
+                await axios.post(`${TAG_SERVICE_LINK}/updateLectureTag`, tagData);
 
                 const lec = {
                     title: title

@@ -261,12 +261,8 @@ export default function CreateLec({ route, navigation }) {
     const rateLecture = async () => {
         try {
             // await axios.post(`${API_LINK}/rateLecture`, { lecTitle: lecture.title, rating: rating, userEmail: user.email })
-            var bodyFormData = new FormData();
-            bodyFormData.append("title", lecture.title);
-            bodyFormData.append("rating", rating);
-            bodyFormData.append("userEmail", user.email);
 
-            await axios.post(`${LECTURE_SERVICE_LINK}/rateLecture`, bodyFormData)
+            await axios.post(`${LECTURE_SERVICE_LINK}/rateLecture`, { lecTitle: lecture.title, rating: rating, userEmail: user.email })
         }
         catch (err) {
             setIsAlertOpen(true)

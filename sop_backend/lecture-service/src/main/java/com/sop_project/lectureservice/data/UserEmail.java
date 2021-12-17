@@ -8,6 +8,7 @@ public class UserEmail {
     private String owner;
 
     public UserEmail() {
+        this("");
     }
 
     public UserEmail(String owner) {

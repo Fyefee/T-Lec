@@ -15,4 +15,7 @@ public interface TagRepository extends MongoRepository<Tag, String> {
 
     @Query(value = "{}", fields = "{'_id': 0, 'tagName': 1, 'count': 1}")
     public List<Tag> findAllTag();
+
+    @Query(value = "{tagName: '?0'}")
+    public Tag findByTagName(String tagName);
 }

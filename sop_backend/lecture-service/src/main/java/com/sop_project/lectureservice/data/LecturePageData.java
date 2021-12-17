@@ -21,9 +21,6 @@ public class LecturePageData {
     private int downloadCount;
     private int userRating;
 
-    public LecturePageData() {
-    }
-
     public LecturePageData(String title, String contact, String description, ArrayList<String> permission, String privacy, ArrayList<String> tag, double rating, ArrayList<Comment> comment, String ownerName, String ownerEmail, String ownerImage, int downloadCount, int userRating) {
         this.title = title;
         this.contact = contact;

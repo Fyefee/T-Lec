@@ -9,6 +9,7 @@ public class LectureTag {
     private int count;
 
     public LectureTag() {
+        this("", 0);
     }
 
     public LectureTag(String tagName, int count) {

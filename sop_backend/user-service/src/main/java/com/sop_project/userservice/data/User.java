@@ -25,6 +25,7 @@ public class User implements Serializable {
     private ArrayList<Notification> notification;
 
     public User() {
+        this("", "", "", "", "", new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
     }
 
     public User(String _id, String firstname, String lastname, String image, String email, ArrayList<String> following, ArrayList<String> follower, ArrayList<String> post, ArrayList<String> recentView, ArrayList<Notification> notification) {

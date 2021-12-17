@@ -14,6 +14,7 @@ public class Tag {
     private int count;
 
     public Tag() {
+        this("", "", 0);
     }
 
     public Tag(String _id, String tagName, int count) {

@@ -14,6 +14,7 @@ public class FilterLectureData implements Serializable {
     private double ratingAvg;
 
     public FilterLectureData() {
+        this("", "", 0);
     }
 
     public FilterLectureData(String title, String privacy, double ratingAvg) {

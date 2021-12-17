@@ -19,6 +19,7 @@ public class LibraryUserData {
     private boolean isFollow;
 
     public LibraryUserData() {
+        this("", "", "", "", 0, 0, 0, 0, new ArrayList<>(), false);
     }
 
     public LibraryUserData(String userFirstName, String userLastName, String userImage, String userEmail, double rating, int postCount, int userFollower, int userFollowing, ArrayList<FilterLectureData> userLecture, boolean isFollow) {

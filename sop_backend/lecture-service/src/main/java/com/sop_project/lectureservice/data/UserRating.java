@@ -9,6 +9,7 @@ public class UserRating {
     private int rating;
 
     public UserRating() {
+        this("", 0);
     }
 
     public UserRating(String email, int rating) {

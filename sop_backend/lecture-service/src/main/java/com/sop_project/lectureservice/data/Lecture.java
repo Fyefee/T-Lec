@@ -29,9 +29,6 @@ public class Lecture implements Serializable {
     private ArrayList<Comment> comment;
     private Date createdDate;
 
-    public Lecture() {
-    }
-
     public Lecture(String _id, String title, String description, String contact, ArrayList<String> tag, String privacy, ArrayList<String> userPermission, String owner, ArrayList<String> downloadFromUser, ArrayList<UserRating> rating, double ratingAvg, String fileName, String fileUrl, ArrayList<Comment> comment, Date createdDate) {
         this._id = _id;
         this.title = title;

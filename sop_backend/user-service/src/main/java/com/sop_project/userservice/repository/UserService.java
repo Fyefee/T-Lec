@@ -17,6 +17,7 @@ public class UserService {
         this.repository = repository;
     }
 
+    @Cacheable(value="users")
     public List<User> getAllUser(){
         return repository.findAll();
     }
