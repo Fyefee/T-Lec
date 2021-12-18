@@ -71,14 +71,13 @@ public class LectureController {
 
     @RequestMapping(value = "/uploadLec", method = RequestMethod.POST)
     public ResponseEntity<?> uploadLec(@RequestBody CreateLectureData data){
-        System.out.println(data);
 
         ArrayList<String> allTag = new ArrayList<>();
         for (String tag : data.getNewTag()){
             connectTagAPI("createTag", tag);
             allTag.add(tag);
         }
-        for (String tag : data.getNewTag()){
+        for (String tag : data.getOldTag()){
             connectTagAPI("updateTag", tag);
             allTag.add(tag);
         }
