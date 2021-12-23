@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useIsFocused } from "@react-navigation/native";
 import { StyleSheet, Dimensions, PixelRatio, Platform, TouchableOpacity, View } from 'react-native'
 import axios from 'axios';
-import { API_LINK, CLIENTID } from '@env';
+import { API_LINK, CLIENTID, LECTURE_SERVICE_LINK } from '@env';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
     Input, TextArea, VStack, HStack, Button, IconButton, Icon, Text,
@@ -98,7 +98,8 @@ export default function SearchScreen({ route, navigation }) {
         try {
             setIsLoad(false)
 
-            const dataFromDB = await axios.get(`${API_LINK}/getDataForSearch`)
+            // const dataFromDB = await axios.get(`${API_LINK}/getDataForSearch`)
+            const dataFromDB = await axios.get(`${LECTURE_SERVICE_LINK}/getDataForSearch`)
             setSearchData(dataFromDB.data)
             
             setIsLoad(true)

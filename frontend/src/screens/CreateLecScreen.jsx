@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { StyleSheet, Dimensions, PixelRatio, Platform, TouchableOpacity } from 'react-native'
 import { useIsFocused } from "@react-navigation/native";
 import axios from 'axios';
-import { API_LINK, CLIENTID } from '@env';
+import { API_LINK, CLIENTID, USER_SERVICE_LINK, LECTURE_SERVICE_LINK, TAG_SERVICE_LINK } from '@env';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
     Input, TextArea, HStack, Button, Icon, Text,
@@ -148,7 +148,8 @@ export default function CreateLec({ route, navigation }) {
 
     const openModal = async () => {
         try {
-            const allId = await axios.get(`${API_LINK}/getAllUserId`)
+            //const allId = await axios.get(`${API_LINK}/getAllUserId`)
+            const allId = await axios.get(`${USER_SERVICE_LINK}/getAllUserEmail`)
             setAllUserId(allId.data)
         }
         catch (e) {
@@ -161,7 +162,8 @@ export default function CreateLec({ route, navigation }) {
 
     const openTagModal = async () => {
         try {
-            const tagFromDB = await axios.get(`${API_LINK}/getAllTag`)
+            //const tagFromDB = await axios.get(`${API_LINK}/getAllTag`)
+            const tagFromDB = await axios.get(`${TAG_SERVICE_LINK}/getAllTag`)
             setTag(tagFromDB.data)
         }
         catch (e) {
@@ -384,25 +386,46 @@ export default function CreateLec({ route, navigation }) {
         if (validateForm()) {
 
             try {
-                const res1 = await axios.post(`${API_LINK}/checkLecDuplicate`, { title: title.trim() })
+                //const res1 = await axios.post(`${API_LINK}/checkLecDuplicate`, { title: title.trim() })
+                const res1 = await axios.post(`${LECTURE_SERVICE_LINK}/checkLecDuplicate/${title.trim()}`)
+                console.log(res1.data)
                 if (res1.data) {
-                    setIsValidateTitleDuplicate(true)
+                    // setIsValidateTitleDuplicate(true)
 
                     const fileBase64 = await FileSystem.readAsStringAsync(fileUploaded[0].uri, { encoding: 'base64' });
 
-                    var bodyFormData = new FormData();
-                    bodyFormData.append('title', title);
-                    bodyFormData.append('description', description);
-                    bodyFormData.append('contact', contact);
-                    bodyFormData.append('newTag', JSON.stringify(newTag));
-                    bodyFormData.append('oldTag', JSON.stringify(oldTag));
-                    bodyFormData.append('permission', JSON.stringify(selectedUser));
-                    bodyFormData.append('privacy', privacy);
-                    bodyFormData.append('owner', user.email);
-                    bodyFormData.append('fileName', fileUploaded[0].name);
-                    bodyFormData.append('fileBase64', fileBase64)
+                    // var bodyFormData = new FormData();
+                    // bodyFormData.append('title', title);
+                    // bodyFormData.append('description', description);
+                    // bodyFormData.append('contact', contact);
+                    // bodyFormData.append('newTag', JSON.stringify(newTag));
+                    // bodyFormData.append('oldTag', JSON.stringify(oldTag));
+                    // bodyFormData.append('permission', JSON.stringify(selectedUser));
+                    // bodyFormData.append('privacy', privacy);
+                    // bodyFormData.append('owner', user.email);
+                    // bodyFormData.append('fileName', fileUploaded[0].name);
+                    // bodyFormData.append('fileBase64', fileBase64)
 
-                    const req = await axios.post(`${API_LINK}/uploadLec`, bodyFormData);
+                    // const req = await axios.post(`${API_LINK}/uploadLec`, bodyFormData);
+
+                    // navigation.navigate('Home', { user: user })
+
+                    setIsValidateTitleDuplicate(true)
+
+                    var data = {
+                        title: title,
+                        description: description,
+                        contact: contact,
+                        newTag: newTag,
+                        oldTag: oldTag,
+                        permission: selectedUser,
+                        privacy: privacy,
+                        owner: user.email,
+                        fileName: fileUploaded[0].name,
+                        fileBase64: fileBase64
+                    }
+
+                    const req = await axios.post(`${LECTURE_SERVICE_LINK}/uploadLec`, data);
 
                     navigation.navigate('Home', { user: user })
 
@@ -421,19 +444,37 @@ export default function CreateLec({ route, navigation }) {
 
             try {
 
+                // const data = {
+                //     title: title,
+                //     oldTitle: route.params.lecture.title,
+                //     description: description,
+                //     contact: contact,
+                //     newTag: newTag,
+                //     oldTag: oldTag,
+                //     oldDataTag: route.params.lecture.tag,
+                //     permission: selectedUser,
+                //     privacy: privacy
+                // }
+
                 const data = {
                     title: title,
                     oldTitle: route.params.lecture.title,
                     description: description,
                     contact: contact,
-                    newTag: newTag,
-                    oldTag: oldTag,
-                    oldDataTag: route.params.lecture.tag,
+                    tag: newTag.concat(oldTag),
                     permission: selectedUser,
                     privacy: privacy
                 }
 
-                const req = await axios.post(`${API_LINK}/editLecture`, data);
+                const tagData = {
+                    newTag: newTag,
+                    oldTag: oldTag,
+                    oldDataTag: route.params.lecture.tag,
+                }
+
+                // const req = await axios.post(`${API_LINK}/editLecture`, data);
+                await axios.post(`${LECTURE_SERVICE_LINK}/editLecture`, data);
+                await axios.post(`${TAG_SERVICE_LINK}/updateLectureTag`, tagData);
 
                 const lec = {
                     title: title

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useIsFocused } from "@react-navigation/native";
 import { StyleSheet, Dimensions, PixelRatio, Platform, TouchableOpacity, View } from 'react-native'
 import axios from 'axios';
-import { API_LINK, CLIENTID } from '@env';
+import { API_LINK, CLIENTID, USER_SERVICE_LINK } from '@env';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
     Input, TextArea, VStack, HStack, Button, IconButton, Icon, Text,
@@ -105,8 +105,10 @@ export default function OtherLibrary({ route, navigation }) {
         try {
             setIsLoad(false)
 
-            const dataFromDB = await axios.get(`${API_LINK}/getDataForLibrary`, { params: { email: route.params.ownerEmail, userEmail: user.email } })
-            console.log(dataFromDB.data)
+            //const dataFromDB = await axios.get(`${API_LINK}/getDataForLibrary`, { params: { email: route.params.ownerEmail, userEmail: user.email } })
+            const dataFromDB = await axios.get(`${USER_SERVICE_LINK}/getDataForLibrary`, { params: { email: route.params.ownerEmail, userEmail: user.email } })
+            const notificationFromDB = await axios.get(`${USER_SERVICE_LINK}/getNotificationByEmail/${user.email}`)
+
             const userLibData = {
                 "userFirstName": dataFromDB.data.userFirstName,
                 "userLastName": dataFromDB.data.userLastName,
@@ -119,8 +121,8 @@ export default function OtherLibrary({ route, navigation }) {
             }
             setUserInfo(userLibData);
             setCollection(dataFromDB.data.userLecture);
-            setIsFollow(dataFromDB.data.isFollow)
-            setNotification(dataFromDB.data.notification)
+            setIsFollow(dataFromDB.data.follow)
+            setNotification(notificationFromDB.data)
             
             setIsLoad(true)
         }
