@@ -1,3 +1,3 @@
-เข้าไป npm install ในไฟล์ backend และ frontend
-รัน backend โดยการพิม nodemon app.js
+เข้าไป npm install ในไฟล์  frontend
+รัน backend ทั้งหมด
 รัน frontend โดยการพิม expo start
