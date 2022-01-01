@@ -139,22 +139,22 @@ export default function App({ navigation }) {
 
     const getSession = async () => {
         try {
-            // const userSession = await axios.get(`${API_LINK}/getSession`)
+            const userSession = await axios.get(`${API_LINK}/getSession`)
 
             // const userSession = await axios.get(`${USER_SERVICE_LINK}/users`)
 
 
-            // if (userSession.data) {
-            //     setUser(userSession.data)
-            //     console.log("Get session YAY!!")
-            //     navigation.navigate('CreateLec', { user: userSession.data })
-            //     const resetAction = CommonActions.reset({
-            //         index: 0,
-            //         routes: [{ name: 'Home', params: { user: userSession.data } }]
-            //     });
-            //     navigation.dispatch(resetAction);
-            //     navigation.navigate('Home', { user: userSession.data })
-            // }
+            if (userSession.data) {
+                setUser(userSession.data)
+                console.log("Get session YAY!!")
+                navigation.navigate('CreateLec', { user: userSession.data })
+                const resetAction = CommonActions.reset({
+                    index: 0,
+                    routes: [{ name: 'Home', params: { user: userSession.data } }]
+                });
+                navigation.dispatch(resetAction);
+                navigation.navigate('Home', { user: userSession.data })
+            }
             // console.log(userSession)
         }
         catch (e) {
@@ -170,10 +170,10 @@ export default function App({ navigation }) {
             })
             if (type === "success") {
 
-                // const response = await axios.post(`${API_LINK}/`, user);
+                const response = await axios.post(`${API_LINK}/`, user);
                 // var bodyFormData = new FormData();
                 // bodyFormData.append('email', user.email);
-                const response = await axios.post(`${USER_SERVICE_LINK}/login`, user);
+                // const response = await axios.post(`${USER_SERVICE_LINK}/login`, user);
                 if (response.data) {
                     setUser(response.data)
                     const resetAction = CommonActions.reset({

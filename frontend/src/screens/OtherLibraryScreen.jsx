@@ -105,9 +105,9 @@ export default function OtherLibrary({ route, navigation }) {
         try {
             setIsLoad(false)
 
-            //const dataFromDB = await axios.get(`${API_LINK}/getDataForLibrary`, { params: { email: route.params.ownerEmail, userEmail: user.email } })
-            const dataFromDB = await axios.get(`${USER_SERVICE_LINK}/getDataForLibrary`, { params: { email: route.params.ownerEmail, userEmail: user.email } })
-            const notificationFromDB = await axios.get(`${USER_SERVICE_LINK}/getNotificationByEmail/${user.email}`)
+            const dataFromDB = await axios.get(`${API_LINK}/getDataForLibrary`, { params: { email: route.params.ownerEmail, userEmail: user.email } })
+            // const dataFromDB = await axios.get(`${USER_SERVICE_LINK}/getDataForLibrary`, { params: { email: route.params.ownerEmail, userEmail: user.email } })
+            // const notificationFromDB = await axios.get(`${USER_SERVICE_LINK}/getNotificationByEmail/${user.email}`)
 
             const userLibData = {
                 "userFirstName": dataFromDB.data.userFirstName,
@@ -121,8 +121,9 @@ export default function OtherLibrary({ route, navigation }) {
             }
             setUserInfo(userLibData);
             setCollection(dataFromDB.data.userLecture);
-            setIsFollow(dataFromDB.data.follow)
-            setNotification(notificationFromDB.data)
+            setIsFollow(dataFromDB.data.isFollow)
+            setNotification(dataFromDB.data.notification)
+            // setNotification(notificationFromDB.data)
             
             setIsLoad(true)
         }

@@ -79,10 +79,10 @@ export default function Ranking({ route, navigation }) {
         try {
             setIsLoad(false);
 
-            // const dataFromDB = await axios.get(`${API_LINK}/getRanking`, {
-            //   params: { email: user.email },
-            // });
-            const dataFromDB = await axios.get(`${LECTURE_SERVICE_LINK}/getRanking`);
+            const dataFromDB = await axios.get(`${API_LINK}/getRanking`, {
+                params: { email: user.email },
+            });
+            // const dataFromDB = await axios.get(`${LECTURE_SERVICE_LINK}/getRanking`);
             settop10_container(dataFromDB.data);
             setIsLoad(true);
         } catch (e) {
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
         width: getScreenWidth() * 0.38,
         height: getScreenWidth() * 0.38,
         borderRadius: getScreenWidth() * 0.36,
-        bottom: getScreenWidth() * 0.55,
+        bottom: getScreenWidth() * 0.58,
         left: getScreenWidth() * 0.3,
     },
     ownerImage2: {
@@ -354,7 +354,7 @@ const styles = StyleSheet.create({
         width: getScreenWidth() * 0.38,
         height: getScreenWidth() * 0.38,
         borderRadius: getScreenWidth() * 0.36,
-        bottom: getScreenHeight() * 0.62,
+        bottom: getScreenHeight() * 0.74,
         left: getScreenWidth() * 0.53,
     },
     top3_name1: {

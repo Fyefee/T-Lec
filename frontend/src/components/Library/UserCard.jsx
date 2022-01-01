@@ -67,8 +67,8 @@ export default function NewLectureList(props) {
                 followEmail: props.userInfo.userEmail
             }
 
-            //await axios.post(`${API_LINK}/followUser`, data);
-            await axios.get(`${USER_SERVICE_LINK}/followUser`, { params : data });
+            await axios.post(`${API_LINK}/followUser`, data);
+            // await axios.get(`${USER_SERVICE_LINK}/followUser`, { params : data });
 
             props.setIsFollow(!props.isFollow)
         } catch (err) {
