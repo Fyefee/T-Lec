@@ -85,15 +85,15 @@ export default function Home({ route, navigation }) {
         try {
             setIsLoad(false)
 
-            const notificationFromDB = await axios.get(`${USER_SERVICE_LINK}/getNotificationByEmail/${user.email}`)
+            // const notificationFromDB = await axios.get(`${USER_SERVICE_LINK}/getNotificationByEmail/${user.email}`)
 
-            // const dataFromDB = await axios.get(`${API_LINK}/getHomeData`, { params: { email: user.email } })
-            const dataFromDB = await axios.get(`${LECTURE_SERVICE_LINK}/getHomeData/${user.email}`)
-            
-            console.log(dataFromDB.data.recentView)
+            const dataFromDB = await axios.get(`${API_LINK}/getHomeData`, { params: { email: user.email } })
+            // const dataFromDB = await axios.get(`${LECTURE_SERVICE_LINK}/getHomeData/${user.email}`)
+            console.log(dataFromDB)
             setRecentView(dataFromDB.data.recentView)
             setNewLec(dataFromDB.data.newLec)
-            setNotification(notificationFromDB.data)
+            setNotification(dataFromDB.data.notification)
+            // setNotification(notificationFromDB.data)
 
             setIsLoad(true)
 

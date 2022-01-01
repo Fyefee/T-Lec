@@ -70,8 +70,8 @@ export default function AppBar(props) {
 
     const deleteNotification = async (element) => {
         try {
-            // await axios.delete(`${API_LINK}/deleteNotification`, { params: { user: props.user, notification: element } })
-            await axios.post(`${USER_SERVICE_LINK}/deleteNotification`, { email: props.user.email, notification: element })
+            await axios.delete(`${API_LINK}/deleteNotification`, { params: { user: props.user, notification: element } })
+            // await axios.post(`${USER_SERVICE_LINK}/deleteNotification`, { email: props.user.email, notification: element })
             let notificationArray = [...props.notification];
             const index = notificationArray.indexOf(element)
             notificationArray.splice(index, 1)
@@ -84,7 +84,7 @@ export default function AppBar(props) {
 
     const logout = async () => {
         try {
-            //await axios.get(`${API_LINK}/logout`)
+            await axios.get(`${API_LINK}/logout`)
             props.navigation.navigate('Login')
         } catch (err) {
             console.log(err)

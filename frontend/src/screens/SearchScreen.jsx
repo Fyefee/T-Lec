@@ -98,8 +98,8 @@ export default function SearchScreen({ route, navigation }) {
         try {
             setIsLoad(false)
 
-            // const dataFromDB = await axios.get(`${API_LINK}/getDataForSearch`)
-            const dataFromDB = await axios.get(`${LECTURE_SERVICE_LINK}/getDataForSearch`)
+            const dataFromDB = await axios.get(`${API_LINK}/getDataForSearch`)
+            // const dataFromDB = await axios.get(`${LECTURE_SERVICE_LINK}/getDataForSearch`)
             setSearchData(dataFromDB.data)
             
             setIsLoad(true)

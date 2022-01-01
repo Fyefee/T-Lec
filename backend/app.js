@@ -365,6 +365,8 @@ app.get('/getDataForLibrary', async (req, res) => {
 
         const isFollow = doc.follower.includes(req.query.userEmail)
 
+        const user = await User.findOne({ email: req.query.userEmail })
+
         data = {
             userFirstName: doc.firstname,
             userLastName: doc.lastname,
@@ -376,7 +378,7 @@ app.get('/getDataForLibrary', async (req, res) => {
             userFollowing: followingCount,
             userLecture: lecToSend,
             isFollow: isFollow,
-            notification: doc.notification
+            notification: user.notification
         }
 
         res.send(data)
@@ -777,7 +779,7 @@ passport.deserializeUser((user, cb) => {
 });
 
 app.get('/getRanking', async (req, res) => {
-    await Lecture.find({}, function (err, lectures) {
+    await Lecture.find({}, async function (err, lectures) {
         var data = []
         var sorted_data = []
         var check = true
@@ -821,7 +823,24 @@ app.get('/getRanking', async (req, res) => {
             });
             check = true
         });
-        res.send(sorted_data)
+
+        let filter_sorted_data = [];
+
+        sorted_data.forEach(async function (data, index) {
+            var user = await User.findOne({ email: data.owner });
+            var filter_data = {
+                title: data.title,
+                owner: data.owner,
+                ownerImage: user.image
+            }
+            filter_sorted_data.push(filter_data);
+
+            if (index == 0){
+                res.send(filter_sorted_data);
+            }
+            
+        });
+        
     }).clone().catch(function (err) { console.log("getAllUserId Error : " + e); })
 })
 
