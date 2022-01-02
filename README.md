@@ -12,11 +12,11 @@ React-Native Project in MOBILE DEVICE PROGRAMMING subject in KMITL :iphone: :tel
 <div><img width="35%" src="src/screen/SearchScreen_1.jpg"> <img width="35%" src="src/screen/SearchScreen_2.jpg"></div>
 
 ## Responsive Screenshots :camera_flash:
-<div><img width="40%" src="src/screen/HomeScreen_Responsive.jpg"> <img width="40%" src="src/screen/LibraryScreen_Responsive.jpg"</div>
-  <div><img width="40%" src="src/screen/SearchScreen_Responsive.jpg"></div>
+<div><img width="40%" src="src/screen/LoginScreen_Responsive.jpg"> <img width="40%" src="src/screen/HomeScreen_Responsive.jpg"></div>
+<div><img width="40%" src="src/screen/LibraryScreen_Responsive.jpg"> <img width="40%" src="src/screen/SearchScreen_Responsive.jpg"></div>
   
 ## Developer :computer:
-|<img src="src/Readme/Team/62070045.jpg" width="150px" height="150px">|<img src="src/img-member/61070230.jpg" width="120px" height="150px">|<img src="src/img-member/61070270.jpg" width="120px" height="150px">|
+|<img src="src/developer/Jeffy.jpg" width="150px" height="150px">|<img src="src/developer/Boos.jpg" width="150px" height="150px">|<img src="src/developer/Angel.jpg" width="150px" height="150px">|
 |:---:|:---:|:---:|
-|[jeffy34931](https://github.com/Fyefee)|[jinnygym](https://github.com/jinnygym)|-|
-|นายชวิน<br>โล่ห์รัตนเสน่ห์<br>- 62070045 -|นางสาวศุภิสรา<br>ชีวนันทพร<br>- 61070230 -|นายธีรภัทร์<br>บุญช่วยแล้ว<br>- 62070096 -|
+|[Fyefee](https://github.com/Fyefee)|[WSBoos](https://github.com/WSBoos)|[angellllegna](https://github.com/angellllegna)|
+|Developer|UX/UI Designer <br> Ranking Screen Developer|Tester <br> Junior Developer|
