@@ -1,6 +1,54 @@
 # T-Lec
 React-Native Project in MOBILE DEVICE PROGRAMMING subject in KMITL :iphone: :telephone_receiver:
 
+## ** Now I'm working on frontend standalone version (without backend) **
+
+## Setup :wrench:
+### For JS Backend
+Frontend
+1. Create .env file in /frontend directory
+```
+API_LINK=xxxxxxxxx
+CLIENTID=xxxxxxxxxxxxxxxx
+```
+2. Run expo
+```
+expo start
+```
+Backend
+1. Create .env file in /backend directory
+```
+clientID=xxxxxxxxxxxxxxxxxxx
+clientSecret=xxxxxxxxxxxxxxxxxxx
+callbackURL=xxxxxxxxxxxxxxxxxxx
+mongoDBLink=xxxxxxxxxxxxxxxxxxx
+```
+2. Run backend
+```
+nodemon app.js
+```
+
+### For Java Backend
+Frontend
+1. Create .env file in /frontend directory
+```
+USER_SERVICE_LINK=xxxxxxxxxxxxxxxx
+LECTURE_SERVICE_LINK=xxxxxxxxxxxxxxxx
+TAG_SERVICE_LINK=xxxxxxxxxxxxxxxx
+CLIENTID=xxxxxxxxxxxxxxxx
+```
+2. Run expo
+```
+expo start
+```
+Backend
+Run all java service
+
+
+## Language :keyboard:
+- Front end : React Native (Expo)
+- Backend : NodeJS, Java
+
 ## Screenshots :camera_flash:
 <div><img width="35%" src="src/screen/LoginScreen.gif"></div>
 <div><img width="35%" src="src/screen/HomeScreen.jpg"> <img width="35%" src="src/screen/Notification.jpg"></div>
@@ -19,4 +67,4 @@ React-Native Project in MOBILE DEVICE PROGRAMMING subject in KMITL :iphone: :tel
 |<img src="src/developer/Jeffy.jpg" width="150px" height="150px">|<img src="src/developer/Boos.jpg" width="150px" height="150px">|<img src="src/developer/Angel.jpg" width="150px" height="150px">|
 |:---:|:---:|:---:|
 |[Fyefee](https://github.com/Fyefee)|[WSBoos](https://github.com/WSBoos)|[angellllegna](https://github.com/angellllegna)|
-|Developer|UX/UI Designer <br> Ranking Screen Developer|Tester <br> Junior Developer|
+|Senior Developer|UX/UI Designer <br> Ranking Screen Developer|Tester, Analysis<br> Junior Developer<br>|
