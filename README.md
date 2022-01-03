@@ -67,4 +67,4 @@ Run all java service
 |<img src="src/developer/Jeffy.jpg" width="150px" height="150px">|<img src="src/developer/Boos.jpg" width="150px" height="150px">|<img src="src/developer/Angel.jpg" width="150px" height="150px">|
 |:---:|:---:|:---:|
 |[Fyefee](https://github.com/Fyefee)|[WSBoos](https://github.com/WSBoos)|[angellllegna](https://github.com/angellllegna)|
-|Senior Developer|UX/UI Designer <br> Ranking Screen Developer|Tester, Analysis<br> Junior Developer<br>|
+|Senior Developer|UX/UI Designer <br> Ranking Screen Developer|Tester, System Analyst<br> Junior Developer<br>|
