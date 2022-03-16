@@ -1,6 +1,54 @@
 # T-Lec
 React-Native Project in MOBILE DEVICE PROGRAMMING subject in KMITL :iphone: :telephone_receiver:
 
+## ** Now I'm working on frontend standalone version (without backend) **
+
+## Setup :wrench:
+### For JS Backend
+Frontend
+1. Create .env file in /frontend directory
+```
+API_LINK=xxxxxxxxx
+CLIENTID=xxxxxxxxxxxxxxxx
+```
+2. Run expo
+```
+expo start
+```
+Backend
+1. Create .env file in /backend directory
+```
+clientID=xxxxxxxxxxxxxxxxxxx
+clientSecret=xxxxxxxxxxxxxxxxxxx
+callbackURL=xxxxxxxxxxxxxxxxxxx
+mongoDBLink=xxxxxxxxxxxxxxxxxxx
+```
+2. Run backend
+```
+nodemon app.js
+```
+
+### For Java Backend
+Frontend
+1. Create .env file in /frontend directory
+```
+USER_SERVICE_LINK=xxxxxxxxxxxxxxxx
+LECTURE_SERVICE_LINK=xxxxxxxxxxxxxxxx
+TAG_SERVICE_LINK=xxxxxxxxxxxxxxxx
+CLIENTID=xxxxxxxxxxxxxxxx
+```
+2. Run expo
+```
+expo start
+```
+Backend
+Run all java service
+
+
+## Language :keyboard:
+- Front end : React Native (Expo)
+- Backend : NodeJS, Java
+
 ## Screenshots :camera_flash:
 <div><img width="35%" src="src/screen/LoginScreen.gif"></div>
 <div><img width="35%" src="src/screen/HomeScreen.jpg"> <img width="35%" src="src/screen/Notification.jpg"></div>
@@ -12,11 +60,11 @@ React-Native Project in MOBILE DEVICE PROGRAMMING subject in KMITL :iphone: :tel
 <div><img width="35%" src="src/screen/SearchScreen_1.jpg"> <img width="35%" src="src/screen/SearchScreen_2.jpg"></div>
 
 ## Responsive Screenshots :camera_flash:
-<div><img width="40%" src="src/screen/HomeScreen_Responsive.jpg"> <img width="40%" src="src/screen/LibraryScreen_Responsive.jpg"</div>
-  <div><img width="40%" src="src/screen/SearchScreen_Responsive.jpg"></div>
+<div><img width="40%" src="src/screen/LoginScreen_Responsive.jpg"> <img width="40%" src="src/screen/HomeScreen_Responsive.jpg"></div>
+<div><img width="40%" src="src/screen/LibraryScreen_Responsive.jpg"> <img width="40%" src="src/screen/SearchScreen_Responsive.jpg"></div>
   
 ## Developer :computer:
-|<img src="src/Readme/Team/62070045.jpg" width="150px" height="150px">|<img src="src/img-member/61070230.jpg" width="120px" height="150px">|<img src="src/img-member/61070270.jpg" width="120px" height="150px">|
+|<img src="src/developer/Jeffy.jpg" width="150px" height="150px">|<img src="src/developer/Boos.jpg" width="150px" height="150px">|<img src="src/developer/Angel.jpg" width="150px" height="150px">|
 |:---:|:---:|:---:|
-|[jeffy34931](https://github.com/Fyefee)|[jinnygym](https://github.com/jinnygym)|-|
-|นายชวิน<br>โล่ห์รัตนเสน่ห์<br>- 62070045 -|นางสาวศุภิสรา<br>ชีวนันทพร<br>- 61070230 -|นายธีรภัทร์<br>บุญช่วยแล้ว<br>- 62070096 -|
+|[Fyefee](https://github.com/Fyefee)|[WSBoos](https://github.com/WSBoos)|[angellllegna](https://github.com/angellllegna)|
+|Senior Developer|UX/UI Designer <br> Ranking Screen Developer|Tester, System Analyst<br> Junior Developer<br>|
