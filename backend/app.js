@@ -552,7 +552,12 @@ app.get('/getHomeData', async (req, res) => {
     await User.findOne({ email: req.query.email }, async function (err, doc) {
         const lecRecentArray = [];
         const lecNewestArray = [];
-        let lecCount = doc.recentView.length;
+
+        let lecCount = 0;
+
+        if (doc.recentView != null) {
+            lecCount = doc.recentView.length;
+        }
 
         const newLecData = await Lecture.find({}).sort("-createdDate").limit(5)
 
