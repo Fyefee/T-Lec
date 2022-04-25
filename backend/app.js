@@ -130,31 +130,31 @@ app.listen(port, () => {
     console.log(`Example app listening at http://localhost:${port}`)
 })
 
-app.post('/addTagDataDummy', async (req, res) => {
-    const tagFromDB = await Tag.findOne({ tagName: req.body.tagName });
-    if (tagFromDB) {
-        tagFromDB.count = tagFromDB.count + 1
-        tagFromDB.save(function (err) {
-            if (err) {
-                res.sendStatus(400)
-            }
-            res.send(tagFromDB)
-        })
-    }
-    else {
-        const tag = new Tag({
-            tagName: req.body.tagName,
-            count: req.body.count,
-        })
-        await tag.save((err, doc) => {
-            if (err) {
-                console.log(err)
-                res.sendStatus(400)
-            }
-            res.send(tag)
-        })
-    }
-})
+// app.post('/addTagDataDummy', async (req, res) => {
+//     const tagFromDB = await Tag.findOne({ tagName: req.body.tagName });
+//     if (tagFromDB) {
+//         tagFromDB.count = tagFromDB.count + 1
+//         tagFromDB.save(function (err) {
+//             if (err) {
+//                 res.sendStatus(400)
+//             }
+//             res.send(tagFromDB)
+//         })
+//     }
+//     else {
+//         const tag = new Tag({
+//             tagName: req.body.tagName,
+//             count: req.body.count,
+//         })
+//         await tag.save((err, doc) => {
+//             if (err) {
+//                 console.log(err)
+//                 res.sendStatus(400)
+//             }
+//             res.send(tag)
+//         })
+//     }
+// })
 
 app.get('/getAllTag', async (req, res) => {
     await Tag.find({}, function (err, tags) {

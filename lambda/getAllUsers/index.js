@@ -1,11 +1,9 @@
 const AWS = require('aws-sdk');
 const docClient = new AWS.DynamoDB.DocumentClient();
-const dynamoDBTableName = "post"
-const { v4: uuidv4 } = require("uuid");
+const dynamoDBTableName = "user"
 
 exports.handler = async (event) => {
-    // let response = await createPost(JSON.parse(event.body));
-    let response = await createPost();
+    let response = await getUsers();
     return response
 };
 
@@ -20,19 +18,15 @@ function buildResponse(statusCode, body){
     }
 }
 
-async function createPost(requestBody){
-    // const params = {
-    //     TableName: dynamoDBTableName,
-    //     Item: requestBody
-    // }
+async function getUsers(){
+    const params = {
+        TableName: dynamoDBTableName,
+        Select: "ALL_ATTRIBUTES"
+    }
     try{
-        // await docClient.put(params).promise()
-        const body = {
-            status: "Create post success",
-            uuid: uuidv4()
-        }
-        return buildResponse(200, body)
+        const data = await docClient.scan(params).promise()
+        return buildResponse(200, data)
     } catch (err){
-        return err
+        return buildResponse(403, err)
     }
 }
