@@ -1,9 +1,10 @@
 const AWS = require('aws-sdk');
+const s3 = new AWS.S3()
 const docClient = new AWS.DynamoDB.DocumentClient();
 const dynamoDBTableName = "posts"
 
 exports.handler = async (event) => {
-    let response = await deletePost(event.pathParameters.id); // sent id with path
+    let response = await deletePost(event.pathParameters.id);
     return response
 };
 
@@ -25,8 +26,9 @@ async function deletePost(id){
             postID: id,
         },
     }
-    const tagArr = await getPostForTagArr(params)
-    await deleteTag(tagArr)
+    const post = await getPost(params)
+    await deleteTag(post.tag)
+    await deletePdfFile(post.fileUrl.substring(41))
     try{
         await docClient.delete(params).promise()
         const body = {
@@ -38,9 +40,9 @@ async function deletePost(id){
     }
 }
 
-async function getPostForTagArr(params){
-    const tagArr = await docClient.get(params).promise()
-    return tagArr.Item.tag
+async function getPost(params){
+    const post = await docClient.get(params).promise()
+    return post.Item
 }
 
 async function deleteTag(tagArr){
@@ -76,5 +78,17 @@ async function deleteTag(tagArr){
                 console.log(err)
             }
         }
+    }
+}
+
+async function deletePdfFile(fileName){
+    const deleteFileParams = {
+        Bucket: "pdf-bucket-tlec",
+        Key: fileName
+    }
+    try {
+        await s3.deleteObject(deleteFileParams).promise();
+    } catch (err){
+        console.log(err)
     }
 }
