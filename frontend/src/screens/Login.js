@@ -63,9 +63,6 @@ export default function App({ navigation }) {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        if (!user) {
-            getSession()
-        }
         Animated.loop(
             Animated.parallel([
                 Animated.timing(
@@ -137,31 +134,6 @@ export default function App({ navigation }) {
         ).start();
     }, [spinValue, spinValue2, starMoveValue])
 
-    const getSession = async () => {
-        try {
-            const userSession = await axios.get(`${API_LINK}/getSession`)
-
-            // const userSession = await axios.get(`${USER_SERVICE_LINK}/users`)
-
-
-            if (userSession.data) {
-                setUser(userSession.data)
-                console.log("Get session YAY!!")
-                navigation.navigate('CreateLec', { user: userSession.data })
-                const resetAction = CommonActions.reset({
-                    index: 0,
-                    routes: [{ name: 'Home', params: { user: userSession.data } }]
-                });
-                navigation.dispatch(resetAction);
-                navigation.navigate('Home', { user: userSession.data })
-            }
-            // console.log(userSession)
-        }
-        catch (e) {
-            console.log("Session error : ", e)
-        }
-    }
-
     const signIn = async () => {
         try {
             const { type, accessToken, user } = await Google.logInAsync({
@@ -170,11 +142,12 @@ export default function App({ navigation }) {
             })
             if (type === "success") {
 
-                const response = await axios.post(`${API_LINK}/`, user);
-                // var bodyFormData = new FormData();
-                // bodyFormData.append('email', user.email);
-                // const response = await axios.post(`${USER_SERVICE_LINK}/login`, user);
-                if (response.data) {
+                const response = await axios.post(`${API_LINK}/login`, user);
+                if (response.data == "wrong domain") {
+                    Alert.alert("Please login with @it.kmitl.ac.th mail")
+                }
+                else if (response.data && response.status !== 403) {
+                    console.log(JSON.stringify(response.data))
                     setUser(response.data)
                     const resetAction = CommonActions.reset({
                         index: 0,
@@ -184,21 +157,12 @@ export default function App({ navigation }) {
                     navigation.navigate('Home', { user: response.data })
                 }
 
-
-                if (response.data == "wrong domain") {
-                    Alert.alert("Please login with @it.kmitl.ac.th mail")
-                }
-                else {
-                    getSession()
-                }
-
             } else {
                 console.log("cancelled")
             }
 
         } catch (e) {
             console.log("error", e)
-            Restart()
         }
     }
 

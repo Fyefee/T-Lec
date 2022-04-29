@@ -12,7 +12,7 @@ export default function AppBar(props) {
     return (
         <>
             <StatusBar backgroundColor="#fedcc8" barStyle="light-content" />
-            <HStack bg='#fedcc8' px="4" py="1" style={styles.appbar}>
+            <HStack bg='#fedcc8' px="4" pt={Platform.OS === 'ios' ? 10 : 1} pb="1" style={styles.appbar}>
                 <HStack space="2" alignItems='center'>
                     <Icon as={<Ionicons name="newspaper" size={24} />}
                         color="#8d7d75" size='md' />
