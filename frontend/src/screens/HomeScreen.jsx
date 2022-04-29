@@ -87,7 +87,11 @@ export default function Home({ route, navigation }) {
 
             // const notificationFromDB = await axios.get(`${USER_SERVICE_LINK}/getNotificationByEmail/${user.email}`)
 
-            const dataFromDB = await axios.get(`${API_LINK}/getHomeData`, { params: { email: user.email } })
+            //const dataFromDB = await axios.get(`${API_LINK}/getHomeData`, { params: { email: user.email } })
+            
+            console.log(user)
+            console.log(route.params)
+            const dataFromDB = await axios.get(`${API_LINK}/gethomedata`, { params: { authId: user.authId } })
             // const dataFromDB = await axios.get(`${LECTURE_SERVICE_LINK}/getHomeData/${user.email}`)
             console.log(dataFromDB)
             setRecentView(dataFromDB.data.recentView)
@@ -180,8 +184,8 @@ const styles = StyleSheet.create({
     scrollStyle: {
         width: '100%',
         height: "100%",
-        marginTop: getScreenHeight() * 0.1,
-        marginBottom: getScreenHeight() * 0.11,
+        marginTop: getScreenHeight() * 0.12,
+        marginBottom: getScreenHeight() * 0.10,
     },
     TextHeader: {
         fontSize: normalize(23),

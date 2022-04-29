@@ -5,6 +5,12 @@ const dynamoDBTableName = "user"
 
 exports.handler = async (event) => {
     let response = await login(JSON.parse(event.body));
+    // let response = await login({
+    //     "givenName": "Jeffy",
+    //     "familyName": "Chawin",
+    //     "photoUrl": "",
+    //     "email": "62070045@it.kmitl.ac.th"
+    // });
     return response
 };
 
@@ -38,8 +44,9 @@ async function login(requestBody){
         const userByEmail = await docClient.scan(findByEmailparams).promise()
         if (userByEmail.Count !== 0){
             // Login and get data
-            const updateUserData = await docClient.update(updateDataParams(userByEmail.Items[0].userId, requestBody, userByEmail.Items[0].authId)).promise()
-            return buildResponse(200, updateUserData)
+            const newAuthId = uuidv4()
+            const updateUserData = await docClient.update(updateDataParams(userByEmail.Items[0].userId, requestBody, newAuthId)).promise()
+            return buildResponse(200, updateUserData.Attributes)
         } else {
             // Register and get data
             let role = "user"

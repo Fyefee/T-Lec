@@ -116,14 +116,14 @@ app.get('/getSession', (req, res) => {
     console.log("Send session to client.")
 })
 
-app.get('/getAllUserId', async (req, res) => {
+app.get('/getAllUserEmail', async (req, res) => {
     await User.find({}, function (err, users) {
         var data = []
         users.forEach(function (user) {
             data.push(user.email);
         });
         res.send(data)
-    }).clone().catch(function (err) { console.log("getAllUserId Error : " + e); })
+    }).clone().catch(function (err) { console.log("getAllUserEmail Error : " + e); })
 })
 
 app.listen(port, () => {

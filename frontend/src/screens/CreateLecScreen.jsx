@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { StyleSheet, Dimensions, PixelRatio, Platform, TouchableOpacity } from 'react-native'
 import { useIsFocused } from "@react-navigation/native";
 import axios from 'axios';
-import { API_LINK, CLIENTID, USER_SERVICE_LINK, LECTURE_SERVICE_LINK, TAG_SERVICE_LINK } from '@env';
+import { API_LINK, CLIENTID, USER_SERVICE_LINK, LECTURE_SERVICE_LINK, TAG_SERVICE_LINK, UPLOAD_API, S3_LINK } from '@env';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
     Input, TextArea, HStack, Button, Icon, Text,
@@ -11,6 +11,7 @@ import {
 } from "native-base";
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
+import { Buffer } from 'buffer'
 
 import NavigationBar from '../components/NavigationBar'
 import Appbar from '../components/CreateLec/AppBar'
@@ -386,58 +387,66 @@ export default function CreateLec({ route, navigation }) {
         if (validateForm()) {
 
             try {
-                const res1 = await axios.post(`${API_LINK}/checkLecDuplicate`, { title: title.trim() })
-                // const res1 = await axios.post(`${LECTURE_SERVICE_LINK}/checkLecDuplicate/${title.trim()}`)
-                console.log(res1.data)
-                if (res1.data) {
-                    setIsValidateTitleDuplicate(true)
+                const fileName = fileUploaded[0].name.slice(0, fileUploaded[0].name.length - 4)
+                const res = await axios.post(`${UPLOAD_API}/upload`, { name: fileName });
 
-                    const fileBase64 = await FileSystem.readAsStringAsync(fileUploaded[0].uri, { encoding: 'base64' });
+                const uploadUrl = res.data.url
 
-                    var bodyFormData = new FormData();
-                    bodyFormData.append('title', title);
-                    bodyFormData.append('description', description);
-                    bodyFormData.append('contact', contact);
-                    bodyFormData.append('newTag', JSON.stringify(newTag));
-                    bodyFormData.append('oldTag', JSON.stringify(oldTag));
-                    bodyFormData.append('permission', JSON.stringify(selectedUser));
-                    bodyFormData.append('privacy', privacy);
-                    bodyFormData.append('owner', user.email);
-                    bodyFormData.append('fileName', fileUploaded[0].name);
-                    bodyFormData.append('fileBase64', fileBase64)
+                const fileBase64 = await FileSystem.readAsStringAsync(fileUploaded[0].uri, { encoding: 'base64' });
+                const newBuffer = fileBase64.replace(/^data:.+;base64,/, "")
+                var buf = Buffer.from(newBuffer, 'base64')
 
-                    const req = await axios.post(`${API_LINK}/uploadLec`, bodyFormData);
+                const res2 = await axios.put(uploadUrl, buf, {
+                    headers: {
+                        "Content-Type": "application/pdf",
+                    }
+                });
+                if (res2.status === 200) {
+                    const fileUrl = S3_LINK + res.data.Key
 
-                    navigation.navigate('Home', { user: user })
+                    const data = {
+                        title: title,
+                        description: description,
+                        contact: contact,
+                        tag: newTag.concat(oldTag),
+                        privacy: privacy,
+                        owner: user.email,
+                        userPermission: selectedUser,
+                        fileUrl: fileUrl
+                    }
 
-                    // setIsValidateTitleDuplicate(true)
-
-                    // var data = {
-                    //     title: title,
-                    //     description: description,
-                    //     contact: contact,
-                    //     newTag: newTag,
-                    //     oldTag: oldTag,
-                    //     permission: selectedUser,
-                    //     privacy: privacy,
-                    //     owner: user.email,
-                    //     fileName: fileUploaded[0].name,
-                    //     fileBase64: fileBase64
-                    // }
-
-                    // const req = await axios.post(`${LECTURE_SERVICE_LINK}/uploadLec`, data);
-
-                    // navigation.navigate('Home', { user: user })
-
-                } else {
-                    setIsValidateTitleDuplicate(false)
+                    const res3 = await axios.post(`${API_LINK}/posts`, data);
+                    if (res3.status === 200) {
+                        navigation.navigate('Home', { user: user })
+                    } else {
+                        console.log("Create Post Fail")
+                    }
                 }
+
             } catch (err) {
                 console.log(err)
             }
 
         }
     }
+
+    const readAsBinaryString = function (fileData) {
+        var binary = "";
+        var pt = this;
+        var reader = new FileReader();
+        reader.onload = function (e) {
+            var bytes = new Uint8Array(reader.result);
+            var length = bytes.byteLength;
+            for (var i = 0; i < length; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            //pt.result  - readonly so assign binary
+            pt.content = binary;
+            $(pt).trigger('onload');
+        }
+        reader.readAsArrayBuffer(fileData);
+    }
+
 
     const editLec = async () => {
         if (validateEditForm()) {
@@ -834,7 +843,7 @@ const styles = StyleSheet.create({
     },
     scrollStyle: {
         width: '100%',
-        marginTop: getScreenHeight() * 0.1,
+        marginTop: getScreenHeight() * 0.12,
         marginBottom: getScreenHeight() * 0.11,
     },
     profileImage: {

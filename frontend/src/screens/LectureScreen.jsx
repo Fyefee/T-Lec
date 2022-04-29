@@ -110,7 +110,8 @@ export default function CreateLec({ route, navigation }) {
 
         try {
             setIsLoad(true)
-            const dataFromDB = await axios.get(`${API_LINK}/getLectureData`, { params: { title: route.params.lecture.title, userEmail: user.email } })
+            const dataFromDB = await axios.get(`${API_LINK}/getlecturedata`, { params: { authId: user.authId, postID: route.params.lecture.postID } })
+            // const dataFromDB = await axios.get(`${API_LINK}/getLectureData`, { params: { title: route.params.lecture.title, userEmail: user.email } })
             // const dataFromDB = await axios.get(`${LECTURE_SERVICE_LINK}/getLectureData`, { params: { title: route.params.lecture.title, userEmail: user.email } })
 
             setLecture(dataFromDB.data)
@@ -527,7 +528,7 @@ const styles = StyleSheet.create({
     },
     scrollStyle: {
         width: '100%',
-        marginTop: getScreenHeight() * 0.1,
+        marginTop: getScreenHeight() * 0.12,
         marginBottom: getScreenHeight() * 0.11,
     },
     profileImage: {

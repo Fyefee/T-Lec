@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     scrollStyle: {
         width: '100%',
         height: "100%",
-        marginTop: getScreenHeight() * 0.1,
+        marginTop: getScreenHeight() * 0.12,
         marginBottom: getScreenHeight() * 0.11,
         backgroundColor: "#fef1e6"
     },
