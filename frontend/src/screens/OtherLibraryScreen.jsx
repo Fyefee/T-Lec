@@ -105,7 +105,8 @@ export default function OtherLibrary({ route, navigation }) {
         try {
             setIsLoad(false)
 
-            const dataFromDB = await axios.get(`${API_LINK}/getDataForLibrary`, { params: { email: route.params.ownerEmail, userEmail: user.email } })
+            const dataFromDB = await axios.get(`${API_LINK}/getdataforlibrary`, { params: { email: route.params.ownerEmail, userEmail: user.email } })
+            // const dataFromDB = await axios.get(`${API_LINK}/getDataForLibrary`, { params: { email: route.params.ownerEmail, userEmail: user.email } })
             // const dataFromDB = await axios.get(`${USER_SERVICE_LINK}/getDataForLibrary`, { params: { email: route.params.ownerEmail, userEmail: user.email } })
             // const notificationFromDB = await axios.get(`${USER_SERVICE_LINK}/getNotificationByEmail/${user.email}`)
 
@@ -133,6 +134,18 @@ export default function OtherLibrary({ route, navigation }) {
 
     }, [isFocused])
 
+    const increaseFollower = () => {
+        let user = {...userInfo}
+        user.userFollower += 1
+        setUserInfo(user)
+    }
+
+    const decreaseFollower = () => {
+        let user = {...userInfo}
+        user.userFollower -= 1
+        setUserInfo(user)
+    }
+
     if (isLoad) {
         return (
             <NativeBaseProvider theme={theme}>
@@ -146,8 +159,23 @@ export default function OtherLibrary({ route, navigation }) {
                     style={styles.scrollStyle}
                 >
                     <HStack space="4" direction='column'>
-                        <UserCard isLoad={isLoad} user={user} userInfo={userInfo} isFollow={isFollow} setIsFollow={setIsFollow}/>
-                        <CollectionCard isLoad={isLoad} user={user} collection={collection} navigation={navigation} setIsAlertOpen={setIsAlertOpen}/>
+                        <UserCard 
+                            isLoad={isLoad} 
+                            user={user} 
+                            userInfo={userInfo} 
+                            isFollow={isFollow} 
+                            setIsFollow={setIsFollow} 
+                            increaseFollower={() => increaseFollower()}
+                            decreaseFollower={() => decreaseFollower()} 
+                        />
+                        <CollectionCard 
+                            isLoad={isLoad} 
+                            user={user} 
+                            collection={collection} 
+                            navigation={navigation} 
+                            setIsAlertOpen={setIsAlertOpen}
+                            canDelete={false} 
+                        />
                     </HStack>
                 </ScrollView>
 

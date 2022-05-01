@@ -2,9 +2,10 @@ const AWS = require('aws-sdk');
 const s3 = new AWS.S3()
 const docClient = new AWS.DynamoDB.DocumentClient();
 const dynamoDBTableName = "posts"
+const dynamoDBUserTableName = "user"
 
 exports.handler = async (event) => {
-    let response = await deletePost(event.pathParameters.id);
+    let response = await deletePost(event.queryStringParameters);
     return response
 };
 
@@ -19,14 +20,25 @@ function buildResponse(statusCode, body){
     }
 }
 
-async function deletePost(id){
+async function deletePost(requestBody){
     const params = {
         TableName: dynamoDBTableName,
         Key: {
-            postID: id,
+            postID: requestBody.postID,
         },
     }
+    
+    const user = await docClient.scan(getUserParamsByAuth(requestBody.authId)).promise()
+    if (user.Count == 0) {
+        return buildResponse(403, "Auth Fail!!")
+    }
+        
     const post = await getPost(params)
+    
+    if (user.Items[0].email !== post.owner) {
+        return buildResponse(403, "You're NOT Post Owner")
+    }
+    
     await deleteTag(post.tag)
     await deletePdfFile(post.fileUrl.substring(41))
     try{
@@ -90,5 +102,16 @@ async function deletePdfFile(fileName){
         await s3.deleteObject(deleteFileParams).promise();
     } catch (err){
         console.log(err)
+    }
+}
+
+const getUserParamsByAuth = (authId) => {
+    return {
+        TableName: dynamoDBUserTableName,
+        FilterExpression:
+          "attribute_not_exists(deletedAt) AND contains(authId, :authId)",
+        ExpressionAttributeValues: {
+          ":authId": authId
+        }
     }
 }

@@ -104,7 +104,6 @@ export default function Library({ route, navigation }) {
             setIsLoad(false)
 
             const dataFromDB = await axios.get(`${API_LINK}/getdataforlibrary`, { params: { email: user.email, userEmail: user.email } })
-            // const dataFromDB = await axios.get(`${API_LINK}/getDataForLibrary`, { params: { email: user.email, userEmail: user.email } })
             // const dataFromDB = await axios.get(`${USER_SERVICE_LINK}/getDataForLibrary`, { params: { email: user.email, userEmail: user.email } })
             // const notificationFromDB = await axios.get(`${USER_SERVICE_LINK}/getNotificationByEmail/${user.email}`)
 
@@ -145,7 +144,14 @@ export default function Library({ route, navigation }) {
                 >
                     <HStack space="4" direction='column'>
                         <UserCard isLoad={isLoad} user={user} userInfo={userInfo} />
-                        <CollectionCard isLoad={isLoad} user={user} collection={collection} navigation={navigation} setIsAlertOpen={setIsAlertOpen}/>
+                        <CollectionCard 
+                            isLoad={isLoad} 
+                            user={user} 
+                            collection={collection} 
+                            navigation={navigation} 
+                            setIsAlertOpen={setIsAlertOpen}
+                            canDelete={true}
+                        />
                     </HStack>
                 </ScrollView>
 

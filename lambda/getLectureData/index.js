@@ -55,6 +55,7 @@ async function getLectureData(requestBody){
         }
         
         const data = {
+            postID: requestBody.postID,
             title: post.Item.title,
             contact: post.Item.contact,
             description: post.Item.description,

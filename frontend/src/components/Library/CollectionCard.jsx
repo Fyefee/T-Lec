@@ -63,24 +63,29 @@ export default function NewLectureList(props) {
                             <FontAwesome name="lock" style={styles.collectionPrivacyIcon} />
                         )}
 
-                        <Popover
-                            trigger={(triggerProps) => {
-                                return (
-                                    <IconButton
-                                        icon={<FontAwesome name="ellipsis-v" style={styles.collectionMoreIcon} />}
-                                        size="sm"
-                                        borderRadius="full" {...triggerProps} />
-                                )
-                            }}
-                        >
-                            <Popover.Content w="32">
-                                <Popover.Body>
-                                    <Button colorScheme="danger" variant="unstyled" onPress={() => openDeleteAlert(element)}>
-                                        <Text fontFamily="body" fontWeight="700">Delete</Text>
-                                    </Button>
-                                </Popover.Body>
-                            </Popover.Content>
-                        </Popover>
+                        {props.canDelete ? (
+                            <Popover
+                                trigger={(triggerProps) => {
+                                    return (
+                                        <IconButton
+                                            icon={<FontAwesome name="ellipsis-v" style={styles.collectionMoreIcon} />}
+                                            size="sm"
+                                            borderRadius="full" {...triggerProps} />
+                                    )
+                                }}
+                            >
+                                <Popover.Content w="32">
+                                    <Popover.Body>
+                                        <Button colorScheme="danger" variant="unstyled" onPress={() => openDeleteAlert(element)}>
+                                            <Text fontFamily="body" fontWeight="700">Delete</Text>
+                                        </Button>
+                                    </Popover.Body>
+                                </Popover.Content>
+                            </Popover>
+                        ) : (
+                            <></>
+                        )}
+
 
                     </HStack>
                 </TouchableOpacity>
@@ -100,10 +105,12 @@ export default function NewLectureList(props) {
 
     const deleteCollection = async () => {
         try {
-            await axios.delete(`${API_LINK}/deleteLec`, { params: { title: deleteObject.title } })
+            await axios.delete(`${API_LINK}/posts`, { params: { authId: props.user.authId, postID: deleteObject.postID } } )
+            // await axios.delete(`${API_LINK}/deleteLec`, { params: { title: deleteObject.title } })
             // await axios.delete(`${LECTURE_SERVICE_LINK}/deleteLec`, { params: { title: deleteObject.title } })
             props.collection.splice(props.collection.indexOf(deleteObject), 1)
         } catch (err) {
+            console.log(err)
             props.setIsAlertOpen(true)
         } finally {
             onClose();
