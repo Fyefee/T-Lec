@@ -149,8 +149,7 @@ export default function CreateLec({ route, navigation }) {
 
     const openModal = async () => {
         try {
-            const allId = await axios.get(`${API_LINK}/getAllUserId`)
-            // const allId = await axios.get(`${USER_SERVICE_LINK}/getAllUserEmail`)
+            const allId = await axios.get(`${API_LINK}/getalluseremail`)
             setAllUserId(allId.data)
         }
         catch (e) {
@@ -163,8 +162,7 @@ export default function CreateLec({ route, navigation }) {
 
     const openTagModal = async () => {
         try {
-            const tagFromDB = await axios.get(`${API_LINK}/getAllTag`)
-            // const tagFromDB = await axios.get(`${TAG_SERVICE_LINK}/getAllTag`)
+            const tagFromDB = await axios.get(`${API_LINK}/getalltagdata`)
             setTag(tagFromDB.data)
         }
         catch (e) {

@@ -63,13 +63,29 @@ export default function NewLectureList(props) {
     const followUser = async () => {
         try {
             const data = {
-                userEmail: props.user.email,
+                authId: props.user.authId,
                 followEmail: props.userInfo.userEmail
             }
 
-            await axios.post(`${API_LINK}/followUser`, data);
+            await axios.put(`${API_LINK}/followuser`, data);
             // await axios.get(`${USER_SERVICE_LINK}/followUser`, { params : data });
+            props.increaseFollower()
+            props.setIsFollow(!props.isFollow)
+        } catch (err) {
+            console.log(err)
+        }
+    }
 
+    const unFollowUser = async () => {
+        try {
+            const data = {
+                authId: props.user.authId,
+                unfollowEmail: props.userInfo.userEmail
+            }
+
+            await axios.put(`${API_LINK}/unfollowuser`, data);
+            // await axios.get(`${USER_SERVICE_LINK}/followUser`, { params : data });
+            props.decreaseFollower()
             props.setIsFollow(!props.isFollow)
         } catch (err) {
             console.log(err)
@@ -103,7 +119,7 @@ export default function NewLectureList(props) {
                                         leftIcon={<Icon as={FontAwesome} name="minus" size="sm" />}
                                         style={styles.unfollowButton}
                                         size="xs"
-                                        onPress={() => followUser()}
+                                        onPress={() => unFollowUser()}
                                     >
                                         <Text pt="1" fontFamily="body" fontWeight="700" style={styles.followButtonText}>UNFOLLOW</Text>
                                     </Button>

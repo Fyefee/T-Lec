@@ -113,7 +113,6 @@ export default function CreateLec({ route, navigation }) {
             const dataFromDB = await axios.get(`${API_LINK}/getlecturedata`, { params: { authId: user.authId, postID: route.params.lecture.postID } })
             // const dataFromDB = await axios.get(`${API_LINK}/getLectureData`, { params: { title: route.params.lecture.title, userEmail: user.email } })
             // const dataFromDB = await axios.get(`${LECTURE_SERVICE_LINK}/getLectureData`, { params: { title: route.params.lecture.title, userEmail: user.email } })
-
             setLecture(dataFromDB.data)
             setRating(dataFromDB.data.userRating)
 
@@ -261,11 +260,12 @@ export default function CreateLec({ route, navigation }) {
 
     const rateLecture = async () => {
         try {
-            await axios.post(`${API_LINK}/rateLecture`, { lecTitle: lecture.title, rating: rating, userEmail: user.email })
+            await axios.put(`${API_LINK}/ratelecture`, { postID: lecture.postID, rating: rating, email: user.email })
 
             // await axios.post(`${LECTURE_SERVICE_LINK}/rateLecture`, { lecTitle: lecture.title, rating: rating, userEmail: user.email })
         }
         catch (err) {
+            console.log(err)
             setIsAlertOpen(true)
         } finally {
             setIsRatingModalOpen(!isRatingModalOpen)
@@ -285,7 +285,6 @@ export default function CreateLec({ route, navigation }) {
 
         try {
             const dataFromDB = await axios.post(`${API_LINK}/downloadFile`, { lecture: lecture })
-            // const dataFromDB = await axios.get(`${LECTURE_SERVICE_LINK}/downloadFile`, { params: { title: lecture.title }})
 
             const folder = FileSystem.StorageAccessFramework.getUriForDirectoryInRoot("DocumentPicker");
             console.log(folder);

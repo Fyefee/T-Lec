@@ -66,7 +66,7 @@ async function getLibraryData(requestBody){
             rating /= haveRatingCount
         }
         
-        const isFollow = user.Items[0].follower.includes(user.Items[0].email)
+        const isFollow = user.Items[0].follower.includes(requestBody.userEmail)
         
         const data = {
             userFirstName: user.Items[0].firstname,
