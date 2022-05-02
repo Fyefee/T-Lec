@@ -42,7 +42,7 @@ async function updateComment(requestBody){
         Item: post.Item
     }
     await docClient.put(updateCommentParams).promise()
-    return buildResponse(200, "Add comment")
+    return buildResponse(200, newComment)
 }
 
 async function findUser(authId){

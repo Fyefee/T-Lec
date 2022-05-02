@@ -365,7 +365,6 @@ export default function CreateLec({ route, navigation }) {
     const uploadFile = async () => {
         try {
             let result = await DocumentPicker.getDocumentAsync({});
-            console.log(result)
             if (result.type == "cancel") {
                 console.log("Upload Cancel")
             } else if (result.type == "success") {
@@ -428,63 +427,24 @@ export default function CreateLec({ route, navigation }) {
         }
     }
 
-    const readAsBinaryString = function (fileData) {
-        var binary = "";
-        var pt = this;
-        var reader = new FileReader();
-        reader.onload = function (e) {
-            var bytes = new Uint8Array(reader.result);
-            var length = bytes.byteLength;
-            for (var i = 0; i < length; i++) {
-                binary += String.fromCharCode(bytes[i]);
-            }
-            //pt.result  - readonly so assign binary
-            pt.content = binary;
-            $(pt).trigger('onload');
-        }
-        reader.readAsArrayBuffer(fileData);
-    }
-
-
     const editLec = async () => {
         if (validateEditForm()) {
 
             try {
-
-                // const data = {
-                //     title: title,
-                //     oldTitle: route.params.lecture.title,
-                //     description: description,
-                //     contact: contact,
-                //     newTag: newTag,
-                //     oldTag: oldTag,
-                //     oldDataTag: route.params.lecture.tag,
-                //     permission: selectedUser,
-                //     privacy: privacy
-                // }
-
                 const data = {
+                    postID: route.params.lecture.postID,
                     title: title,
-                    oldTitle: route.params.lecture.title,
                     description: description,
                     contact: contact,
                     tag: newTag.concat(oldTag),
-                    permission: selectedUser,
+                    userPermission: selectedUser,
                     privacy: privacy
                 }
 
-                const tagData = {
-                    newTag: newTag,
-                    oldTag: oldTag,
-                    oldDataTag: route.params.lecture.tag,
-                }
-
-                const req = await axios.post(`${API_LINK}/editLecture`, data);
-                // await axios.post(`${LECTURE_SERVICE_LINK}/editLecture`, data);
-                // await axios.post(`${TAG_SERVICE_LINK}/updateLectureTag`, tagData);
+                const res3 = await axios.put(`${API_LINK}/posts`, data);
 
                 const lec = {
-                    title: title
+                    postID: route.params.lecture.postID
                 }
 
                 navigation.navigate('Lecture', { user: user, lecture: lec })

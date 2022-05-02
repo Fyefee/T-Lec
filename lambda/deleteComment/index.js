@@ -26,7 +26,7 @@ async function updateComment(requestBody){
             postID: requestBody.postID
         }
     }
-    const post = await docClient.get(postParams).promise()
+    let post = await docClient.get(postParams).promise()
     const user = await findUser(requestBody.authId)
     const index = findCommentDelete(post.Item.comment, requestBody.commentId, user.email)
     post.Item.comment.splice(index, 1)
@@ -52,7 +52,7 @@ async function findUser(authId){
 
 
 function findCommentDelete(commentArr, comentId, email){
-    for(const i = 0 ; i < commentArr.length ; i ++){
+    for(let i = 0 ; i < commentArr.length ; i ++){
         if(commentArr[i].commentId === comentId && commentArr[i].userEmail === email){
             return i
         }
