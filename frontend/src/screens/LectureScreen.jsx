@@ -217,7 +217,8 @@ export default function CreateLec({ route, navigation }) {
 
         try {
 
-            await axios.delete(`${API_LINK}/deleteComment`, { params: { title: lecture.title, comment: deleteObject } })
+            await axios.delete(`${API_LINK}/comment`, { authId: user.authId, postID: lecture.postID, commentId: deleteObject.commentId })
+            // await axios.delete(`${API_LINK}/deleteComment`, { params: { title: lecture.title, comment: deleteObject } })
 
             // await axios.post(`${LECTURE_SERVICE_LINK}/deleteComment`, { lecTitle: lecture.title, comment: deleteObject })
 
@@ -234,21 +235,12 @@ export default function CreateLec({ route, navigation }) {
 
     const addComment = async () => {
         try {
-            const comment = {
-                "userImage": user.image,
-                "userName": user.firstname + " " + user.lastname,
-                "userEmail": user.email,
-                "comment": newComment,
-                "createdDate": Date.now()
-            }
 
-            await axios.post(`${API_LINK}/addComment`, { lecTitle: lecture.title, comment: comment })
-
-            // await axios.post(`${LECTURE_SERVICE_LINK}/addComment`, { lecTitle: lecture.title, comment: comment })
-
-            lecture.comment.push(comment);
+            const comment = await axios.post(`${API_LINK}/comment`, { authId: user.authId, postID: lecture.postID, comment: newComment })
+            lecture.comment.push(comment.data);
             setNewComment("");
         } catch (err) {
+            console.log(err)
             setIsAlertOpen(true)
         }
     }
