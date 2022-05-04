@@ -43,7 +43,7 @@ async function getLectureData(requestBody){
         let userRating = 0;
         if (post.Item.rating.length > 0){
             post.Item.rating.forEach((value, key) => {
-                if (value.email == user.email) {
+                if (value.email == user.Items[0].email) {
                     userRating = value.rating;
                 }
             })
@@ -53,6 +53,13 @@ async function getLectureData(requestBody){
         if (owner.Count === 0){
             return buildResponse(403, "Not Found Owner")
         }
+        
+        post.Item.viewPost += 1
+        const updateCommentParams = {
+            TableName: dynamoDBPostTableName,
+            Item: post.Item
+        }
+        await docClient.put(updateCommentParams).promise()
         
         const data = {
             postID: requestBody.postID,
@@ -67,7 +74,7 @@ async function getLectureData(requestBody){
             ownerName: owner.Items[0].firstname + " " + owner.Items[0].lastname,
             ownerEmail: owner.Items[0].email,
             ownerImage: owner.Items[0].image,
-            downloadCount: post.Item.downloadFromUser.length,
+            viewPost: post.Item.viewPost,
             userRating: userRating
         }
         

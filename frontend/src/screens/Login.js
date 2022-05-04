@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useReducer } from 'react'
 import { StyleSheet, Text, View, Dimensions, Easing, Image, Animated, PixelRatio, Platform, TouchableOpacity, Alert } from 'react-native'
 import * as Google from 'expo-google-app-auth';
-import { Restart } from 'fiction-expo-restart';
 import axios from 'axios';
 import { API_LINK, CLIENTID, USER_SERVICE_LINK } from '@env';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -146,6 +145,7 @@ export default function App({ navigation }) {
                     Alert.alert("Please login with @it.kmitl.ac.th mail")
                 }
                 else if (response.data && response.status !== 403) {
+                    console.log(response.data)
                     setUser(response.data)
                     const resetAction = CommonActions.reset({
                         index: 0,

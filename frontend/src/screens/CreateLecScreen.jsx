@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { StyleSheet, Dimensions, PixelRatio, Platform, TouchableOpacity } from 'react-native'
 import { useIsFocused } from "@react-navigation/native";
 import axios from 'axios';
-import { API_LINK, CLIENTID, USER_SERVICE_LINK, LECTURE_SERVICE_LINK, TAG_SERVICE_LINK, UPLOAD_API, S3_LINK } from '@env';
+import { API_LINK, CLIENTID, USER_SERVICE_LINK, LECTURE_SERVICE_LINK, TAG_SERVICE_LINK, S3_LINK, API_LINK_2 } from '@env';
 import { LinearGradient } from 'expo-linear-gradient';
 import {
     Input, TextArea, HStack, Button, Icon, Text,
@@ -385,7 +385,7 @@ export default function CreateLec({ route, navigation }) {
 
             try {
                 const fileName = fileUploaded[0].name.slice(0, fileUploaded[0].name.length - 4)
-                const res = await axios.post(`${UPLOAD_API}/upload`, { name: fileName });
+                const res = await axios.post(`${API_LINK}/upload`, { name: fileName });
 
                 const uploadUrl = res.data.url
 

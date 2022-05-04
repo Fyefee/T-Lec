@@ -22,7 +22,7 @@ async function createPost(requestBody){
     requestBody.postID = genId()
     requestBody.rating = []
     requestBody.ratingAvg = 0
-    requestBody.downloadFromUser = []
+    requestBody.viewPost = 0
     requestBody.comment = []
     requestBody.createDate = Date.now();
     await createTags(requestBody.tag)
@@ -31,6 +31,20 @@ async function createPost(requestBody){
         Item: requestBody
     }
     try{
+        const owner = await docClient.scan(getUserParamsByEmail(requestBody.owner)).promise()
+        if (owner.Items[0].follower.length > 0){
+            for (let i = 0; i < owner.Items[0].follower.length; i++) {
+                const userFollower = await docClient.scan(getUserParamsByEmail(owner.Items[0].follower[i])).promise()
+                let notificationArray = [...userFollower.Items[0].notification]
+                let newNotification = {
+                    ownerName: owner.Items[0].firstname + " " + owner.Items[0].lastname,
+                    lectureTitle: requestBody.title
+                }
+                notificationArray.push(newNotification)
+                await docClient.update(updateDataParams(userFollower.Items[0].userId, notificationArray)).promise()
+            }
+        }
+        
         await docClient.put(params).promise()
         const body = {
             status: "Create post success"
@@ -94,13 +108,38 @@ function genId(){
     return(guid())
 }
 
+const getUserParamsByEmail = (email) => {
+    return {
+        TableName: 'user',
+        FilterExpression:
+          "attribute_not_exists(deletedAt) AND contains(email, :email)",
+        ExpressionAttributeValues: {
+          ":email": email
+        }
+    }
+}
+
+const updateDataParams = (userId, notification) => {
+    return {
+        TableName: 'user',
+        Key: {
+            "userId": userId
+        },
+        UpdateExpression: "set notification = :n",
+        ExpressionAttributeValues: {
+            ":n": notification
+        },
+        ReturnValues: "UPDATED_NEW"
+    }
+}
+
 // {
 //     "title": "test create post and tags",
 //     "description": "description test",
 //     "contact": "no contact",
 //     "tag": ["tag1", "tag2"],
 //     "privacy": "private",
-//     "owner": "TeerapatEarth",
+//     "owner": "62070096@it.kmitl.ac.th",
 //     "userPermission": [],
 //     "fileUrl": "https://pdf-bucket-tlec.s3.amazonaws.com/test-6933926308.pdf"
 // }

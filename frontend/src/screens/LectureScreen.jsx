@@ -13,6 +13,7 @@ import { FontAwesome, Ionicons, MaterialIcons } from '@expo/vector-icons';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import { StorageAccessFramework } from 'expo-file-system';
+import * as Linking from 'expo-linking';
 
 import ErrorAlert from '../components/ErrorAlert'
 import NavigationBar from '../components/NavigationBar'
@@ -110,7 +111,7 @@ export default function CreateLec({ route, navigation }) {
 
         try {
             setIsLoad(true)
-            const dataFromDB = await axios.get(`${API_LINK}/getlecturedata`, { params: { authId: user.authId, postID: route.params.lecture.postID } })
+            const dataFromDB = await axios.get(`${API_LINK}/posts/detail`, { params: { authId: user.authId, postID: route.params.lecture.postID } })
             // const dataFromDB = await axios.get(`${API_LINK}/getLectureData`, { params: { title: route.params.lecture.title, userEmail: user.email } })
             // const dataFromDB = await axios.get(`${LECTURE_SERVICE_LINK}/getLectureData`, { params: { title: route.params.lecture.title, userEmail: user.email } })
             setLecture(dataFromDB.data)
@@ -274,61 +275,7 @@ export default function CreateLec({ route, navigation }) {
     }
 
     const downloadFile = async () => {
-
-        try {
-            const dataFromDB = await axios.post(`${API_LINK}/downloadFile`, { lecture: lecture })
-
-            const folder = FileSystem.StorageAccessFramework.getUriForDirectoryInRoot("DocumentPicker");
-            console.log(folder);
-            const permissions = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync(folder);
-            if (!permissions.granted) return;
-
-            console.log(permissions);
-
-            let filePath = await FileSystem.StorageAccessFramework.createFileAsync(permissions.directoryUri, "test.pdf", "application/pdf");
-            
-            console.log(filePath);
-
-            // const permissions = await StorageAccessFramework.requestDirectoryPermissionsAsync();
-            // if (permissions.granted) {
-            //     // Gets SAF URI from response
-            //     const uri = permissions.directoryUri;
-                
-            //     // Gets all files inside of selected directory
-            //     const files = await FileSystem.readDirectoryAsync(uri);
-            //     console.log(files)
-            //     // alert(`Files inside ${uri}:\n\n${JSON.stringify(files)}`);
-            //   }
-
-            try {
-                console.log(filePath)
-                await FileSystem.StorageAccessFramework.writeAsStringAsync(filePath, dataFromDB.data, { encoding: FileSystem.EncodingType.Base64 });
-                console.log("download success!")
-            } catch (err) {
-                console.log(err);
-            }
-            // const filename = FileSystem.documentDirectory + "some_unique_file_name.pdf";
-            // await FileSystem.writeAsStringAsync(filename, dataFromDB.data, {
-            //     encoding: FileSystem.EncodingType.Base64,
-            // });
-            
-        } catch (err) {
-            console.log(err)
-        }
-
-
-        // const data = await axios({
-        //     method: 'post',
-        //     url: `${API_LINK}/downloadFile`,
-        //     data: { 'lecture': lecture },
-        //     responseType: 'arraybuffer',
-        // }).then((response) => {
-        //     return Buffer.from(response.data).toString('base64');
-        // }).catch(function (error) {
-        //     return null;
-        // });
-
-        //console.log(dataFromDB.data)
+        Linking.openURL(lecture.fileUrl);
     }
 
     if (isLoad) {
