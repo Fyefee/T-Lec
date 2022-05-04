@@ -23,12 +23,13 @@ async function searchPost(requestParams){
         }
     }
     const post = await docClient.scan(searchPostParams).promise()
-    return buildResponse(200, formatPost(post.Items))
+    const formatPostArray = await formatPost(post.Items)
+    return buildResponse(200, formatPostArray)
 }
 
 async function formatPost (postArray){
     let formatPostArray = []
-    for (let i = 0; i < postArray; i++){
+    for (let i = 0; i < postArray.length; i++){
         const owner = await docClient.scan(getUserParamsByEmail(postArray[i].owner)).promise()
         let lecData = {
             title: postArray[i].title,
@@ -54,7 +55,7 @@ function buildResponse(statusCode, body){
 
 const getUserParamsByEmail = (email) => {
     return {
-        TableName: dynamoDBUserTableName,
+        TableName: 'user',
         FilterExpression:
           "attribute_not_exists(deletedAt) AND contains(email, :email)",
         ExpressionAttributeValues: {
