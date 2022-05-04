@@ -1,7 +1,7 @@
 import React from 'react'
 import { StyleSheet, Dimensions, PixelRatio } from 'react-native'
-import { HStack, IconButton, Icon, Text, StatusBar, Image, KeyboardAvoidingView } from "native-base";
-import { FontAwesome, Ionicons } from '@expo/vector-icons';
+import { IconButton } from "native-base";
+import { FontAwesome } from '@expo/vector-icons';
 
 const {
     width: SCREEN_WIDTH,

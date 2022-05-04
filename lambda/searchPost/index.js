@@ -23,7 +23,23 @@ async function searchPost(requestParams){
         }
     }
     const post = await docClient.scan(searchPostParams).promise()
-    return buildResponse(200, post)
+    return buildResponse(200, formatPost(post.Items))
+}
+
+async function formatPost (postArray){
+    let formatPostArray = []
+    for (let i = 0; i < postArray; i++){
+        const owner = await docClient.scan(getUserParamsByEmail(postArray[i].owner)).promise()
+        let lecData = {
+            title: postArray[i].title,
+            ownerName: owner.Items[0].firstname + " " + owner.Items[0].lastname,
+            ownerEmail: postArray[i].owner,
+            tag: postArray[i].tag,
+            photoUrl: owner.Items[0].image
+        }
+        formatPostArray.push(lecData)
+    }
+    return formatPostArray
 }
 
 function buildResponse(statusCode, body){
@@ -33,5 +49,16 @@ function buildResponse(statusCode, body){
             'Content-Type': 'application/json'
         },
         body: JSON.stringify(body),
+    }
+}
+
+const getUserParamsByEmail = (email) => {
+    return {
+        TableName: dynamoDBUserTableName,
+        FilterExpression:
+          "attribute_not_exists(deletedAt) AND contains(email, :email)",
+        ExpressionAttributeValues: {
+          ":email": email
+        }
     }
 }

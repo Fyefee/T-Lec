@@ -149,3 +149,13 @@ async function updateTag(tagArr){
         }
     }
 }
+
+// {
+//     "contact": "",
+//     "description": "",
+//     "postID": "c9a0d622-1ed6-8626-46ed-f19a11b9a463",
+//     "privacy": "public",
+//     "tag": Array [],
+//     "title": "Jeff Test Edit",
+//     "userPermission": Array [],
+// }

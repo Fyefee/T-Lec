@@ -10,7 +10,6 @@ import {
     Image, Select, CheckIcon, Item, Modal, FormControl, Wrap, AlertDialog,
     Popover, Alert, CloseIcon, Collapse, Spinner
 } from "native-base";
-import { FontAwesome, Ionicons } from '@expo/vector-icons';
 
 import ErrorAlert from '../components/ErrorAlert'
 import CreateLecButton from '../components/Main/CreateLecButton'

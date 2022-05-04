@@ -5,7 +5,7 @@ const dynamoDBTableName = "posts"
 const dynamoDBUserTableName = "user"
 
 exports.handler = async (event) => {
-    let response = await deletePost(event.queryStringParameters);
+    let response = await deletePost(JSON.parse(event.body));
     return response
 };
 
@@ -115,3 +115,8 @@ const getUserParamsByAuth = (authId) => {
         }
     }
 }
+
+// {
+//     "authId": "b136b1fa-f5bc-4922-9ea1-2c1f33be330e",
+//     "postID": "c9a0d622-1ed6-8626-46ed-f19a11b9a463"
+// }

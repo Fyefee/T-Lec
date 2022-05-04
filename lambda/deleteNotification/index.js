@@ -65,9 +65,9 @@ const getUserParamsByAuth = (authId) => {
 }
 
 // {
-//     "authId": "a23b6254-3556-45a3-9aba-90012f920932",
-//     "notification": {
-//         "ownerName": "test create post and tags",
-//         "lectureTitle": "นายธีรภัทร์ บุญช่วยแล้ว"
-//     }
+//     "authId": "9b571965-58c5-4954-a991-9a34017dfc6d",
+//     "notification": Object {
+//       "lectureTitle": "Lecture Test 2",
+//       "ownerName": "นายธีรภัทร์ บุญช่วยแล้ว",
+//     },
 // }

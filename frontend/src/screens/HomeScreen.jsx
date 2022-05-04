@@ -86,11 +86,10 @@ export default function Home({ route, navigation }) {
             setIsLoad(false)
             
             const dataFromDB = await axios.get(`${API_LINK}/gethomedata`, { params: { authId: user.authId } })
-            // const dataFromDB = await axios.get(`${LECTURE_SERVICE_LINK}/getHomeData/${user.email}`)
             setRecentView(dataFromDB.data.recentView)
             setNewLec(dataFromDB.data.newLec)
+            console.log(dataFromDB.data.notification)
             setNotification(dataFromDB.data.notification)
-            // setNotification(notificationFromDB.data)
 
             setIsLoad(true)
 

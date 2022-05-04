@@ -62,3 +62,8 @@ function calAvgRating(ratingArr){
     return parseInt(ratingAvg.toFixed(0))
 }
 
+// {
+//     "email": "62070096@it.kmitl.ac.th",
+//     "postID": "c9a0d622-1ed6-8626-46ed-f19a11b9a463",
+//     "rating": 5
+// }

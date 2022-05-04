@@ -140,12 +140,12 @@ export default function App({ navigation }) {
                 scopes: ["profile", "email"]
             })
             if (type === "success") {
+                console.log(user)
                 const response = await axios.post(`${API_LINK}/login`, user);
                 if (response.data == "wrong domain") {
                     Alert.alert("Please login with @it.kmitl.ac.th mail")
                 }
                 else if (response.data && response.status !== 403) {
-                    console.log(response.data)
                     setUser(response.data)
                     const resetAction = CommonActions.reset({
                         index: 0,

@@ -79,9 +79,7 @@ export default function Ranking({ route, navigation }) {
         try {
             setIsLoad(false);
 
-            const dataFromDB = await axios.get(`${API_LINK}/getRanking`, {
-                params: { email: user.email },
-            });
+            const dataFromDB = await axios.get(`${API_LINK}/ranking`);
             // const dataFromDB = await axios.get(`${LECTURE_SERVICE_LINK}/getRanking`);
             settop10_container(dataFromDB.data);
             setIsLoad(true);

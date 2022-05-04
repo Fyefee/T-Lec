@@ -33,5 +33,5 @@ function buildResponse(statusCode, body){
 
 
 // {
-//     name: "test"
+//     "name": "test"
 // }
