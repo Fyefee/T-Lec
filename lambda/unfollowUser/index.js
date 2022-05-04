@@ -109,3 +109,8 @@ const updateFollowerParams = (userId, follower) => {
         },
     }
 }
+
+// {
+//     "authId": "5c14f09e-44fb-46d1-95cb-f43ddf39e07a",
+//     "unfollowEmail": "62070096@it.kmitl.ac.th"
+// }

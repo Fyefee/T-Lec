@@ -93,101 +93,52 @@ export default function SearchScreen({ route, navigation }) {
         },
     });
 
-    useEffect(async () => {
-
-        try {
-            setIsLoad(false)
-
-            const dataFromDB = await axios.get(`${API_LINK}/getDataForSearch`)
-            // const dataFromDB = await axios.get(`${LECTURE_SERVICE_LINK}/getDataForSearch`)
-            setSearchData(dataFromDB.data)
-            
-            setIsLoad(true)
-        }
-        catch (e) {
-            console.log("GetData error : ", e)
-        }
-
-    }, [isFocused])
-
-    const searchInputHandler = (inputText) => {
+    const searchInputHandler = async (inputText) => {
 
         setSearchText(inputText);
 
-        let searchArray = [];
-        searchData.forEach(async (element, index) => {
-            if (element.ownerName.includes(inputText) || element.title.includes(inputText) || element.tag.includes(inputText)){
-                searchArray.push(element)
-            }
-        })
+        const dataFromDB = await axios.get(`${API_LINK}/search`, { params: { word: inputText } })
+        console.log(dataFromDB.data)
 
-        setSearchDataRender(searchArray)
+        // setSearchDataRender(searchArray)
     };
 
-    if (isLoad) {
-        return (
-            <NativeBaseProvider theme={theme}>
-                <LinearGradient start={{ x: 1, y: 0 }}
-                    end={{ x: 0, y: 1 }}
-                    colors={['#ffe4ca', '#90aacb']}
-                    style={styles.container}
+    return (
+        <NativeBaseProvider theme={theme}>
+            <LinearGradient start={{ x: 1, y: 0 }}
+                end={{ x: 0, y: 1 }}
+                colors={['#ffe4ca', '#90aacb']}
+                style={styles.container}
+            >
+                <ScrollView
+                    _contentContainerStyle={{
+                        pt: 8,
+                        pb: 3,
+                        px: 5,
+                    }}
+                    style={styles.scrollStyle}
                 >
-                    <ScrollView
-                        _contentContainerStyle={{
-                            pt: 8,
-                            pb: 3,
-                            px: 5,
-                        }}
-                        style={styles.scrollStyle}
-                    >
-                        <Text pt="5" pl="2" fontFamily="body" fontWeight="700" style={styles.TextHeader}>Search</Text>
-                        <HStack space="3" px="4" pt="2" pb="3" my="3" style={styles.titleInputBox}>
-                            <Icon as={<FontAwesome name="search" />} style={styles.inputIcon} />
-                            <Input px="0" py="0" size="xl" variant="unstyled" fontFamily="body" fontWeight="400"
-                                onChangeText={searchInputHandler}
-                                value={searchText}
-                                placeholder="Lectures, Authors, Tags"
-                                w={{
-                                    base: "80%",
-                                }} />
-                        </HStack>
+                    <Text pt="5" pl="2" fontFamily="body" fontWeight="700" style={styles.TextHeader}>Search</Text>
+                    <HStack space="3" px="4" pt="2" pb="3" my="3" style={styles.titleInputBox}>
+                        <Icon as={<FontAwesome name="search" />} style={styles.inputIcon} />
+                        <Input px="0" py="0" size="xl" variant="unstyled" fontFamily="body" fontWeight="400"
+                            onChangeText={searchInputHandler}
+                            value={searchText}
+                            placeholder="Lectures, Authors, Tags"
+                            w={{
+                                base: "80%",
+                            }} />
+                    </HStack>
 
-                        <SearchList searchDataRender={searchDataRender} navigation={navigation} user={user} />
+                    <SearchList searchDataRender={searchDataRender} navigation={navigation} user={user} />
 
-                    </ScrollView>
-                </LinearGradient>
+                </ScrollView>
+            </LinearGradient>
 
-                <ErrorAlert isAlertOpen={isAlertOpen} setIsAlertOpen={setIsAlertOpen} />
-                <NavigationBar navigation={navigation} page={"Search"} user={user} />
-            </NativeBaseProvider>
-        );
-    } else {
-        return (
-            <NativeBaseProvider theme={theme}>
-                <LinearGradient start={{ x: 1, y: 0 }}
-                    end={{ x: 0, y: 1 }}
-                    colors={['#ffe4ca', '#90aacb']}
-                    style={styles.container}
-                >
-                    <ScrollView
-                        _contentContainerStyle={{
-                            pt: 6,
-                            pb: 3,
-                            px: 5,
-                        }}
-                        style={styles.scrollStyle}
-                    >
-                        <Box style={styles.blankStyle}>
-                            <Spinner size="lg" color="warning" />
-                        </Box>
-                    </ScrollView>
-                </LinearGradient>
-
-                <ErrorAlert isAlertOpen={isAlertOpen} setIsAlertOpen={setIsAlertOpen} />
-                <NavigationBar navigation={navigation} page={"Search"} user={user} />
-            </NativeBaseProvider>
-        )
-    }
+            <ErrorAlert isAlertOpen={isAlertOpen} setIsAlertOpen={setIsAlertOpen} />
+            <NavigationBar navigation={navigation} page={"Search"} user={user} />
+        </NativeBaseProvider>
+    );
 
 }
 

@@ -112,8 +112,6 @@ export default function CreateLec({ route, navigation }) {
         try {
             setIsLoad(true)
             const dataFromDB = await axios.get(`${API_LINK}/posts/detail`, { params: { authId: user.authId, postID: route.params.lecture.postID } })
-            // const dataFromDB = await axios.get(`${API_LINK}/getLectureData`, { params: { title: route.params.lecture.title, userEmail: user.email } })
-            // const dataFromDB = await axios.get(`${LECTURE_SERVICE_LINK}/getLectureData`, { params: { title: route.params.lecture.title, userEmail: user.email } })
             setLecture(dataFromDB.data)
             setRating(dataFromDB.data.userRating)
 
@@ -219,9 +217,6 @@ export default function CreateLec({ route, navigation }) {
         try {
 
             await axios.delete(`${API_LINK}/comment`, { authId: user.authId, postID: lecture.postID, commentId: deleteObject.commentId })
-            // await axios.delete(`${API_LINK}/deleteComment`, { params: { title: lecture.title, comment: deleteObject } })
-
-            // await axios.post(`${LECTURE_SERVICE_LINK}/deleteComment`, { lecTitle: lecture.title, comment: deleteObject })
 
             let index = lecture.comment.indexOf(deleteObject);
             lecture.comment.splice(index, 1);
@@ -254,8 +249,6 @@ export default function CreateLec({ route, navigation }) {
     const rateLecture = async () => {
         try {
             await axios.put(`${API_LINK}/ratelecture`, { postID: lecture.postID, rating: rating, email: user.email })
-
-            // await axios.post(`${LECTURE_SERVICE_LINK}/rateLecture`, { lecTitle: lecture.title, rating: rating, userEmail: user.email })
         }
         catch (err) {
             console.log(err)

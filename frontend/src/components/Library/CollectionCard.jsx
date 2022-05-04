@@ -105,9 +105,11 @@ export default function NewLectureList(props) {
 
     const deleteCollection = async () => {
         try {
-            await axios.delete(`${API_LINK}/posts`, { params: { authId: props.user.authId, postID: deleteObject.postID } } )
-            // await axios.delete(`${API_LINK}/deleteLec`, { params: { title: deleteObject.title } })
-            // await axios.delete(`${LECTURE_SERVICE_LINK}/deleteLec`, { params: { title: deleteObject.title } })
+            const data = { 
+                authId: props.user.authId, 
+                postID: deleteObject.postID 
+            }
+            await axios.delete(`${API_LINK}/posts`, { data: data })
             props.collection.splice(props.collection.indexOf(deleteObject), 1)
         } catch (err) {
             console.log(err)

@@ -70,3 +70,9 @@ function genId(){
     }
     return(guid())
 }
+
+// {
+//     "authId": "b136b1fa-f5bc-4922-9ea1-2c1f33be330e",
+//     "postID": "c9a0d622-1ed6-8626-46ed-f19a11b9a463",
+//     "comment": "ดีมาก"
+// }

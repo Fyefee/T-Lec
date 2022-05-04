@@ -4,7 +4,7 @@ import { HStack, Text, Image, Spinner, Button, Icon } from "native-base";
 import { FontAwesome } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import axios from 'axios';
-import { API_LINK, CLIENTID, USER_SERVICE_LINK } from '@env';
+import { API_LINK } from '@env';
 
 const {
     width: SCREEN_WIDTH,
@@ -67,8 +67,7 @@ export default function NewLectureList(props) {
                 followEmail: props.userInfo.userEmail
             }
 
-            await axios.put(`${API_LINK}/followuser`, data);
-            // await axios.get(`${USER_SERVICE_LINK}/followUser`, { params : data });
+            await axios.put(`${API_LINK}/user/followuser`, data);
             props.increaseFollower()
             props.setIsFollow(!props.isFollow)
         } catch (err) {
@@ -83,8 +82,8 @@ export default function NewLectureList(props) {
                 unfollowEmail: props.userInfo.userEmail
             }
 
-            await axios.put(`${API_LINK}/unfollowuser`, data);
-            // await axios.get(`${USER_SERVICE_LINK}/followUser`, { params : data });
+            console.log(data)
+            await axios.put(`${API_LINK}/user/unfollowuser`, data);
             props.decreaseFollower()
             props.setIsFollow(!props.isFollow)
         } catch (err) {

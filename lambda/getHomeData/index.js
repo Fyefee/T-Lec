@@ -44,7 +44,7 @@ async function getHomeData(requestBody){
         const body = {
             recentView: recentView,
             newLec: newLec,
-            notification: []
+            notification: user.Items[0].notification
         }
         return buildResponse(200, body)
     } catch (err) {

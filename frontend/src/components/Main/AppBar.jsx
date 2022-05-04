@@ -1,8 +1,8 @@
 import React from 'react'
 import { StyleSheet, Dimensions, PixelRatio } from 'react-native'
-import { HStack, IconButton, Icon, Text, StatusBar, Image, Popover, Button, Badge, VStack, Pressable } from "native-base";
+import { HStack, IconButton, Text, StatusBar, Image, Popover, Button, Badge, VStack, Pressable } from "native-base";
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
-import { API_LINK, CLIENTID, USER_SERVICE_LINK } from '@env';
+import { API_LINK } from '@env';
 import axios from 'axios';
 
 const {
@@ -70,8 +70,7 @@ export default function AppBar(props) {
 
     const deleteNotification = async (element) => {
         try {
-            await axios.delete(`${API_LINK}/deleteNotification`, { params: { user: props.user, notification: element } })
-            // await axios.post(`${USER_SERVICE_LINK}/deleteNotification`, { email: props.user.email, notification: element })
+            await axios.delete(`${API_LINK}/notification`, { data : { authId: props.user.authId, notification: element } })
             let notificationArray = [...props.notification];
             const index = notificationArray.indexOf(element)
             notificationArray.splice(index, 1)
